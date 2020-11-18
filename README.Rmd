@@ -1,0 +1,113 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# epifish   
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+This package provides tools to use Chris Miller's fishplot package (https://github.com/chrisamiller/fishplot) with epidemiological datasets, to generate fishplot epi-curves. 
+
+
+## Installation
+
+You can install epifish with: 
+``` r
+#install devtools if you don't have it already for easy installation
+install.packages("devtools")
+library(devtools)
+devtools::install_github("learithe/epifish")
+```
+  
+## Quick demo
+
+Load epifish and required packages
+``` r 
+library(fishplot); library(dplyr); library(tidyr); library(epifish)
+```
+```{r, include=FALSE}
+library(fishplot); library(dplyr); library(tidyr); library(epifish)
+```
+
+Read in the tables of sample data, cluster relationships, and a custom colour scheme
+```r
+sample_df <- read.csv("epifish/inst/extdata/cluster_counts.csv", stringsAsFactors=FALSE)
+parent_df <- read.csv("epifish/inst/extdata/parents.csv", stringsAsFactors=FALSE)
+colour_df <- read.csv("epifish/inst/extdata/colours.csv", stringsAsFactors=FALSE)
+```
+
+Convert these into a fishplot-ready relative count matrix, fishplot object, and assorted summary data structures:
+```{r}
+fish_list <- epifish::build_fishplot_tables(sample_df, parent_df, colour_df)
+```
+
+
+Then use the fishplot package to generate the fishplot image:
+```{r}
+fishplot::fishPlot(fish_list$fish, pad.left=0.1, shape="spline", vlines=fish_list$weeks, vlab=fish_list$weeks)
+fishplot::drawLegend(fish_list$fish, nrow=1)
+
+```
+
+Take a look at the underlying matrix and data summaries:
+```{r}
+fish_list$week_counts
+
+fish_list$week_sums
+
+fish_list$cluster_sums
+
+fish_list$parents
+
+fish_list$raw_table
+
+fish_list$fish_table
+
+fish_list$fish_matrix
+```
+
+  
+## Input
+
+Example input files/templates can be found in the "inst/extdata" folder in this repository. The basic requirement is a data frame containing one row per sample, with columns `cluster_id` and `week` (any other columns are ignored).
+
+Files can also be provided that describe parent-child relationships for clusters (eg cluster A.1 evolved from cluster A), or a custom colour scheme, but these are optional.
+
+Look at these table structures
+```{r}
+head(sample_df)
+
+parent_df
+
+
+colour_df
+
+```
+
+
+## Output
+
+Output is an R plot. If using RStudio, it is most straightforward to save these as PDF images from the RStudio plot window (Export -> "Save as PDF").
+
+
+
+## Notes:
+
+Fishplot citation: Visualizing tumor evolution with the fishplot package for R. Miller CA, McMichael J, Dang HX, Maher CA, Ding L, Ley TJ, Mardis ER, Wilson RK. BMC Genomics. doi:10.1186/s12864-016-3195-z
+
+
+
+
+

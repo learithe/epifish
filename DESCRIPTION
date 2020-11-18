@@ -1,0 +1,15 @@
+Package: epifish
+Type: Package
+Title: create epi-curve fishplots
+Version: 1.0
+Author: Jenny Draper
+Maintainer: Jenny Draper <learithe@gmail.com>
+Description: This package creates a fishplot-formatted, normalised relative count matrix from a table of case/sample data, to generate fishplot epi curves of cluster case counts over time.
+License: What license is it under?
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.1
+Imports: 
+    dplyr,
+    tidyr,
+    fishplot

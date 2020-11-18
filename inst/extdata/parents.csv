@@ -1,0 +1,10 @@
+cluster,parent
+A,NA
+A.1,A
+B,NA
+C,NA
+D,NA
+D.3,D.2
+D.2,D.1
+D.1,D
+D.4,D.2
