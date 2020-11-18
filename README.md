@@ -62,7 +62,7 @@ fishplot::drawLegend(fish_list$fish, nrow=1)
 
 <img src="man/figures/README-unnamed-chunk-4-1.png" width="100%" />
 
-Take a look at the underlying matrix and data summaries:
+Take a look at the underlying matrix and data summaries we generated:
 
 ``` r
 fish_list$week_counts
