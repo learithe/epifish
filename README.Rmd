@@ -38,7 +38,7 @@ Load epifish and required packages
 library(fishplot); library(dplyr); library(tidyr); library(epifish)
 ```
 ```{r, include=FALSE}
-library(fishplot); library(dplyr); library(tidyr); library(epifish)
+library(fishplot); library(dplyr); library(tidyr); library(epifish); library(knitr)
 ```
 
 Read in the tables of sample data, cluster relationships, and a custom colour scheme
@@ -81,25 +81,46 @@ fish_list$fish_matrix
   
 ## Input
 
-Example input files/templates can be found in the "inst/extdata" folder in this repository. The basic requirement is a data frame containing one row per sample, with columns `cluster_id` and `week` (any other columns are ignored).
+Example input files/templates can be found in the `inst/extdata` folder in this repository. The basic requirement is a data frame containing one row per sample, with columns `cluster_id` and `week` (any other columns are ignored). 
 
-Files can also be provided that describe parent-child relationships for clusters (eg cluster A.1 evolved from cluster A), or a custom colour scheme, but these are optional.
+Optional data frames may also be provided that describe parent-child relationships for clusters (eg cluster A.1 evolved from cluster A), or a custom colour scheme.
 
-Look at these table structures
-```{r}
-head(sample_df)
+A peek at these table structures:
 
-parent_df
+the first few rows of sample data:
+```{r echo=F}
+kable(head(sample_df))
+```
 
+the parent-child data:
+```{r echo=F}
+kable(parent_df)
+```
 
-colour_df
-
+a custom colour scheme:
+```{r echo=F}
+kable(colour_df)
 ```
 
 
 ## Output
 
-Output is an R plot. If using RStudio, it is most straightforward to save these as PDF images from the RStudio plot window (Export -> "Save as PDF").
+The output of epifish is a list variable containing: a fishplot object, the data structures needed to generate it, and some extra data summary tables. 
+
+This can be used with the fishplot package's fishPlot() function to generate an R plot image. If using RStudio, it is most straightforward to save the R plot as PDF image from the RStudio plot window (Export -> "Save as PDF").
+
+If you wish to save individual tables from the output list for any reason, it can be done like so:
+``` r
+write.csv(fish_list$fish_table, "fishplot_table.csv", row.names=FALSE)
+```
+
+## Why?
+
+A count matrix for a fishplot has a set of specific rules which an epidemiological dataset will not naturally fulfil. Namely:  
+* cluster counts can never go completely to zero, if cases reappear later  
+* if a cluster has a parent/child relationship, at every timepoint the parent must always have >= the count of all it's children.  
+
+This package exists to make it easy to convert a list of samples into a normalised and appropriately "padded" relative count matrix that fulfils these requirements.
 
 
 

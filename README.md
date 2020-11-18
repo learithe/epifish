@@ -49,7 +49,8 @@ fish_list <- epifish::build_fishplot_tables(sample_df, parent_df, colour_df)
 #> adding child  D.3  to parent  D.2 
 #> adding child  D.2  to parent  D.1 
 #> adding child  D.1  to parent  D 
-#> adding child  A.1  to parent  A
+#> adding child  A.1  to parent  A 
+#> The maximum sample count per timepoint (height of Y-axis) is:  15
 ```
 
 Then use the fishplot package to generate the fishplot image:
@@ -177,58 +178,86 @@ fish_list$fish_matrix
 
 ## Input
 
-Example input files/templates can be found in the “inst/extdata” folder
+Example input files/templates can be found in the `inst/extdata` folder
 in this repository. The basic requirement is a data frame containing one
 row per sample, with columns `cluster_id` and `week` (any other columns
 are ignored).
 
-Files can also be provided that describe parent-child relationships for
-clusters (eg cluster A.1 evolved from cluster A), or a custom colour
-scheme, but these are optional.
+Optional data frames may also be provided that describe parent-child
+relationships for clusters (eg cluster A.1 evolved from cluster A), or a
+custom colour scheme.
 
-Look at these table structures
+A peek at these table structures:
 
-``` r
-head(sample_df)
-#>   case_id cluster_id date_of_collection week
-#> 1       1          A                 NA    1
-#> 2       2          A                 NA    1
-#> 3       3          A                 NA    1
-#> 4       4          B                 NA    1
-#> 5       5          B                 NA    2
-#> 6       6          A                 NA    2
+the first few rows of sample data:
 
-parent_df
-#>   cluster parent
-#> 1       A   <NA>
-#> 2     A.1      A
-#> 3       B   <NA>
-#> 4       C   <NA>
-#> 5       D   <NA>
-#> 6     D.3    D.2
-#> 7     D.2    D.1
-#> 8     D.1      D
-#> 9     D.4    D.2
+| case\_id | cluster\_id | date\_of\_collection | week |
+| -------: | :---------- | :------------------- | ---: |
+|        1 | A           | NA                   |    1 |
+|        2 | A           | NA                   |    1 |
+|        3 | A           | NA                   |    1 |
+|        4 | B           | NA                   |    1 |
+|        5 | B           | NA                   |    2 |
+|        6 | A           | NA                   |    2 |
 
+the parent-child data:
 
-colour_df
-#>   cluster      colour
-#> 1       A      orange
-#> 2     A.1         red
-#> 3       B      yellow
-#> 4       C      green3
-#> 5       D greenyellow
-#> 6     D.1 springgreen
-#> 7     D.2 deepskyblue
-#> 8     D.3  royalblue1
-#> 9     D.4       blue3
-```
+| cluster | parent |
+| :------ | :----- |
+| A       | NA     |
+| A.1     | A      |
+| B       | NA     |
+| C       | NA     |
+| D       | NA     |
+| D.3     | D.2    |
+| D.2     | D.1    |
+| D.1     | D      |
+| D.4     | D.2    |
+
+a custom colour scheme:
+
+| cluster | colour      |
+| :------ | :---------- |
+| A       | orange      |
+| A.1     | red         |
+| B       | yellow      |
+| C       | green3      |
+| D       | greenyellow |
+| D.1     | springgreen |
+| D.2     | deepskyblue |
+| D.3     | royalblue1  |
+| D.4     | blue3       |
 
 ## Output
 
-Output is an R plot. If using RStudio, it is most straightforward to
-save these as PDF images from the RStudio plot window (Export -\> “Save
-as PDF”).
+The output of epifish is a list variable containing: a fishplot object,
+the data structures needed to generate it, and some extra data summary
+tables.
+
+This can be used with the fishplot package’s fishPlot() function to
+generate an R plot image. If using RStudio, it is most straightforward
+to save the R plot as PDF image from the RStudio plot window (Export -\>
+“Save as PDF”).
+
+If you wish to save individual tables from the output list for any
+reason, it can be done like so:
+
+``` r
+write.csv(fish_list$fish_table, "fishplot_table.csv", row.names=FALSE)
+```
+
+## Why?
+
+A count matrix for a fishplot has a set of specific rules which an
+epidemiological dataset will not naturally fulfil. Namely:  
+\* cluster counts can never go completely to zero, if cases reappear
+later  
+\* if a cluster has a parent/child relationship, at every timepoint the
+parent must always have \>= the count of all it’s children.
+
+This package exists to make it easy to convert a list of samples into a
+normalised and appropriately “padded” relative count matrix that fulfils
+these requirements.
 
 ## Notes:
 

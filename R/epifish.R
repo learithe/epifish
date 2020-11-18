@@ -147,6 +147,8 @@ build_fishplot_tables <- function( df, parent_df=NULL, colour_df=NULL, min_clust
   ret$fish_matrix <- fish_matrix
   ret$parents <- parents
 
+  cat("The maximum sample count per timepoint (height of Y-axis) is: ", max(rowSums(frac.table)))
+
   return(ret)
 }
 
