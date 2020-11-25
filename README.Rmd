@@ -38,7 +38,7 @@ Load epifish and required packages
 library(fishplot); library(dplyr); library(tidyr); library(lubridate); library(epifish)
 ```
 ```{r, include=FALSE}
-library(fishplot); library(dplyr); library(tidyr); library(lubridate); library(epifish); library(knitr)
+library(fishplot); library(dplyr); library(tidyr); library(lubridate); library(epifish); library(knitr); library(kableExtra)
 ```
 
 Read in the tables of sample data, cluster relationships, and a custom colour scheme
@@ -71,6 +71,8 @@ fish_list$cluster_sums
 
 fish_list$parents
 
+fish_list$timepoint_labels
+
 fish_list$raw_table
 
 fish_list$fish_table
@@ -89,7 +91,7 @@ A peek at these table structures:
 
 the first few rows of sample data:
 ```{r echo=F}
-kable(head(sample_df))
+kable(tail(sample_df))
 ```
 
 the parent-child data:
@@ -125,38 +127,62 @@ This package exists to make it easy to convert a list of samples into a normalis
 
 ## Extras
 
-Epifish also has a few functions to make it easy to convert dates to CDC-defined epi weeks (to use as timepoints), and generate label-friendly versions of epi week dates:
+### Using raw dates to create timepoints
+Epifish also has a few functions to make it easy to convert dates to CDC-defined epi weeks (to use as timepoints), and generate label-friendly versions of epi week dates.  
+
+*NOTE: when working with dates in both R and Excel, be sure to check that your values match what you expect!!! When using R for analysis it is best practice to maintain your data files in a text-based format like `.csv` (comma-separated-value) format rather than Excel format, because [Excel has many issues with how it handles dates](https://datacarpentry.org/spreadsheets-socialsci/03-dates-as-data/), and using a text-only format avoids having your dates messed up by Excel.*
 
 ``` {r}
-#calculate epiweek timepoints from the date of collection & create text labels to match them
+#calculate epiweek timepoints from the column "date_of_collection" & create text labels to match them
 sample_df <- sample_df %>% rowwise() %>% 
-             mutate("epiweek"= epifish::get_epiweek(date_of_collection, start_date="1/1/20", date_format="dmy")) %>% 
-             mutate("timepoint_label"= epifish::get_epiweek_span(date_of_collection, return_end=TRUE, date_format="dmy")) %>%
-             mutate("timepoint_label"= gsub(" ", "\n", timepoint_label)) %>%  #replace space with newline to look pretty
-             mutate("month"= epifish::get_month(date_of_collection, date_format="dmy")) 
+             mutate("epiweek"= epifish::get_epiweek(cdate = date_of_collection, 
+                                                    start_date = "1/1/20", 
+                                                    date_format = "dmy"))
+
+#create a timepoint label column that gives the last day of each epi week the sample was collected in:
+sample_df <- sample_df %>% rowwise() %>% 
+             mutate("timepoint_label"= epifish::get_epiweek_span(cdate = date_of_collection, 
+                                                                 return_end = TRUE, 
+                                                                 date_format = "dmy")) 
+
+#replace the space in the labels with a newline to look pretty
+sample_df <- sample_df %>% rowwise() %>% 
+             mutate("timepoint_label"= gsub(" ", "\n", timepoint_label))  
+  
+#create a "month" column just for fun:
+sample_df <- sample_df %>% rowwise() %>% 
+             mutate("month"= epifish::get_month(cdate = date_of_collection, 
+                                                date_format = "dmy")) 
 
 #look at what we created 
-head(sample_df)
+kable( tail(sample_df) )
 
 ```
 
 ```{r echo=F}
 
 ```
-
-Use these to draw and label the fishplot: 
-
+  
+  
+### Use different timepoint labels
+If you call `build_fishplot_tables()` with `timepoint_labels=TRUE`, epifish will look for a column called "timepoint_label" to use as the timepoint labels. *Note: you can only have one unique label per timepoint value.*
 ``` {r}
 
 sample_df$timepoint <- sample_df$epiweek  #fill the "timepoint" column with our  newly calculated epi weeks
 fish_list <- epifish::build_fishplot_tables(sample_df, parent_df, colour_df, timepoint_labels=TRUE)
 
-fishplot::fishPlot(fish_list$fish, pad.left=0.1, shape="spline", vlines=fish_list$timepoints, vlab=fish_list$timepoint_labels)
+fishplot::fishPlot(fish_list$fish, 
+                   pad.left=0.1, shape="spline", 
+                   vlines=fish_list$timepoints, 
+                   vlab=fish_list$timepoint_labels)
 fishplot::drawLegend(fish_list$fish, nrow=1)
 ```
 
 
+### Specify timepoints and their labels manually
 
+The fishplot package provides flexibility in where to display the vertical lines and how what to show, which can be used to create custom combinations rather than using the epifish default:
+  
 Say you want to add a "zero" timepoint with the first case, which starts on the fourth day of the first epi week:
 ``` {r}
 vlines <- c((3/7), fish_list$timepoints)
@@ -167,20 +193,32 @@ fishplot::fishPlot(fish_list$fish, pad.left=0.1, shape="spline", vlines=vlines, 
 ```
 
 
-Or completely custom labels
+Or use completely custom labels that describe an epidemiological story, with red lines:
 ``` {r}
 vlines <- c((3/7), 3, 4, 8, 14)
 vlabs <- c("first\ncases", "peak 1", "quarantine\n", "quarantine\nlifted", "peak 2")
 
-fishplot::fishPlot(fish_list$fish, pad.left=0.1, shape="spline", vlines=vlines, vlab=vlabs)
+fishplot::fishPlot(fish_list$fish, pad.left=0.1, shape="spline", vlines=vlines, vlab=vlabs, col.vline="red")
 
 ```
 
+### You can automatically collapse any clusters of a minimum size in to a "small clusters" group:  
+*Note: at the moment this does not combine well with parent/child relationships if any child clusters are small! (A work in progress...)*   
+``` {r}
+fish_list <- build_fishplot_tables(sample_df, show_labels=TRUE, min_cluster_size=10)
+fishplot::fishPlot(fish_list$fish, pad.left=0.1, shape="spline", vlines=fish_list$timepoints, vlab=fish_list$timepoints)
+fishplot::drawLegend(fish_list$fish, nrow=1)
+
+fish_list <- build_fishplot_tables(sample_df, colour_df=colour_df, show_labels=TRUE, min_cluster_size=5)
+fishplot::fishPlot(fish_list$fish, pad.left=0.1, shape="spline", vlines=fish_list$timepoints, vlab=fish_list$timepoints)
+fishplot::drawLegend(fish_list$fish, nrow=1)
+```
 
 
-## Notes:
+## Citation:
 
-Fishplot citation: Visualizing tumor evolution with the fishplot package for R. Miller CA, McMichael J, Dang HX, Maher CA, Ding L, Ley TJ, Mardis ER, Wilson RK. BMC Genomics. doi:10.1186/s12864-016-3195-z
+**If you use epifish in your work, please don't forget to cite the fishplot package:**   
+Visualizing tumor evolution with the fishplot package for R. Miller CA, McMichael J, Dang HX, Maher CA, Ding L, Ley TJ, Mardis ER, Wilson RK. BMC Genomics. doi:10.1186/s12864-016-3195-z
 
 
 

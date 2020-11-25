@@ -123,6 +123,9 @@ fish_list$parents
 #>   A   B A.1   C   D D.1 D.2 D.3 D.4 
 #>   0   0   1   0   0   5   6   7   7
 
+fish_list$timepoint_labels
+#>  [1] "1"  "2"  "3"  "4"  "5"  "6"  "7"  "8"  "10" "11" "12" "13" "14" "15"
+
 fish_list$raw_table
 #>    A B A.1 C D D.1 D.2 D.3 D.4
 #> 1  3 1   0 0 0   0   0   0   0
@@ -195,42 +198,601 @@ A peek at these table structures:
 
 the first few rows of sample data:
 
-| case\_id | cluster\_id | date\_of\_collection | timepoint | X  | X.1 |
-| -------: | :---------- | :------------------- | --------: | :- | :-- |
-|        1 | A           | 1/1/2020             |         1 | NA | NA  |
-|        2 | A           | 2/1/2020             |         1 | NA | NA  |
-|        3 | A           | 4/1/2020             |         1 | NA | NA  |
-|        4 | B           | 4/1/2020             |         1 | NA | NA  |
-|        5 | B           | 5/1/2020             |         2 | NA | NA  |
-|        6 | A           | 9/1/2020             |         2 | NA | NA  |
+<table>
+
+<thead>
+
+<tr>
+
+<th style="text-align:left;">
+
+</th>
+
+<th style="text-align:right;">
+
+case\_id
+
+</th>
+
+<th style="text-align:left;">
+
+cluster\_id
+
+</th>
+
+<th style="text-align:left;">
+
+date\_of\_collection
+
+</th>
+
+<th style="text-align:right;">
+
+timepoint
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td style="text-align:left;">
+
+79
+
+</td>
+
+<td style="text-align:right;">
+
+80
+
+</td>
+
+<td style="text-align:left;">
+
+D.3
+
+</td>
+
+<td style="text-align:left;">
+
+9/4/2020
+
+</td>
+
+<td style="text-align:right;">
+
+15
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+80
+
+</td>
+
+<td style="text-align:right;">
+
+81
+
+</td>
+
+<td style="text-align:left;">
+
+D.4
+
+</td>
+
+<td style="text-align:left;">
+
+2/4/2020
+
+</td>
+
+<td style="text-align:right;">
+
+14
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+81
+
+</td>
+
+<td style="text-align:right;">
+
+82
+
+</td>
+
+<td style="text-align:left;">
+
+D.4
+
+</td>
+
+<td style="text-align:left;">
+
+2/4/2020
+
+</td>
+
+<td style="text-align:right;">
+
+14
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+82
+
+</td>
+
+<td style="text-align:right;">
+
+83
+
+</td>
+
+<td style="text-align:left;">
+
+D.3
+
+</td>
+
+<td style="text-align:left;">
+
+3/4/2020
+
+</td>
+
+<td style="text-align:right;">
+
+14
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+83
+
+</td>
+
+<td style="text-align:right;">
+
+85
+
+</td>
+
+<td style="text-align:left;">
+
+D.3
+
+</td>
+
+<td style="text-align:left;">
+
+3/4/2020
+
+</td>
+
+<td style="text-align:right;">
+
+14
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+84
+
+</td>
+
+<td style="text-align:right;">
+
+84
+
+</td>
+
+<td style="text-align:left;">
+
+A.1
+
+</td>
+
+<td style="text-align:left;">
+
+22/1/2020
+
+</td>
+
+<td style="text-align:right;">
+
+4
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
 
 the parent-child data:
 
-| cluster | parent |
-| :------ | :----- |
-| A       | NA     |
-| A.1     | A      |
-| B       | NA     |
-| C       | NA     |
-| D       | NA     |
-| D.3     | D.2    |
-| D.2     | D.1    |
-| D.1     | D      |
-| D.4     | D.2    |
+<table>
+
+<thead>
+
+<tr>
+
+<th style="text-align:left;">
+
+cluster
+
+</th>
+
+<th style="text-align:left;">
+
+parent
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td style="text-align:left;">
+
+A
+
+</td>
+
+<td style="text-align:left;">
+
+NA
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+A.1
+
+</td>
+
+<td style="text-align:left;">
+
+A
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+B
+
+</td>
+
+<td style="text-align:left;">
+
+NA
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+C
+
+</td>
+
+<td style="text-align:left;">
+
+NA
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+D
+
+</td>
+
+<td style="text-align:left;">
+
+NA
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+D.3
+
+</td>
+
+<td style="text-align:left;">
+
+D.2
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+D.2
+
+</td>
+
+<td style="text-align:left;">
+
+D.1
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+D.1
+
+</td>
+
+<td style="text-align:left;">
+
+D
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+D.4
+
+</td>
+
+<td style="text-align:left;">
+
+D.2
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
 
 a custom colour scheme:
 
-| cluster | colour      |
-| :------ | :---------- |
-| A       | orange      |
-| A.1     | red         |
-| B       | yellow      |
-| C       | green3      |
-| D       | greenyellow |
-| D.1     | springgreen |
-| D.2     | deepskyblue |
-| D.3     | royalblue1  |
-| D.4     | blue3       |
+<table>
+
+<thead>
+
+<tr>
+
+<th style="text-align:left;">
+
+cluster
+
+</th>
+
+<th style="text-align:left;">
+
+colour
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td style="text-align:left;">
+
+A
+
+</td>
+
+<td style="text-align:left;">
+
+orange
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+A.1
+
+</td>
+
+<td style="text-align:left;">
+
+red
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+B
+
+</td>
+
+<td style="text-align:left;">
+
+yellow
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+C
+
+</td>
+
+<td style="text-align:left;">
+
+green3
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+D
+
+</td>
+
+<td style="text-align:left;">
+
+greenyellow
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+D.1
+
+</td>
+
+<td style="text-align:left;">
+
+springgreen
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+D.2
+
+</td>
+
+<td style="text-align:left;">
+
+deepskyblue
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+D.3
+
+</td>
+
+<td style="text-align:left;">
+
+royalblue1
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:left;">
+
+D.4
+
+</td>
+
+<td style="text-align:left;">
+
+blue3
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
 
 ## Output
 
@@ -265,37 +827,387 @@ these requirements.
 
 ## Extras
 
+### Using raw dates to create timepoints
+
 Epifish also has a few functions to make it easy to convert dates to
 CDC-defined epi weeks (to use as timepoints), and generate
-label-friendly versions of epi week
-dates:
+label-friendly versions of epi week dates.
+
+*NOTE: when working with dates in both R and Excel, be sure to check
+that your values match what you expect\!\!\! When using R for analysis
+it is best practice to maintain your data files in a text-based format
+like `.csv` (comma-separated-value) format rather than Excel format,
+because [Excel has many issues with how it handles
+dates](https://datacarpentry.org/spreadsheets-socialsci/03-dates-as-data/),
+and using a text-only format avoids having your dates messed up by
+Excel.*
 
 ``` r
-#calculate epiweek timepoints from the date of collection & create text labels to match them
+#calculate epiweek timepoints from the column "date_of_collection" & create text labels to match them
 sample_df <- sample_df %>% rowwise() %>% 
-             mutate("epiweek"= epifish::get_epiweek(date_of_collection, start_date="1/1/20", date_format="dmy")) %>% 
-             mutate("timepoint_label"= epifish::get_epiweek_span(date_of_collection, return_end=TRUE, date_format="dmy")) %>%
-             mutate("timepoint_label"= gsub(" ", "\n", timepoint_label)) %>%  #replace space with newline to look pretty
-             mutate("month"= epifish::get_month(date_of_collection, date_format="dmy")) 
+             mutate("epiweek"= epifish::get_epiweek(cdate = date_of_collection, 
+                                                    start_date = "1/1/20", 
+                                                    date_format = "dmy"))
+
+#create a timepoint label column that gives the last day of each epi week the sample was collected in:
+sample_df <- sample_df %>% rowwise() %>% 
+             mutate("timepoint_label"= epifish::get_epiweek_span(cdate = date_of_collection, 
+                                                                 return_end = TRUE, 
+                                                                 date_format = "dmy")) 
+
+#replace the space in the labels with a newline to look pretty
+sample_df <- sample_df %>% rowwise() %>% 
+             mutate("timepoint_label"= gsub(" ", "\n", timepoint_label))  
+  
+#create a "month" column just for fun:
+sample_df <- sample_df %>% rowwise() %>% 
+             mutate("month"= epifish::get_month(cdate = date_of_collection, 
+                                                date_format = "dmy")) 
 
 #look at what we created 
-head(sample_df)
-#> Source: local data frame [6 x 9]
-#> Groups: <by row>
-#> 
-#> # A tibble: 6 x 9
-#>   case_id cluster_id date_of_collect… timepoint X     X.1   epiweek
-#>     <int> <chr>      <chr>                <int> <lgl> <lgl>   <dbl>
-#> 1       1 A          1/1/2020                 1 NA    NA          1
-#> 2       2 A          2/1/2020                 1 NA    NA          1
-#> 3       3 A          4/1/2020                 1 NA    NA          1
-#> 4       4 B          4/1/2020                 1 NA    NA          1
-#> 5       5 B          5/1/2020                 2 NA    NA          2
-#> 6       6 A          9/1/2020                 2 NA    NA          2
-#> # … with 2 more variables: timepoint_label <chr>, month <chr>
+kable( tail(sample_df) )
 ```
 
-Use these to draw and label the fishplot:
+<table>
+
+<thead>
+
+<tr>
+
+<th style="text-align:right;">
+
+case\_id
+
+</th>
+
+<th style="text-align:left;">
+
+cluster\_id
+
+</th>
+
+<th style="text-align:left;">
+
+date\_of\_collection
+
+</th>
+
+<th style="text-align:right;">
+
+timepoint
+
+</th>
+
+<th style="text-align:right;">
+
+epiweek
+
+</th>
+
+<th style="text-align:left;">
+
+timepoint\_label
+
+</th>
+
+<th style="text-align:left;">
+
+month
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+
+<td style="text-align:right;">
+
+80
+
+</td>
+
+<td style="text-align:left;">
+
+D.3
+
+</td>
+
+<td style="text-align:left;">
+
+9/4/2020
+
+</td>
+
+<td style="text-align:right;">
+
+15
+
+</td>
+
+<td style="text-align:right;">
+
+15
+
+</td>
+
+<td style="text-align:left;">
+
+11 Apr
+
+</td>
+
+<td style="text-align:left;">
+
+Apr
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:right;">
+
+81
+
+</td>
+
+<td style="text-align:left;">
+
+D.4
+
+</td>
+
+<td style="text-align:left;">
+
+2/4/2020
+
+</td>
+
+<td style="text-align:right;">
+
+14
+
+</td>
+
+<td style="text-align:right;">
+
+14
+
+</td>
+
+<td style="text-align:left;">
+
+4 Apr
+
+</td>
+
+<td style="text-align:left;">
+
+Apr
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:right;">
+
+82
+
+</td>
+
+<td style="text-align:left;">
+
+D.4
+
+</td>
+
+<td style="text-align:left;">
+
+2/4/2020
+
+</td>
+
+<td style="text-align:right;">
+
+14
+
+</td>
+
+<td style="text-align:right;">
+
+14
+
+</td>
+
+<td style="text-align:left;">
+
+4 Apr
+
+</td>
+
+<td style="text-align:left;">
+
+Apr
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:right;">
+
+83
+
+</td>
+
+<td style="text-align:left;">
+
+D.3
+
+</td>
+
+<td style="text-align:left;">
+
+3/4/2020
+
+</td>
+
+<td style="text-align:right;">
+
+14
+
+</td>
+
+<td style="text-align:right;">
+
+14
+
+</td>
+
+<td style="text-align:left;">
+
+4 Apr
+
+</td>
+
+<td style="text-align:left;">
+
+Apr
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:right;">
+
+85
+
+</td>
+
+<td style="text-align:left;">
+
+D.3
+
+</td>
+
+<td style="text-align:left;">
+
+3/4/2020
+
+</td>
+
+<td style="text-align:right;">
+
+14
+
+</td>
+
+<td style="text-align:right;">
+
+14
+
+</td>
+
+<td style="text-align:left;">
+
+4 Apr
+
+</td>
+
+<td style="text-align:left;">
+
+Apr
+
+</td>
+
+</tr>
+
+<tr>
+
+<td style="text-align:right;">
+
+84
+
+</td>
+
+<td style="text-align:left;">
+
+A.1
+
+</td>
+
+<td style="text-align:left;">
+
+22/1/2020
+
+</td>
+
+<td style="text-align:right;">
+
+4
+
+</td>
+
+<td style="text-align:right;">
+
+4
+
+</td>
+
+<td style="text-align:left;">
+
+25 Jan
+
+</td>
+
+<td style="text-align:left;">
+
+Jan
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+### Use different timepoint labels
+
+If you call `build_fishplot_tables()` with `timepoint_labels=TRUE`,
+epifish will look for a column called “timepoint\_label” to use as the
+timepoint labels. *Note: you can only have one unique label per
+timepoint value.*
 
 ``` r
 
@@ -309,11 +1221,20 @@ fish_list <- epifish::build_fishplot_tables(sample_df, parent_df, colour_df, tim
 #> adding child  A.1  to parent  A 
 #> The maximum sample count per timepoint (height of Y-axis) is:  15
 
-fishplot::fishPlot(fish_list$fish, pad.left=0.1, shape="spline", vlines=fish_list$timepoints, vlab=fish_list$timepoint_labels)
+fishplot::fishPlot(fish_list$fish, 
+                   pad.left=0.1, shape="spline", 
+                   vlines=fish_list$timepoints, 
+                   vlab=fish_list$timepoint_labels)
 fishplot::drawLegend(fish_list$fish, nrow=1)
 ```
 
 <img src="man/figures/README-unnamed-chunk-11-1.png" width="100%" />
+
+### Specify timepoints and their labels manually
+
+The fishplot package provides flexibility in where to display the
+vertical lines and how what to show, which can be used to create custom
+combinations rather than using the epifish default:
 
 Say you want to add a “zero” timepoint with the first case, which starts
 on the fourth day of the first epi week:
@@ -327,19 +1248,53 @@ fishplot::fishPlot(fish_list$fish, pad.left=0.1, shape="spline", vlines=vlines, 
 
 <img src="man/figures/README-unnamed-chunk-12-1.png" width="100%" />
 
-Or completely custom labels
+Or use completely custom labels that describe an epidemiological story,
+with red lines:
 
 ``` r
 vlines <- c((3/7), 3, 4, 8, 14)
 vlabs <- c("first\ncases", "peak 1", "quarantine\n", "quarantine\nlifted", "peak 2")
 
-fishplot::fishPlot(fish_list$fish, pad.left=0.1, shape="spline", vlines=vlines, vlab=vlabs)
+fishplot::fishPlot(fish_list$fish, pad.left=0.1, shape="spline", vlines=vlines, vlab=vlabs, col.vline="red")
 ```
 
 <img src="man/figures/README-unnamed-chunk-13-1.png" width="100%" />
 
-## Notes:
+### You can automatically collapse any clusters of a minimum size in to a “small clusters” group:
 
-Fishplot citation: Visualizing tumor evolution with the fishplot package
-for R. Miller CA, McMichael J, Dang HX, Maher CA, Ding L, Ley TJ, Mardis
-ER, Wilson RK. BMC Genomics. <doi:10.1186/s12864-016-3195-z>
+*Note: at the moment this does not combine well with parent/child
+relationships if any child clusters are small\! (A work in
+progress…)*
+
+``` r
+fish_list <- build_fishplot_tables(sample_df, show_labels=TRUE, min_cluster_size=10)
+#> The maximum sample count per timepoint (height of Y-axis) is:  15
+fishplot::fishPlot(fish_list$fish, pad.left=0.1, shape="spline", vlines=fish_list$timepoints, vlab=fish_list$timepoints)
+fishplot::drawLegend(fish_list$fish, nrow=1)
+```
+
+<img src="man/figures/README-unnamed-chunk-14-1.png" width="100%" />
+
+``` r
+
+fish_list <- build_fishplot_tables(sample_df, colour_df=colour_df, show_labels=TRUE, min_cluster_size=5)
+#> Warning in set_fish_colours(colour_df, fishplot_names): 
+#> WARNING: existing clusters not found in colour list: small clusters
+#> Warning in set_fish_colours(colour_df, fishplot_names): 
+#> WARNING: some clusters in colour list not found in data: D.4
+#> Warning in set_fish_colours(colour_df, fishplot_names): 
+#> WARNING: Errors found in colour list; ignoring custom colour palette
+#> The maximum sample count per timepoint (height of Y-axis) is:  15
+fishplot::fishPlot(fish_list$fish, pad.left=0.1, shape="spline", vlines=fish_list$timepoints, vlab=fish_list$timepoints)
+fishplot::drawLegend(fish_list$fish, nrow=1)
+```
+
+<img src="man/figures/README-unnamed-chunk-14-2.png" width="100%" />
+
+## Citation:
+
+**If you use epifish in your work, please don’t forget to cite the
+fishplot package:**  
+Visualizing tumor evolution with the fishplot package for R. Miller CA,
+McMichael J, Dang HX, Maher CA, Ding L, Ley TJ, Mardis ER, Wilson RK.
+BMC Genomics. <doi:10.1186/s12864-016-3195-z>

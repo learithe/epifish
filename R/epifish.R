@@ -23,7 +23,7 @@ build_fishplot_tables <- function( df, parent_df=NULL, colour_df=NULL, min_clust
   #clear any prior rowwise() and groupby() operations
   df <- ungroup(df)
 
-  #-- process clusters to display -----------------------------------
+  #-- process clusters to display ------------------------------------------------
   # initialise new cluster column with original cluster values
   df$FPCluster <- select(df, cluster_id)[[1]]
 
@@ -33,35 +33,36 @@ build_fishplot_tables <- function( df, parent_df=NULL, colour_df=NULL, min_clust
 
 
   # lump all small clusters together
-  df <- df %>% mutate("FPCluster"= ifelse(FPCluster %in% big_clusters, FPCluster, "other small cluster"))
+  df <- df %>% mutate("FPCluster"= ifelse(FPCluster %in% big_clusters, FPCluster, "small clusters"))
 
 
-  #-- generate per-timepoint count table -------------------------------
+
+  #-- generate per-timepoint count table -----------------------------------------
   # get count of each population per timepoint
   clusters_by_timepoint <- df %>% group_by(timepoint, FPCluster) %>% summarise(n = n())
   clusters_by_timepoint <- arrange(clusters_by_timepoint, timepoint) #ensure we're in time order
   sums_by_timepoint <- df %>% group_by(timepoint) %>% summarise(n = n())
 
   #get count matrix (one row per cluster/timepoint pair)
-  frac.table <- pivot_wider(clusters_by_timepoint, names_from= FPCluster, values_from= n) %>%
+  count_table <- pivot_wider(clusters_by_timepoint, names_from= FPCluster, values_from= n) %>%
     mutate_at(vars(-group_cols()), ~replace(., is.na(.), 0))
 
   #collapse to one row per timepoint
-  frac.table <- frac.table %>% group_by(`timepoint`) %>% summarise_all(~sum(.))
+  count_table <- count_table %>% group_by(`timepoint`) %>% summarise_all(~sum(.))
   #remove any duplicate rows prev step creates
-  frac.table <- filter(frac.table, `timepoint` %in% unique(clusters_by_timepoint$`timepoint`))
+  count_table <- filter(count_table, `timepoint` %in% unique(clusters_by_timepoint$`timepoint`))
 
   #convert to fishplot-friendly format
-  frac.table <- as.data.frame(frac.table)
-  rownames(frac.table) <- frac.table$`timepoint`; frac.table$`timepoint` <- NULL
+  count_table <- as.data.frame(count_table)
+  rownames(count_table) <- count_table$`timepoint`; count_table$`timepoint` <- NULL
 
 
   ## - NORMALISE counts to a max sum of 99/timepoint for relative fishplot display ---------------
 
   # get multiplier to normalise maximum timepoint count to ~99 for display
   norms <- c()
-  for (i in 1:nrow(frac.table)) {
-    row <- frac.table[i, ]
+  for (i in 1:nrow(count_table)) {
+    row <- count_table[i, ]
     normaliser <- 99 / sum(row)
     norms <- c(norms, normaliser)
   }
@@ -69,14 +70,14 @@ build_fishplot_tables <- function( df, parent_df=NULL, colour_df=NULL, min_clust
   normaliser <- normaliser - 0.01  #make room for padding
 
   # generate normalised table
-  fish_table <- round(frac.table*normaliser, 3)
+  fish_table <- round(count_table*normaliser, 3)
   fishplot_names <- names(fish_table)
 
   # pad "temporary dropouts" to fit fishplot rules
-  fish_table <- pad_matrix(fish_table, names(frac.table), 0.0001)
+  fish_table <- pad_matrix(fish_table, names(count_table), 0.0001)
 
 
-  #-- set up parent vector & padding if needed -----------------------
+  #-- set up parent vector & padding if needed -----------------------------------
   if(is.null(parent_df)){
     parents <- rep(0, length(fishplot_names))
 
@@ -91,9 +92,12 @@ build_fishplot_tables <- function( df, parent_df=NULL, colour_df=NULL, min_clust
   }
 
 
-  #-- prepare timepoints
+
+
+  #-- prepare timepoints-----------------------------------------------------------
   timepoints <- as.numeric(unique(clusters_by_timepoint$`timepoint`))
   names(timepoints) <- timepoints
+
 
   #-- use custom timepoint labels if desired
   if (timepoint_labels==TRUE) {
@@ -105,14 +109,24 @@ build_fishplot_tables <- function( df, parent_df=NULL, colour_df=NULL, min_clust
       names(timepoints) <- tmpdf$timepoint_label
 
     } else {
-      warning("Column 'timepoint_label' not found in sample dataframe; skipping use of custom labels")
+      warning("\nWARNING: Column 'timepoint_label' not found in sample dataframe; skipping use of custom labels")
       names(timepoints) <- as.character(timepoints)
     }
   }
 
+
+  #-- build the fishplot -----------------------------------------------------------------
+
   # convert our table to a matrix
   fish_matrix <- as.matrix(fish_table); colnames(fish_matrix) <- NULL;
   fish_matrix <- t(fish_matrix) #rows are clones, cols are timepoints
+
+  # set up fish colour scheme if it was defined (and do some common error checking)
+  if (! is.null(colour_df) ){
+    fish_colours <- set_fish_colours(colour_df, fishplot_names)
+  } else {
+    fish_colours <- NULL
+  }
 
 
   # temporarily create a new version of the fishplot annotClone() function
@@ -126,14 +140,6 @@ build_fishplot_tables <- function( df, parent_df=NULL, colour_df=NULL, min_clust
   utils::assignInNamespace("annotClone", annotClone, ns="fishplot")
 
 
-  # set up fish colour scheme if it was defined (and do some common error checking)
-  if (! is.null(colour_df) ){
-    fish_colours <- set_fish_colours(colour_df, fishplot_names)
-  } else {
-    fish_colours <- NULL
-  }
-
-
   # create the fishplot object!
   fish = createFishObject(fish_matrix, as.numeric(parents), timepoints, clone.labels=fishplot_names)
   fish = layoutClones(fish)
@@ -141,7 +147,7 @@ build_fishplot_tables <- function( df, parent_df=NULL, colour_df=NULL, min_clust
   if( show_labels==TRUE ){ fish@clone.annots = fishplot_names } #this adds labels onto the plot
 
 
-  # prepare list of fish object & associated data tables to return
+  #-- prepare list of fish object & associated data tables to return ----------------------
   ret <- list()
   ret$timepoint_counts <- clusters_by_timepoint
   ret$timepoint_sums <- sums_by_timepoint
@@ -151,12 +157,12 @@ build_fishplot_tables <- function( df, parent_df=NULL, colour_df=NULL, min_clust
 
   ret$timepoints <- timepoints
   ret$timepoint_labels <- names(timepoints)
-  ret$raw_table <- frac.table
+  ret$raw_table <- count_table
   ret$fish_table <- fish_table
   ret$fish_matrix <- fish_matrix
   ret$parents <- parents
 
-  cat("The maximum sample count per timepoint (height of Y-axis) is: ", max(rowSums(frac.table)))
+  cat("The maximum sample count per timepoint (height of Y-axis) is: ", max(rowSums(count_table)))
 
   return(ret)
 }
@@ -164,7 +170,7 @@ build_fishplot_tables <- function( df, parent_df=NULL, colour_df=NULL, min_clust
 
 
 
-#- f() to padd "temporarily disappearing" clusters with a small value
+#- f() to pad "temporarily disappearing" clusters with a small value
 #  to fit fishplot rules where no cluster can go to zero and then come back later
 #  because setting "fix.missing.clones=TRUE" doesn't actually work
 
@@ -231,15 +237,15 @@ set_fish_colours <- function(colour_df, fishplot_names){
 
   missing = fishplot_names[ ! fishplot_names %in% names(fish_colours) ]
   if( length(missing) > 0 ){
-    warning( "WARNING: existing clusters not found in colour list: ", paste(missing, collapse=", "))
+    warning( "\nWARNING: existing clusters not found in colour list: ", paste(missing, collapse=", "))
   }
   extra = names(fish_colours)[ ! names(fish_colours) %in% fishplot_names ]
   if( length(extra) > 0 ){
-    warning( "WARNING: some clusters in colour list not found in data: ", paste(extra, collapse=", "))
+    warning( "\nWARNING: some clusters in colour list not found in data: ", paste(extra, collapse=", "))
   }
 
   if ( length(missing) + length(extra) > 0){
-    warning("WARNING: Errors found in colour list; ignoring custom colour palette")
+    warning("\nWARNING: Errors found in colour list; ignoring custom colour palette")
     fish_colours <- NULL
   } else {
     fish_colours <- fish_colours[fishplot_names]
@@ -366,7 +372,7 @@ pad_parents <- function(fish_table, parents){
 #'
 drawLegend2 <- function(fish, xpos=0, ypos=-5, nrow=NULL, cex=1, widthratio=1.5, xsp=0.5){
   if(is.null(fish@clone.labels)){
-    fish@labels=1:dim(fish@frac.table)[1]
+    fish@labels=1:dim(fish@fish_table)[1]
   }
 
   #do something sensible by default - can fit about 8 per row on a typically sized plot
