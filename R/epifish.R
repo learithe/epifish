@@ -33,7 +33,7 @@ build_fishplot_tables <- function( df, parent_df=NULL, colour_df=NULL, min_clust
 
 
   # lump all small clusters together
-  df <- df %>% mutate("FPCluster"= ifelse(FPCluster %in% big_clusters, FPCluster, "small clusters"))
+  df <- df %>% mutate("FPCluster"= ifelse(FPCluster %in% big_clusters, FPCluster, paste0("clusters < ",min_cluster_size)))
 
 
 
@@ -237,19 +237,20 @@ set_fish_colours <- function(colour_df, fishplot_names){
 
   missing = fishplot_names[ ! fishplot_names %in% names(fish_colours) ]
   if( length(missing) > 0 ){
-    warning( "\nWARNING: existing clusters not found in colour list: ", paste(missing, collapse=", "))
+    warning( "\nWARNING: existing clusters not found in colour list, setting these to white: ", paste(missing, collapse=", "))
+    missing_clusters <- rep("white", 1:length(missing))
+    names(missing_clusters) <- missing
+    fish_colours <- c(fish_colours, missing_clusters)
+  } else {
+    extra_clusters <- list()
   }
   extra = names(fish_colours)[ ! names(fish_colours) %in% fishplot_names ]
   if( length(extra) > 0 ){
     warning( "\nWARNING: some clusters in colour list not found in data: ", paste(extra, collapse=", "))
   }
 
-  if ( length(missing) + length(extra) > 0){
-    warning("\nWARNING: Errors found in colour list; ignoring custom colour palette")
-    fish_colours <- NULL
-  } else {
-    fish_colours <- fish_colours[fishplot_names]
-  }
+  fish_colours <- fish_colours[fishplot_names]
+
 
   return(fish_colours)
 

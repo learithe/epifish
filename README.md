@@ -1260,36 +1260,25 @@ fishplot::fishPlot(fish_list$fish, pad.left=0.1, shape="spline", vlines=vlines, 
 
 <img src="man/figures/README-unnamed-chunk-13-1.png" width="100%" />
 
-### You can automatically collapse any clusters of a minimum size in to a “small clusters” group:
+### You can automatically collapse any clusters of a minimum size into a “small clusters” group:
 
 *Note: at the moment this does not combine well with parent/child
 relationships if any child clusters are small\! (A work in
 progress…)*
 
 ``` r
-fish_list <- build_fishplot_tables(sample_df, show_labels=TRUE, min_cluster_size=10)
+#skip  passing the parent_df; this will plot as if all clusters are independent
+fish_list <- build_fishplot_tables(sample_df, colour_df=colour_df, show_labels=TRUE, min_cluster_size=10)
+#> Warning in set_fish_colours(colour_df, fishplot_names): 
+#> WARNING: existing clusters not found in colour list, setting these to white: clusters < 10
+#> Warning in set_fish_colours(colour_df, fishplot_names): 
+#> WARNING: some clusters in colour list not found in data: B, D.1, D.2, D.3, D.4
 #> The maximum sample count per timepoint (height of Y-axis) is:  15
 fishplot::fishPlot(fish_list$fish, pad.left=0.1, shape="spline", vlines=fish_list$timepoints, vlab=fish_list$timepoints)
 fishplot::drawLegend(fish_list$fish, nrow=1)
 ```
 
 <img src="man/figures/README-unnamed-chunk-14-1.png" width="100%" />
-
-``` r
-
-fish_list <- build_fishplot_tables(sample_df, colour_df=colour_df, show_labels=TRUE, min_cluster_size=5)
-#> Warning in set_fish_colours(colour_df, fishplot_names): 
-#> WARNING: existing clusters not found in colour list: small clusters
-#> Warning in set_fish_colours(colour_df, fishplot_names): 
-#> WARNING: some clusters in colour list not found in data: D.4
-#> Warning in set_fish_colours(colour_df, fishplot_names): 
-#> WARNING: Errors found in colour list; ignoring custom colour palette
-#> The maximum sample count per timepoint (height of Y-axis) is:  15
-fishplot::fishPlot(fish_list$fish, pad.left=0.1, shape="spline", vlines=fish_list$timepoints, vlab=fish_list$timepoints)
-fishplot::drawLegend(fish_list$fish, nrow=1)
-```
-
-<img src="man/figures/README-unnamed-chunk-14-2.png" width="100%" />
 
 ## Citation:
 
