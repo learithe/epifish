@@ -17,14 +17,14 @@ library("lubridate")
 #' @return integer number of epi weeks since the epidemic start
 #'
 #' @examples
-#' get_epi_week(cdate="2020/4/1", start_date="2020/1/25")
-#' get_epi_week("25/1/2020", "25/1/2020", date_format="dmy")
-#' get_epi_week("01-01-2020", "01-01-2019", date_format="mdy")
+#' get_epiweek(cdate="2020/4/1", start_date="2020/1/25")
+#' get_epiweek("25/1/2020", "25/1/2020", date_format="dmy")
+#' get_epiweek("01-01-2020", "01-01-2019", date_format="mdy")
 #'
 #' @export
 #'
 #'
-get_epi_week<- function(cdate, start_date, date_format="ymd") {
+get_epiweek<- function(cdate, start_date, date_format="ymd") {
 
   if ( date_format == "ymd") {
     d1 <- lubridate::ymd(cdate)
@@ -72,14 +72,14 @@ get_epi_week<- function(cdate, start_date, date_format="ymd") {
 #' @return character string
 #'
 #' @examples
-#' get_epi_week_span_date( "2020/01/25")
-#' get_epi_week_span_date( "25.1.20", return_end=TRUE, add_year=TRUE, date_format="dmy")
-#' get_epi_week_span_date( "1-25-2020", first_month=FALSE, add_year=TRUE, date_format="mdy")
+#' get_epiweek_span_date( "2020/01/25")
+#' get_epiweek_span_date( "25.1.20", return_end=TRUE, add_year=TRUE, date_format="dmy")
+#' get_epiweek_span_date( "1-25-2020", first_month=FALSE, add_year=TRUE, date_format="mdy")
 #'
 #' @export
 #'
 #'
-get_epi_week_span_date <- function(cdate, return_end=FALSE, add_year=FALSE, first_month=TRUE, date_format="ymd"){
+get_epiweek_span_date <- function(cdate, return_end=FALSE, add_year=FALSE, first_month=TRUE, date_format="ymd"){
 
   if ( date_format == "ymd") {
     t <-  lubridate::ymd(cdate)

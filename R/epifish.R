@@ -33,35 +33,35 @@ build_fishplot_tables <- function( df, parent_df=NULL, colour_df=NULL, min_clust
   df <- df %>% mutate("FPCluster"= ifelse(FPCluster %in% big_clusters, FPCluster, "other small cluster"))
 
 
-  #-- lump by week ------------------------------------------------
-  # make week column
-  #df <- df %>% mutate("week" = str_replace(!!as.symbol(doccol), "\\..$", ""))
-  #df <- df %>% mutate("week" = str_replace(week, "\\...$", ""))
+  #-- lump by timepoint ------------------------------------------------
+  # make timepoint column
+  #df <- df %>% mutate("timepoint" = str_replace(!!as.symbol(doccol), "\\..$", ""))
+  #df <- df %>% mutate("timepoint" = str_replace(timepoint, "\\...$", ""))
 
 
-  #-- generate per-week count table -------------------------------
-  # get count of each population per week
-  clusters_by_week <- df %>% group_by(week, FPCluster) %>% summarise(n = n())
-  clusters_by_week <- arrange(clusters_by_week, week) #ensure we're in time order
-  sums_by_week <- df %>% group_by(week) %>% summarise(n = n())
+  #-- generate per-timepoint count table -------------------------------
+  # get count of each population per timepoint
+  clusters_by_timepoint <- df %>% group_by(timepoint, FPCluster) %>% summarise(n = n())
+  clusters_by_timepoint <- arrange(clusters_by_timepoint, timepoint) #ensure we're in time order
+  sums_by_timepoint <- df %>% group_by(timepoint) %>% summarise(n = n())
 
-  #get count matrix (one row per cluster/week pair)
-  frac.table <- pivot_wider(clusters_by_week, names_from= FPCluster, values_from= n) %>%
+  #get count matrix (one row per cluster/timepoint pair)
+  frac.table <- pivot_wider(clusters_by_timepoint, names_from= FPCluster, values_from= n) %>%
     mutate_at(vars(-group_cols()), ~replace(., is.na(.), 0))
 
-  #collapse to one row per week
-  frac.table <- frac.table %>% group_by(`week`) %>% summarise_all(~sum(.))
+  #collapse to one row per timepoint
+  frac.table <- frac.table %>% group_by(`timepoint`) %>% summarise_all(~sum(.))
   #remove any duplicate rows prev step creates
-  frac.table <- filter(frac.table, `week` %in% unique(clusters_by_week$`week`))
+  frac.table <- filter(frac.table, `timepoint` %in% unique(clusters_by_timepoint$`timepoint`))
 
   #convert to fishplot-friendly format
   frac.table <- as.data.frame(frac.table)
-  rownames(frac.table) <- frac.table$`week`; frac.table$`week` <- NULL
+  rownames(frac.table) <- frac.table$`timepoint`; frac.table$`timepoint` <- NULL
 
 
-  ## - NORMALISE counts to a max sum of 99/week for relative fishplot display ---------------
+  ## - NORMALISE counts to a max sum of 99/timepoint for relative fishplot display ---------------
 
-  # get multiplier to normalise maximum weekly count to ~99 for display
+  # get multiplier to normalise maximum timepoint count to ~99 for display
   norms <- c()
   for (i in 1:nrow(frac.table)) {
     row <- frac.table[i, ]
@@ -95,11 +95,11 @@ build_fishplot_tables <- function( df, parent_df=NULL, colour_df=NULL, min_clust
 
 
   #-- prepare timepoints
-  timepoints <- unique(clusters_by_week$`week`)
+  timepoints <- unique(clusters_by_timepoint$`timepoint`)
   timepoints_num <- 1:length(timepoints)
   names(timepoints_num) <- timepoints
-  weeks <- sort(as.numeric(unique(df$`week`)))
-  #everyotherweek <- timepoints_num[seq(1, length(timepoints_num), 2)]
+  timepoints <- sort(as.numeric(unique(df$`timepoint`)))
+  #everyothertimepoint <- timepoints_num[seq(1, length(timepoints_num), 2)]
 
 
   # convert our table to a matrix
@@ -135,13 +135,13 @@ build_fishplot_tables <- function( df, parent_df=NULL, colour_df=NULL, min_clust
 
   # prepare list of fish object & associated data tables to return
   ret <- list()
-  ret$week_counts <- clusters_by_week
-  ret$week_sums <- sums_by_week
-  ret$cluster_sums <- clusters_by_week %>% group_by(FPCluster) %>% summarise(n = n())
+  ret$timepoint_counts <- clusters_by_timepoint
+  ret$timepoint_sums <- sums_by_timepoint
+  ret$cluster_sums <- clusters_by_timepoint %>% group_by(FPCluster) %>% summarise(n = n())
 
   ret$fish <- fish
 
-  ret$weeks <- weeks
+  ret$timepoints <- timepoints
   ret$raw_table <- frac.table
   ret$fish_table <- fish_table
   ret$fish_matrix <- fish_matrix
@@ -168,7 +168,7 @@ pad_matrix <- function(df, cnames, padval=0.001) {
 
     v <- retdf[ , c]
 
-    #first, get start and end weeks for cases
+    #first, get start and end timepoints for cases
     startpos <- 0; endpos <- 0
 
     for (i in 1:length(v) ){

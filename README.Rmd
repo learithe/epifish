@@ -43,7 +43,7 @@ library(fishplot); library(dplyr); library(tidyr); library(lubridate); library(e
 
 Read in the tables of sample data, cluster relationships, and a custom colour scheme
 ```r
-sample_df <- read.csv("epifish/inst/extdata/cluster_counts.csv", stringsAsFactors=FALSE)
+sample_df <- read.csv("epifish/inst/extdata/samples.csv", stringsAsFactors=FALSE)
 parent_df <- read.csv("epifish/inst/extdata/parents.csv", stringsAsFactors=FALSE)
 colour_df <- read.csv("epifish/inst/extdata/colours.csv", stringsAsFactors=FALSE)
 ```
@@ -56,16 +56,16 @@ fish_list <- epifish::build_fishplot_tables(sample_df, parent_df, colour_df)
 
 Then use the fishplot package to generate the fishplot image:
 ```{r}
-fishplot::fishPlot(fish_list$fish, pad.left=0.1, shape="spline", vlines=fish_list$weeks, vlab=fish_list$weeks)
+fishplot::fishPlot(fish_list$fish, pad.left=0.1, shape="spline", vlines=fish_list$timepoints, vlab=fish_list$timepoints)
 fishplot::drawLegend(fish_list$fish, nrow=1)
 
 ```
 
 Take a look at the underlying matrix and data summaries we generated:
 ```{r}
-fish_list$week_counts
+fish_list$timepoint_counts
 
-fish_list$week_sums
+fish_list$timepoint_sums
 
 fish_list$cluster_sums
 
@@ -81,7 +81,7 @@ fish_list$fish_matrix
   
 ## Input
 
-Example input files/templates can be found in the `inst/extdata` folder in this repository. The basic requirement is a data frame containing one row per sample, with columns `cluster_id` and `week` (any other columns are ignored). 
+Example input files/templates can be found in the `inst/extdata` folder in this repository. The basic requirement is a data frame containing one row per sample, with columns `cluster_id` and `timepoint` (any other columns are ignored). 
 
 Optional data frames may also be provided that describe parent-child relationships for clusters (eg cluster A.1 evolved from cluster A), or a custom colour scheme.
 
@@ -121,6 +121,18 @@ A count matrix for a fishplot has a set of specific rules which an epidemiologic
 * if a cluster has a parent/child relationship, at every timepoint the parent must always have >= the count of all it's children.  
 
 This package exists to make it easy to convert a list of samples into a normalised and appropriately "padded" relative count matrix that fulfils these requirements.
+
+
+## Extras
+
+Epifish also has a few functions to make it easy to convert dates to CDC-defined epi weeks (to use as timepoints), and generate label-friendly versions of epi week dates:
+
+``` {r}
+sample_df <- sample_df %>% rowwise() %>% 
+             mutate("epiweek"= epifish::get_epiweek(date_of_collection, start_date="1/1/20", date_format="dmy")) %>% 
+             mutate("time_label"= epifish::get_epiweek_span_date(date_of_collection, first_month=FALSE, date_format="dmy")) %>%
+             mutate("month"= epifish::get_month(date_of_collection, date_format="dmy"))
+```
 
 
 
