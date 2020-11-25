@@ -39,7 +39,7 @@ get_epi_week<- function(cdate, start_date, date_format="ymd") {
     d2 <- lubridate::dmy(start_date)
 
   } else {
-    warn("ERROR: date_format must one of ('ymd', 'dmy',m 'mdy')")
+    warning("ERROR: date_format must one of ('ymd', 'dmy', 'mdy')")
     return(NA)
   }
 
@@ -88,7 +88,7 @@ get_epi_week_span_date <- function(cdate, return_end=FALSE, add_year=FALSE, firs
   } else if ( date_format == "dmy") {
     t <- lubridate::dmy(cdate)
   } else {
-    warn("ERROR: date_format must one of ('ymd', 'dmy',m 'mdy')")
+    warning("ERROR: date_format must one of ('ymd', 'dmy', 'mdy')")
     return(NA)
   }
 
@@ -147,7 +147,7 @@ get_month <- function(cdate, add_year=FALSE, date_format="ymd"){
   } else if ( date_format == "dmy") {
     t <- lubridate::dmy(cdate)
   } else {
-    warn("ERROR: date_format must one of ('ymd', 'dmy',m 'mdy')")
+    warning("ERROR: date_format must one of ('ymd', 'dmy', 'mdy')")
     return(NA)
   }
 
