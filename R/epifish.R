@@ -17,8 +17,11 @@
 #  to make debugging/inspecting easier
 
 #' @export
-build_fishplot_tables <- function( df, parent_df=NULL, colour_df=NULL, min_cluster_size=1, show_labels=TRUE)
+build_fishplot_tables <- function( df, parent_df=NULL, colour_df=NULL, min_cluster_size=1, timepoint_labels=FALSE, show_labels=TRUE)
 {
+
+  #clear any prior rowwise() and groupby() operations
+  df <- ungroup(df)
 
   #-- process clusters to display -----------------------------------
   # initialise new cluster column with original cluster values
@@ -31,12 +34,6 @@ build_fishplot_tables <- function( df, parent_df=NULL, colour_df=NULL, min_clust
 
   # lump all small clusters together
   df <- df %>% mutate("FPCluster"= ifelse(FPCluster %in% big_clusters, FPCluster, "other small cluster"))
-
-
-  #-- lump by timepoint ------------------------------------------------
-  # make timepoint column
-  #df <- df %>% mutate("timepoint" = str_replace(!!as.symbol(doccol), "\\..$", ""))
-  #df <- df %>% mutate("timepoint" = str_replace(timepoint, "\\...$", ""))
 
 
   #-- generate per-timepoint count table -------------------------------
@@ -95,12 +92,23 @@ build_fishplot_tables <- function( df, parent_df=NULL, colour_df=NULL, min_clust
 
 
   #-- prepare timepoints
-  timepoints <- unique(clusters_by_timepoint$`timepoint`)
-  timepoints_num <- 1:length(timepoints)
-  names(timepoints_num) <- timepoints
-  timepoints <- sort(as.numeric(unique(df$`timepoint`)))
-  #everyothertimepoint <- timepoints_num[seq(1, length(timepoints_num), 2)]
+  timepoints <- as.numeric(unique(clusters_by_timepoint$`timepoint`))
+  names(timepoints) <- timepoints
 
+  #-- use custom timepoint labels if desired
+  if (timepoint_labels==TRUE) {
+
+    if("timepoint_label" %in% names(df) ) {
+
+      tmpdf <- select(sample_df, timepoint, timepoint_label) %>% distinct()
+      tmpdf <- arrange(tmpdf, timepoint)
+      names(timepoints) <- tmpdf$timepoint_label
+
+    } else {
+      warning("Column 'timepoint_label' not found in sample dataframe; skipping use of custom labels")
+      names(timepoints) <- as.character(timepoints)
+    }
+  }
 
   # convert our table to a matrix
   fish_matrix <- as.matrix(fish_table); colnames(fish_matrix) <- NULL;
@@ -142,6 +150,7 @@ build_fishplot_tables <- function( df, parent_df=NULL, colour_df=NULL, min_clust
   ret$fish <- fish
 
   ret$timepoints <- timepoints
+  ret$timepoint_labels <- names(timepoints)
   ret$raw_table <- frac.table
   ret$fish_table <- fish_table
   ret$fish_matrix <- fish_matrix

@@ -128,10 +128,52 @@ This package exists to make it easy to convert a list of samples into a normalis
 Epifish also has a few functions to make it easy to convert dates to CDC-defined epi weeks (to use as timepoints), and generate label-friendly versions of epi week dates:
 
 ``` {r}
+#calculate epiweek timepoints from the date of collection & create text labels to match them
 sample_df <- sample_df %>% rowwise() %>% 
              mutate("epiweek"= epifish::get_epiweek(date_of_collection, start_date="1/1/20", date_format="dmy")) %>% 
-             mutate("time_label"= epifish::get_epiweek_span_date(date_of_collection, first_month=FALSE, date_format="dmy")) %>%
-             mutate("month"= epifish::get_month(date_of_collection, date_format="dmy"))
+             mutate("timepoint_label"= epifish::get_epiweek_span(date_of_collection, return_end=TRUE, date_format="dmy")) %>%
+             mutate("timepoint_label"= gsub(" ", "\n", timepoint_label)) %>%  #replace space with newline to look pretty
+             mutate("month"= epifish::get_month(date_of_collection, date_format="dmy")) 
+
+#look at what we created 
+head(sample_df)
+
+```
+
+```{r echo=F}
+
+```
+
+Use these to draw and label the fishplot: 
+
+``` {r}
+
+sample_df$timepoint <- sample_df$epiweek  #fill the "timepoint" column with our  newly calculated epi weeks
+fish_list <- epifish::build_fishplot_tables(sample_df, parent_df, colour_df, timepoint_labels=TRUE)
+
+fishplot::fishPlot(fish_list$fish, pad.left=0.1, shape="spline", vlines=fish_list$timepoints, vlab=fish_list$timepoint_labels)
+fishplot::drawLegend(fish_list$fish, nrow=1)
+```
+
+
+
+Say you want to add a "zero" timepoint with the first case, which starts on the fourth day of the first epi week:
+``` {r}
+vlines <- c((3/7), fish_list$timepoints)
+vlabs <- c("1\nJan", fish_list$timepoint_labels)
+
+fishplot::fishPlot(fish_list$fish, pad.left=0.1, shape="spline", vlines=vlines, vlab=vlabs)
+
+```
+
+
+Or completely custom labels
+``` {r}
+vlines <- c((3/7), 3, 4, 8, 14)
+vlabs <- c("first\ncases", "peak 1", "quarantine\n", "quarantine\nlifted", "peak 2")
+
+fishplot::fishPlot(fish_list$fish, pad.left=0.1, shape="spline", vlines=vlines, vlab=vlabs)
+
 ```
 
 

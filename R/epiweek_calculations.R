@@ -72,14 +72,14 @@ get_epiweek<- function(cdate, start_date, date_format="ymd") {
 #' @return character string
 #'
 #' @examples
-#' get_epiweek_span_date( "2020/01/25")
-#' get_epiweek_span_date( "25.1.20", return_end=TRUE, add_year=TRUE, date_format="dmy")
-#' get_epiweek_span_date( "1-25-2020", first_month=FALSE, add_year=TRUE, date_format="mdy")
+#' get_epiweek_span( "2020/01/25")
+#' get_epiweek_span( "25.1.20", return_end=TRUE, add_year=TRUE, date_format="dmy")
+#' get_epiweek_span( "1-25-2020", first_month=FALSE, add_year=TRUE, date_format="mdy")
 #'
 #' @export
 #'
 #'
-get_epiweek_span_date <- function(cdate, return_end=FALSE, add_year=FALSE, first_month=TRUE, date_format="ymd"){
+get_epiweek_span <- function(cdate, return_end=FALSE, add_year=FALSE, first_month=TRUE, date_format="ymd"){
 
   if ( date_format == "ymd") {
     t <-  lubridate::ymd(cdate)

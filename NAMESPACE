@@ -3,7 +3,7 @@
 export(build_fishplot_tables)
 export(drawLegend2)
 export(get_epiweek)
-export(get_epiweek_span_date)
+export(get_epiweek_span)
 export(get_month)
 export(make_parent_list)
 export(pad_matrix)
