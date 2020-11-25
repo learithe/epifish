@@ -115,7 +115,7 @@ build_fishplot_tables <- function( df, parent_df=NULL, colour_df=NULL, min_clust
   }
   tmpfun <- get("annotClone", envir = asNamespace("fishplot"))
   environment(annotClone) <- environment(tmpfun)
-  assignInNamespace("annotClone", annotClone, ns="fishplot")
+  utils::assignInNamespace("annotClone", annotClone, ns="fishplot")
 
 
   # set up fish colour scheme if it was defined (and do some common error checking)

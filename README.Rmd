@@ -35,10 +35,10 @@ devtools::install_github("learithe/epifish")
 
 Load epifish and required packages
 ``` r 
-library(fishplot); library(dplyr); library(tidyr); library(epifish)
+library(fishplot); library(dplyr); library(tidyr); library(lubridate); library(epifish)
 ```
 ```{r, include=FALSE}
-library(fishplot); library(dplyr); library(tidyr); library(epifish); library(knitr)
+library(fishplot); library(dplyr); library(tidyr); library(lubridate); library(epifish); library(knitr)
 ```
 
 Read in the tables of sample data, cluster relationships, and a custom colour scheme

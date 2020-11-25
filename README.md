@@ -24,14 +24,16 @@ devtools::install_github("learithe/epifish")
 
 ## Quick demo
 
-Load epifish and required packages
+Load epifish and required
+packages
 
 ``` r
-library(fishplot); library(dplyr); library(tidyr); library(epifish)
+library(fishplot); library(dplyr); library(tidyr); library(lubridate); library(epifish)
 ```
 
 Read in the tables of sample data, cluster relationships, and a custom
-colour scheme
+colour
+scheme
 
 ``` r
 sample_df <- read.csv("epifish/inst/extdata/cluster_counts.csv", stringsAsFactors=FALSE)
@@ -40,7 +42,8 @@ colour_df <- read.csv("epifish/inst/extdata/colours.csv", stringsAsFactors=FALSE
 ```
 
 Convert these into a fishplot-ready relative count matrix, fishplot
-object, and assorted summary data structures:
+object, and assorted summary data
+structures:
 
 ``` r
 fish_list <- epifish::build_fishplot_tables(sample_df, parent_df, colour_df)
@@ -53,7 +56,8 @@ fish_list <- epifish::build_fishplot_tables(sample_df, parent_df, colour_df)
 #> The maximum sample count per timepoint (height of Y-axis) is:  15
 ```
 
-Then use the fishplot package to generate the fishplot image:
+Then use the fishplot package to generate the fishplot
+image:
 
 ``` r
 fishplot::fishPlot(fish_list$fish, pad.left=0.1, shape="spline", vlines=fish_list$weeks, vlab=fish_list$weeks)
@@ -80,7 +84,7 @@ fish_list$week_counts
 #>  8     3 C             1
 #>  9     4 A             2
 #> 10     4 A.1           3
-#> # ... with 24 more rows
+#> # … with 24 more rows
 
 fish_list$week_sums
 #> # A tibble: 14 x 2
@@ -154,26 +158,26 @@ fish_list$fish_table
 #> 15  0.0000  0.00  0.0000  0.00 26.3600 19.77 19.77 13.18  0.00
 
 fish_list$fish_matrix
-#>           1     2     3     4       5       6       7    8   10    11    12
-#>  [1,] 19.77 13.18 65.90 32.95 13.1801  6.5901 19.7701 6.59 6.59  6.59  0.00
-#>  [2,]  6.59 13.18 26.36  6.59  0.0000  0.0000  0.0000 0.00 0.00  0.00  0.00
-#>  [3,]  0.00  0.00  6.59 19.77 13.1800  0.0001  0.0001 6.59 6.59  6.59  0.00
-#>  [4,]  0.00  0.00  6.59 26.36 19.7700 19.7700  0.0000 0.00 0.00  0.00  0.00
-#>  [5,]  0.00  0.00  0.00  0.00  0.0000  0.0000  0.0000 0.00 6.59 26.36 26.36
-#>  [6,]  0.00  0.00  0.00  0.00  0.0000  0.0000  0.0000 0.00 0.00  0.00  6.59
-#>  [7,]  0.00  0.00  0.00  0.00  0.0000  0.0000  0.0000 0.00 0.00  0.00  0.00
-#>  [8,]  0.00  0.00  0.00  0.00  0.0000  0.0000  0.0000 0.00 0.00  0.00  0.00
-#>  [9,]  0.00  0.00  0.00  0.00  0.0000  0.0000  0.0000 0.00 0.00  0.00  0.00
-#>          13      14    15
-#>  [1,]  0.00  0.0000  0.00
-#>  [2,]  0.00  0.0000  0.00
-#>  [3,]  0.00  0.0000  0.00
-#>  [4,]  0.00  0.0000  0.00
-#>  [5,] 52.72 92.2601 26.36
-#>  [6,] 19.77 92.2600 19.77
-#>  [7,]  6.59 52.7200 19.77
-#>  [8,]  0.00 19.7700 13.18
-#>  [9,]  0.00 13.1800  0.00
+#>           1     2     3     4       5       6       7    8   10    11
+#>  [1,] 19.77 13.18 65.90 32.95 13.1801  6.5901 19.7701 6.59 6.59  6.59
+#>  [2,]  6.59 13.18 26.36  6.59  0.0000  0.0000  0.0000 0.00 0.00  0.00
+#>  [3,]  0.00  0.00  6.59 19.77 13.1800  0.0001  0.0001 6.59 6.59  6.59
+#>  [4,]  0.00  0.00  6.59 26.36 19.7700 19.7700  0.0000 0.00 0.00  0.00
+#>  [5,]  0.00  0.00  0.00  0.00  0.0000  0.0000  0.0000 0.00 6.59 26.36
+#>  [6,]  0.00  0.00  0.00  0.00  0.0000  0.0000  0.0000 0.00 0.00  0.00
+#>  [7,]  0.00  0.00  0.00  0.00  0.0000  0.0000  0.0000 0.00 0.00  0.00
+#>  [8,]  0.00  0.00  0.00  0.00  0.0000  0.0000  0.0000 0.00 0.00  0.00
+#>  [9,]  0.00  0.00  0.00  0.00  0.0000  0.0000  0.0000 0.00 0.00  0.00
+#>          12    13      14    15
+#>  [1,]  0.00  0.00  0.0000  0.00
+#>  [2,]  0.00  0.00  0.0000  0.00
+#>  [3,]  0.00  0.00  0.0000  0.00
+#>  [4,]  0.00  0.00  0.0000  0.00
+#>  [5,] 26.36 52.72 92.2601 26.36
+#>  [6,]  6.59 19.77 92.2600 19.77
+#>  [7,]  0.00  6.59 52.7200 19.77
+#>  [8,]  0.00  0.00 19.7700 13.18
+#>  [9,]  0.00  0.00 13.1800  0.00
 ```
 
 ## Input
