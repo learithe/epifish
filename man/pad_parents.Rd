@@ -11,6 +11,9 @@ pad_parents(fish_table, parents)
 
 \item{parents}{named list of parent/child positions in the table (output of make_parent_list())}
 }
+\value{
+fish_table with padded parent values
+}
 \description{
 Add child counts to parent counts for all clusters with a parent/child relationship.
 }

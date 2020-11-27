@@ -11,17 +11,47 @@
 
 
 
-
-#- f() to convert sample, cluster, and colour data frames into a fishplot ------------------
-#  returns a list of the important objects generated in the process
-#  to make debugging/inspecting easier
-
+#' Build an epifish object for plotting
+#'
+#' Convert sample, cluster, and colour data frames into an epi-fishplot and a list of assorted useful summaries
+#'
+#' @param sample_df input sample data with character columns `cluster_id`, `timepoint`, and optionally `timepoint_label`
+#' @param parent_df [optional] data frame with character columns `parent` and `child` describing cluster relationships; leave `NA` for independent clusters
+#' @param colour_df [optional] data frame with character columns `cluster` and `colour`
+#' @param timepoint_labels [optional] TRUE/FALSE whether to look for a `timepoint_label` column in `sample_df` to use as the timepoint labels
+#' @param min_cluster_size [optional] numeric whether to collapse all clusters < a given size together (default 1 to s
+#'
+#' @details
+#' Takes a data frame of epi sample data (one sample per row, containing columns `cluster_id` and `timepoint`).
+#' From this, generates a fishplot-format normalised matrix of counts per cluster at each timepoint, a
+#' fishplot object generated with this matrix, and assorted useful summary data.
+#'
+#' Optionally, can take data frames of parent/child pairings to use for calculating the matrix, a data frame
+#' with a custom cluster colour scheme, and a `timepoint_label` column in the sample data to generate custom
+#' timepoint labels for the fishplot.
+#'
+#' @return
+#'
+#' A list with the components:
+#'  \describe{
+#'   \item{fish}{epi-fishplot object to pass to fishplot::fishPlot()}
+#'   \item{timepoint_counts}{summary table of number of samples per cluster per timepoint}
+#'   \item{timepoint_sums}{summary table of number of samples per timepoint}
+#'   \item{cluster_sums}{summary table of total number of samples per cluster}
+#'   \item{timepoints}{vector of timepoints used}
+#'   \item{timepoint_labels}{vector of the names of timepoints assigned in the plot}
+#'   \item{parents}{named list matching child clusters to their parent's position in the matrix (0 means cluster is independent)}
+#'   \item{raw_table}{initial table of counts per cluster per timepoint, before padding and normalisation}
+#'   \item{fish_table}{normalised and parent-padded table for the epi-fishplot}
+#'   \item{fish_matrix}{final transformed matrix used to make the epifish object}
+#'}
 #' @export
-build_fishplot_tables <- function( df, parent_df=NULL, colour_df=NULL, min_cluster_size=1, timepoint_labels=FALSE, show_labels=TRUE)
+#<'
+build_epifish <- function( sample_df, parent_df=NULL, colour_df=NULL, min_cluster_size=1, timepoint_labels=FALSE, label_clusters=TRUE)
 {
 
   #clear any prior rowwise() and groupby() operations
-  df <- ungroup(df)
+  df <- ungroup(sample_df)
 
   #-- process clusters to display ------------------------------------------------
   # initialise new cluster column with original cluster values
@@ -31,10 +61,8 @@ build_fishplot_tables <- function( df, parent_df=NULL, colour_df=NULL, min_clust
   clustercounts <- df %>% group_by(FPCluster) %>% count()
   big_clusters <- clustercounts[clustercounts$n >= min_cluster_size,  ]$FPCluster
 
-
-  # lump all small clusters together
+  # lump small clusters together
   df <- df %>% mutate("FPCluster"= ifelse(FPCluster %in% big_clusters, FPCluster, paste0("clusters < ",min_cluster_size)))
-
 
 
   #-- generate per-timepoint count table -----------------------------------------
@@ -51,6 +79,7 @@ build_fishplot_tables <- function( df, parent_df=NULL, colour_df=NULL, min_clust
   count_table <- count_table %>% group_by(`timepoint`) %>% summarise_all(~sum(.))
   #remove any duplicate rows prev step creates
   count_table <- filter(count_table, `timepoint` %in% unique(clusters_by_timepoint$`timepoint`))
+
 
   #convert to fishplot-friendly format
   count_table <- as.data.frame(count_table)
@@ -74,7 +103,7 @@ build_fishplot_tables <- function( df, parent_df=NULL, colour_df=NULL, min_clust
   fishplot_names <- names(fish_table)
 
   # pad "temporary dropouts" to fit fishplot rules
-  fish_table <- pad_matrix(fish_table, names(count_table), 0.0001)
+  fish_table <- pad_matrix(fish_table, 0.0001)
 
 
   #-- set up parent vector & padding if needed -----------------------------------
@@ -90,8 +119,6 @@ build_fishplot_tables <- function( df, parent_df=NULL, colour_df=NULL, min_clust
     fish_table <- pad_parents(fish_table, parents)
 
   }
-
-
 
 
   #-- prepare timepoints-----------------------------------------------------------
@@ -144,7 +171,7 @@ build_fishplot_tables <- function( df, parent_df=NULL, colour_df=NULL, min_clust
   fish = createFishObject(fish_matrix, as.numeric(parents), timepoints, clone.labels=fishplot_names)
   fish = layoutClones(fish)
   if(! is.null(fish_colours) ){ fish = setCol(fish, unlist(fish_colours)) }
-  if( show_labels==TRUE ){ fish@clone.annots = fishplot_names } #this adds labels onto the plot
+  if( label_clusters==TRUE ){ fish@clone.annots = fishplot_names } #this adds labels onto the plot
 
 
   #-- prepare list of fish object & associated data tables to return ----------------------
@@ -170,16 +197,26 @@ build_fishplot_tables <- function( df, parent_df=NULL, colour_df=NULL, min_clust
 
 
 
-#- f() to pad "temporarily disappearing" clusters with a small value
-#  to fit fishplot rules where no cluster can go to zero and then come back later
-#  because setting "fix.missing.clones=TRUE" doesn't actually work
-
+#' Pad "temporarily disappearing" clusters with a small value
+#'
+#' @details
+#' Add tiny value to timepoints in the vector where cluster counts temporarily go
+#' to zero before the cluster disappears, in order to fishplot rules where no cluster
+#' can go to zero and then come back later.
+#' Needed because setting "fix.missing.clones=TRUE" in the fishplot funciton doesn't actually work.
+#'
+#' @param df  data frame: fishplot table, after normalisation but before matrix transformation
+#' @param padval numeric: the count value to pad with (defualt 0.001)
+#'
+#' @return list of form ("clustername"= "colour")
+#'
 #' @export
-pad_matrix <- function(df, cnames, padval=0.001) {
+#'
+pad_matrix <- function(df, padval=0.001) {
 
   retdf <- as.data.frame(df)
 
-  for (c in cnames) {
+  for (c in names(retdf)) {
 
     v <- retdf[ , c]
 
@@ -228,7 +265,6 @@ pad_matrix <- function(df, cnames, padval=0.001) {
 #'
 #' @return list of form ("clustername"= "colour")
 #'
-#' @export
 #'
 set_fish_colours <- function(colour_df, fishplot_names){
 
@@ -272,13 +308,10 @@ set_fish_colours <- function(colour_df, fishplot_names){
 #' Clusters with `NA` in the parent column will be considered independently derived.
 #'
 #' @param parent_df data frame with columns "parent" and "child"
-#' @param fishplot_names the fishplot table's column (cluster) names
+#' @param fishplot_names the fishplot table's column (cluster) names, in the same order as the table
 #'
 #' @return list of form ("child_cluster_name"= parent_column_number)
 #'
-#' @export
-#'
-#create the list specifying matrix position needed by fishplot package
 make_parent_list <- function(parent_df, fishplot_names) {
 
   plist <- rep(0, length(fishplot_names))
@@ -322,8 +355,8 @@ make_parent_list <- function(parent_df, fishplot_names) {
 #'
 #' @param fish_table count table/matrix
 #' @param parents named list of parent/child positions in the table (output of make_parent_list())
-#' @export
 #'
+#' @return fish_table with padded parent values
 pad_parents <- function(fish_table, parents){
 
   pad_parent <- function(ft, parent, child)
@@ -351,9 +384,6 @@ pad_parents <- function(fish_table, parents){
 
 
 
-
-
-
 #' Add a cluster legend to a fishplot
 #'
 #' A modified version of the fishplot::drawLegend() function to allow more customisation of
@@ -369,7 +399,6 @@ pad_parents <- function(fish_table, parents){
 #' @param xsp horizontal spacing factor
 #'
 #' @export
-#' @examples
 #'
 drawLegend2 <- function(fish, xpos=0, ypos=-5, nrow=NULL, cex=1, widthratio=1.5, xsp=0.5){
   if(is.null(fish@clone.labels)){

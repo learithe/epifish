@@ -60,7 +60,7 @@ fishplot object, and assorted summary
 information:
 
 ``` r
-epifish_list <- epifish::build_fishplot_tables(sample_df, parent_df=parent_df, colour_df=colour_df)
+epifish_list <- epifish::build_epifish (sample_df, parent_df=parent_df, colour_df=colour_df)
 #> Padding parent values in matrix: 
 #> adding child  D.4  to parent  D.2 
 #> adding child  D.3  to parent  D.2 
@@ -84,7 +84,7 @@ If you’re happy with the default colours, or all your clusters are
 independent, you don’t need the parent or colour dataframes:
 
 ``` r
-epifish_list <- epifish::build_fishplot_tables(sample_df)
+epifish_list <- epifish::build_epifish (sample_df)
 #> The maximum sample count per timepoint (height of Y-axis) is:  15
 fishplot::fishPlot(epifish_list$fish, pad.left=0.1, shape="spline", vlines=epifish_list$timepoints, vlab=epifish_list$timepoints)
 fishplot::drawLegend(epifish_list$fish, nrow=1)
@@ -99,7 +99,7 @@ clusters are
 small\!*
 
 ``` r
-epifish_list <- build_fishplot_tables(sample_df, colour_df=colour_df, min_cluster_size=10)
+epifish_list <- build_epifish (sample_df, colour_df=colour_df, min_cluster_size=10)
 #> Warning in set_fish_colours(colour_df, fishplot_names): 
 #> WARNING: existing clusters not found in colour list, setting these to white: clusters < 10
 #> Warning in set_fish_colours(colour_df, fishplot_names): 
@@ -118,7 +118,7 @@ that epifish generates:
 
 ``` r
 
-epifish_list <- epifish::build_fishplot_tables(sample_df, parent_df=parent_df, colour_df=colour_df)
+epifish_list <- epifish::build_epifish (sample_df, parent_df=parent_df, colour_df=colour_df)
 #> Padding parent values in matrix: 
 #> adding child  D.4  to parent  D.2 
 #> adding child  D.3  to parent  D.2 
@@ -1249,17 +1249,16 @@ Jan
 
 ### Use custom timepoint labels
 
-If you call `build_fishplot_tables()` with `timepoint_labels=TRUE`,
-epifish will look for a column called “timepoint\_label” to use as the
-timepoint labels. *Note: you can only have one unique label per
-timepoint value.*
+If you call `build_epifish ()` with `timepoint_labels=TRUE`, epifish
+will look for a column called “timepoint\_label” to use as the timepoint
+labels. *Note: you can only have one unique label per timepoint value.*
 
 ``` r
 #fill the "timepoint" column with our  newly calculated epi weeks above
 sample_df$timepoint <- sample_df$epiweek  
 
 #tell epifish to use the "timepoint_label" column we created above
-epifish_list <- epifish::build_fishplot_tables(sample_df, parent_df, colour_df, timepoint_labels=TRUE)
+epifish_list <- epifish::build_epifish (sample_df, parent_df, colour_df, timepoint_labels=TRUE)
 #> Padding parent values in matrix: 
 #> adding child  D.4  to parent  D.2 
 #> adding child  D.3  to parent  D.2 

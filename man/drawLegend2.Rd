@@ -34,6 +34,3 @@ A modified version of the fishplot::drawLegend() function to allow more customis
 the legend formatting, especially horizontal spacing when legend entries are long.
 Refer to https://github.com/chrisamiller/fishplot/blob/master/R/draw.R
 }
-\examples{
-
-}

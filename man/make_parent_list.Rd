@@ -9,7 +9,7 @@ make_parent_list(parent_df, fishplot_names)
 \arguments{
 \item{parent_df}{data frame with columns "parent" and "child"}
 
-\item{fishplot_names}{the fishplot table's column (cluster) names}
+\item{fishplot_names}{the fishplot table's column (cluster) names, in the same order as the table}
 }
 \value{
 list of form ("child_cluster_name"= parent_column_number)
