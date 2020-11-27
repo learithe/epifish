@@ -45,8 +45,10 @@ these requirements.
 You can install epifish with:
 
 ``` r
-#install devtools if you don't have it already for easy installation
+#install devtools if you don't have it already
 install.packages("devtools")
+
+#then load devtools & install epifish
 library(devtools)
 devtools::install_github("learithe/epifish")
 ```
@@ -70,8 +72,8 @@ parent_df <- read.csv("epifish/inst/extdata/parents.csv", stringsAsFactors=FALSE
 colour_df <- read.csv("epifish/inst/extdata/colours.csv", stringsAsFactors=FALSE)
 ```
 
-Use epifish to convert this into a fishplot-ready relative count matrix,
-fishplot object, and assorted summary
+Use epifish to convert this into a fishplot object, with extra assorted
+summary
 information:
 
 ``` r
@@ -700,11 +702,11 @@ blue3
 
 ## Output
 
-The output of epifish is a list variable containing: a fishplot object,
-the data structures needed to generate it, and some extra data summary
-tables:
+The output of epifish is a list variable containing: a fishplot object
+(`epifish_output$fish`), the data structures needed to generate it, and
+some extra data summary tables:
 
-  - `fish` epi-fishplot object to pass to `fishplot::fishPlot()`
+  - `fish` fishplot object to pass to `fishplot::fishPlot()`
   - `timepoint_counts` summary table of number of samples per cluster
     per timepoint
   - `timepoint_sums` summary table of number of samples per timepoint
@@ -733,7 +735,7 @@ so:
 write.csv(epifish_output$fish_table, "fishplot_table.csv", row.names=FALSE)
 ```
 
-This is the summary data that epifish creates:
+This is the extra summary data that epifish creates:
 
 ``` r
 
@@ -746,7 +748,7 @@ epifish_output <- epifish::build_epifish( sample_df, parent_df=parent_df, colour
 #> adding child  A.1  to parent  A 
 #> The maximum sample count per timepoint (height of Y-axis) is:  15
 
-#this is the final matrix used to generate the fishplot object epifish
+
 epifish_output$timepoint_counts
 #> # A tibble: 34 x 3
 #> # Groups:   timepoint [14]
@@ -1269,34 +1271,6 @@ fishplot::drawLegend(epifish_output$fish, nrow=1)
 
 <img src="man/figures/README-unnamed-chunk-12-1.png" width="100%" />
 
-### Control legend spacing
-
-You can use `epifish::drawLegend2()` to modify the spacing of the
-epi-fishplot legend, which is especially useful with long cluster names.
-Use `widthratio` to adjust the width between columns relative to the
-longest cluster name (lower number = more space), and `xsp` to control
-space between the colour box and the text (larger = more space)
-
-**default
-`fishplot::drawLegend()`:**
-
-``` r
-fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels)
-fishplot::drawLegend(epifish_output$fish, nrow=2)
-```
-
-<img src="man/figures/README-unnamed-chunk-14-1.png" width="100%" />
-
-**using `epifish::drawLegend2()` to adjust the legend
-spacing:**
-
-``` r
-fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels)
-epifish::drawLegend2(epifish_output$fish, nrow=2, widthratio=0.3, xsp=0.2)
-```
-
-<img src="man/figures/README-unnamed-chunk-15-1.png" width="100%" />
-
 ### Specify timepoints and their labels manually
 
 The fishplot package provides flexibility in where to display the
@@ -1315,10 +1289,10 @@ fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline",
                    vlines=vlines, vlab=vlabs, cex.vlab=0.5)
 ```
 
-<img src="man/figures/README-unnamed-chunk-16-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-13-1.png" width="100%" />
 
-Or we can use completely custom labels that describe an epidemiological
-story, with red lines:
+Or we can use completely custom timepoints nd labels that describe an
+epidemiological story, with red lines:
 
 ``` r
 vlines <- c((4/7), 3, 4, 8, 14)
@@ -1326,6 +1300,34 @@ vlabs <- c("first\ncases", "peak 1", "quarantine\n", "quarantine\nlifted", "peak
 
 fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline", 
                    vlines=vlines, vlab=vlabs, col.vline="red")
+```
+
+<img src="man/figures/README-unnamed-chunk-14-1.png" width="100%" />
+
+### Control legend spacing
+
+You can use `epifish::drawLegend2()` to modify the spacing of the
+epi-fishplot legend, which is especially useful with long cluster names.
+Use `widthratio` to adjust the width between columns relative to the
+longest cluster name (lower number = more space), and `xsp` to control
+space between the colour box and the text (larger = more space)
+
+**default
+`fishplot::drawLegend()`:**
+
+``` r
+fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels)
+fishplot::drawLegend(epifish_output$fish, nrow=2)
+```
+
+<img src="man/figures/README-unnamed-chunk-16-1.png" width="100%" />
+
+**using `epifish::drawLegend2()` to adjust the legend
+spacing:**
+
+``` r
+fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels)
+epifish::drawLegend2(epifish_output$fish, nrow=2, widthratio=0.3, xsp=0.2)
 ```
 
 <img src="man/figures/README-unnamed-chunk-17-1.png" width="100%" />

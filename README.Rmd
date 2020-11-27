@@ -48,8 +48,10 @@ This package exists to make it easy to convert a list of samples into a normalis
 
 You can install epifish with: 
 ``` r
-#install devtools if you don't have it already for easy installation
+#install devtools if you don't have it already
 install.packages("devtools")
+
+#then load devtools & install epifish
 library(devtools)
 devtools::install_github("learithe/epifish")
 ```
@@ -71,7 +73,7 @@ parent_df <- read.csv("epifish/inst/extdata/parents.csv", stringsAsFactors=FALSE
 colour_df <- read.csv("epifish/inst/extdata/colours.csv", stringsAsFactors=FALSE)
 ```
 
-Use epifish to convert this into a fishplot-ready relative count matrix, fishplot object, and assorted summary information:
+Use epifish to convert this into a fishplot object, with extra assorted summary information:
 ```{r}
 epifish_output <- epifish::build_epifish( sample_df, parent_df=parent_df, colour_df=colour_df)
 ```
@@ -136,9 +138,9 @@ kable(colour_df)
 
 ## Output
 
-The output of epifish is a list variable containing: a fishplot object, the data structures needed to generate it, and some extra data summary tables:
+The output of epifish is a list variable containing: a fishplot object (`epifish_output$fish`), the data structures needed to generate it, and some extra data summary tables:
 
-  -   `fish` epi-fishplot object to pass to `fishplot::fishPlot()`
+  -   `fish` fishplot object to pass to `fishplot::fishPlot()`
   -   `timepoint_counts` summary table of number of samples per cluster per timepoint
   -   `timepoint_sums` summary table of number of samples per timepoint
   -   `cluster_sums` summary table of total number of samples per cluster
@@ -157,12 +159,12 @@ If you wish to save individual tables from the output list for any reason, it ca
 write.csv(epifish_output$fish_table, "fishplot_table.csv", row.names=FALSE)
 ```
 
-This is the summary data that epifish creates:
+This is the extra summary data that epifish creates:
 ```{r}
 
 epifish_output <- epifish::build_epifish( sample_df, parent_df=parent_df, colour_df=colour_df)
 
-#this is the final matrix used to generate the fishplot object epifish
+
 epifish_output$timepoint_counts
 
 epifish_output$timepoint_sums
@@ -239,6 +241,31 @@ fishplot::drawLegend(epifish_output$fish, nrow=1)
 ```
   
    
+### Specify timepoints and their labels manually
+
+The fishplot package provides flexibility in where to display the vertical lines and what text to show, which can be used to create custom combinations rather than using the epifish default:
+  
+Say you want to add a "zero" timepoint with the first case, which starts on the fourth day of the first epi week (we'll also make the text a bit smaller so it doesn't overlap):
+``` {r}
+vlines <- c((4/7), epifish_output$timepoints)
+vlabs <- c("1\nJan", epifish_output$timepoint_labels)
+
+fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline", 
+                   vlines=vlines, vlab=vlabs, cex.vlab=0.5)
+
+```
+
+
+Or we can use completely custom timepoints nd labels that describe an epidemiological story, with red lines:
+``` {r}
+vlines <- c((4/7), 3, 4, 8, 14)
+vlabs <- c("first\ncases", "peak 1", "quarantine\n", "quarantine\nlifted", "peak 2")
+
+fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline", 
+                   vlines=vlines, vlab=vlabs, col.vline="red")
+
+```
+
    
 ### Control legend spacing 
 You can use `epifish::drawLegend2()` to modify the spacing of the epi-fishplot legend, which is especially useful with long cluster names.  Use `widthratio` to adjust the width between columns relative to the longest cluster name (lower number = more space), and `xsp` to control space between the colour box and the text (larger = more space)
@@ -259,32 +286,6 @@ epifish::drawLegend2(epifish_output$fish, nrow=2, widthratio=0.3, xsp=0.2)
 ```
 
 
-
-
-### Specify timepoints and their labels manually
-
-The fishplot package provides flexibility in where to display the vertical lines and what text to show, which can be used to create custom combinations rather than using the epifish default:
-  
-Say you want to add a "zero" timepoint with the first case, which starts on the fourth day of the first epi week (we'll also make the text a bit smaller so it doesn't overlap):
-``` {r}
-vlines <- c((4/7), epifish_output$timepoints)
-vlabs <- c("1\nJan", epifish_output$timepoint_labels)
-
-fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline", 
-                   vlines=vlines, vlab=vlabs, cex.vlab=0.5)
-
-```
-
-
-Or we can use completely custom labels that describe an epidemiological story, with red lines:
-``` {r}
-vlines <- c((4/7), 3, 4, 8, 14)
-vlabs <- c("first\ncases", "peak 1", "quarantine\n", "quarantine\nlifted", "peak 2")
-
-fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline", 
-                   vlines=vlines, vlab=vlabs, col.vline="red")
-
-```
 
 
 
