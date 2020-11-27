@@ -20,16 +20,28 @@ knitr::opts_chunk$set(
 
 This package provides tools to use Chris Miller's fishplot package (https://github.com/chrisamiller/fishplot) with epidemiological datasets, to generate fishplot epi-curves. 
 
-
-## Why?
-
+**Why?**  
 A count matrix for a fishplot has a set of specific rules which an epidemiological dataset will not naturally fulfill:  
-  * cluster counts can never go completely to zero, if cases reappear later  
-  * if a cluster has a parent/child relationship, at every timepoint the parent must always have >= the count of all it's children.  
-  * counts should be normalised to fit the fishplot y-axis  
+
+  -   cluster counts can never go completely to zero, if cases reappear later
+  -   if a cluster has a parent/child relationship, at every timepoint the parent must always have >= the count of all it's children.
+  -   counts should be normalised to fit the fishplot y-axis
 
 This package exists to make it easy to convert a list of samples into a normalised and appropriately "padded" relative count matrix that fulfils these requirements.
 
+
+## Contents
+
+  -   [Installation](#installation)
+  -   [Quick demo](#quick-demo)
+  -   [Input format](#input-format)
+  -   [Output](#output)
+  -   [Extras](#extras)
+      -   [Using raw dates to create timepoints](#using-raw-dates-to-create-timepoints)
+      -   [Use custom timepoint labels](#use-custom-timepoint-labels)
+      -   [Control legend spacing](#control-legend-spacing)
+      -   [Specify timepoints and their labels manually](#specify-timepoints-and-their-labels-manually)
+  -   [Citation](#citation)
 
 
 ## Installation
@@ -61,21 +73,24 @@ colour_df <- read.csv("epifish/inst/extdata/colours.csv", stringsAsFactors=FALSE
 
 Use epifish to convert this into a fishplot-ready relative count matrix, fishplot object, and assorted summary information:
 ```{r}
-epifish_list <- epifish::build_epifish (sample_df, parent_df=parent_df, colour_df=colour_df)
+epifish_output <- epifish::build_epifish( sample_df, parent_df=parent_df, colour_df=colour_df)
 ```
 
 Then use the fishplot package to generate a fishplot:
 ```{r}
-fishplot::fishPlot(epifish_list$fish, pad.left=0.1, shape="spline", vlines=epifish_list$timepoints, vlab=epifish_list$timepoints)
-fishplot::drawLegend(epifish_list$fish, nrow=1)
+fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline", 
+                   vlines=epifish_output$timepoints, vlab=epifish_output$timepoints)
+fishplot::drawLegend(epifish_output$fish, nrow=1)
 
 ```
 
-If you're happy with the default colours, or all your clusters are independent, you don't need the parent or colour dataframes:
+If you're happy with the default colours, or all your clusters are independent, you don't need those  dataframes:
 ```{r}
-epifish_list <- epifish::build_epifish (sample_df)
-fishplot::fishPlot(epifish_list$fish, pad.left=0.1, shape="spline", vlines=epifish_list$timepoints, vlab=epifish_list$timepoints)
-fishplot::drawLegend(epifish_list$fish, nrow=1)
+epifish_output <- epifish::build_epifish( sample_df )
+
+fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline", 
+                   vlines=epifish_output$timepoints, vlab=epifish_output$timepoints)
+fishplot::drawLegend(epifish_output$fish, nrow=1)
 
 ```
 
@@ -83,39 +98,12 @@ fishplot::drawLegend(epifish_list$fish, nrow=1)
 You also can automatically collapse any clusters of a minimum size into a group with `min_cluster_size`:  
 *Note: this does not work with parent/child relationships if any child clusters are small!*   
 ``` {r}
-epifish_list <- build_epifish (sample_df, colour_df=colour_df, min_cluster_size=10)
+epifish_output <- epifish::build_epifish(sample_df, colour_df=colour_df, min_cluster_size=10)
 
-fishplot::fishPlot(epifish_list$fish, pad.left=0.1, shape="spline", 
-                   vlines=epifish_list$timepoints, vlab=epifish_list$timepoints)
-fishplot::drawLegend(epifish_list$fish, nrow=1)
+fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoints)
+fishplot::drawLegend(epifish_output$fish, nrow=1)
 
 ```
-
-
-Take a look "under the hood" at the underlying matrix and data summaries that epifish generates:
-```{r}
-
-epifish_list <- epifish::build_epifish (sample_df, parent_df=parent_df, colour_df=colour_df)
-
-epifish_list$timepoint_counts
-
-epifish_list$timepoint_sums
-
-epifish_list$cluster_sums
-
-epifish_list$parents
-
-epifish_list$timepoint_labels
-
-epifish_list$raw_table
-
-epifish_list$fish_table
-
-#this is the final matrix used to generate the fishplot object epifishf
-epifish_list$fish_matrix
-```
-
-
 
 
 
@@ -125,17 +113,22 @@ Example input files/templates can be found in the `inst/extdata` folder in this 
 
 Optional data frames may also be provided that describe parent-child relationships for clusters (eg cluster A.1 evolved from cluster A), or a custom colour scheme.
 
-the last few rows of sample data:
+It is easiest and safest (especially when working with dates) to save and maintain these tables in `.csv` (comma-separated values) format, and to read them into R using `read.csv("filename", stringsAsFactors=FALSE)` as shown in the example above. However you can use whatever methods you want to create these dataframes, as long as they contain the required columns in character or numeric (NOT factor) format.
+
+
+**the last few rows of sample data:**  
+(Note that the order doesn't matter)
 ```{r echo=F}
-kable(tail(sample_df))
+kable(tail(sample_df), row.names=FALSE)
 ```
 
-the parent-child data:
+**the parent-child data:**
 ```{r echo=F}
+options(knitr.kable.NA = '') 
 kable(parent_df)
 ```
 
-a custom colour scheme:
+**a custom colour scheme:**
 ```{r echo=F}
 kable(colour_df)
 ```
@@ -143,14 +136,55 @@ kable(colour_df)
 
 ## Output
 
-The output of epifish is a list variable containing: a fishplot object, the data structures needed to generate it, and some extra data summary tables. 
+The output of epifish is a list variable containing: a fishplot object, the data structures needed to generate it, and some extra data summary tables:
+
+  -   `fish` epi-fishplot object to pass to `fishplot::fishPlot()`
+  -   `timepoint_counts` summary table of number of samples per cluster per timepoint
+  -   `timepoint_sums` summary table of number of samples per timepoint
+  -   `cluster_sums` summary table of total number of samples per cluster
+  -   `timepoints` vector of timepoints used
+  -   `timepoint_labels` vector of the names of timepoints assigned in the plot
+  -   `parents` named list matching child clusters to their parent's position in the matrix (0 means cluster is independent)
+  -   `raw_table` initial table of counts per cluster per timepoint, before padding and normalisation
+  -   `fish_table` normalised and parent-padded table for the epi-fishplot
+  -   `fish_matrix` final transformed matrix used to make the epifish object
 
 This can be used with the fishplot package's fishPlot() function to generate an R plot image, as shown above. If using RStudio, it is most straightforward to save the R plot as PDF image from the RStudio plot window (Export -> "Save as PDF").
 
+
 If you wish to save individual tables from the output list for any reason, it can be done like so:
 ``` r
-write.csv(epifish_list$fish_table, "fishplot_table.csv", row.names=FALSE)
+write.csv(epifish_output$fish_table, "fishplot_table.csv", row.names=FALSE)
 ```
+
+This is the summary data that epifish creates:
+```{r}
+
+epifish_output <- epifish::build_epifish( sample_df, parent_df=parent_df, colour_df=colour_df)
+
+#this is the final matrix used to generate the fishplot object epifish
+epifish_output$timepoint_counts
+
+epifish_output$timepoint_sums
+
+epifish_output$cluster_sums
+
+epifish_output$parents
+
+epifish_output$timepoints
+
+epifish_output$timepoint_labels
+
+epifish_output$raw_table
+
+epifish_output$fish_table
+
+#this is the final matrix used to generate the epifish fishplot object
+epifish_output$fish_matrix
+```
+
+
+
 
 
 
@@ -198,13 +232,34 @@ If you call `build_epifish ()` with `timepoint_labels=TRUE`, epifish will look f
 sample_df$timepoint <- sample_df$epiweek  
 
 #tell epifish to use the "timepoint_label" column we created above
-epifish_list <- epifish::build_epifish (sample_df, parent_df, colour_df, timepoint_labels=TRUE)
+epifish_output <- epifish::build_epifish( sample_df, parent_df, colour_df, timepoint_labels=TRUE)
 
-fishplot::fishPlot(epifish_list$fish, pad.left=0.1, shape="spline", vlines=epifish_list$timepoints, vlab=epifish_list$timepoint_labels)
-fishplot::drawLegend(epifish_list$fish, nrow=1)
+fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels)
+fishplot::drawLegend(epifish_output$fish, nrow=1)
 ```
   
-  
+   
+   
+### Control legend spacing 
+You can use `epifish::drawLegend2()` to modify the spacing of the epi-fishplot legend, which is especially useful with long cluster names.  Use `widthratio` to adjust the width between columns relative to the longest cluster name (lower number = more space), and `xsp` to control space between the colour box and the text (larger = more space)
+```{r, include=FALSE}
+epifish_output <- build_epifish (sample_df, parent_df, colour_df)
+```
+
+**default `fishplot::drawLegend()`:**
+``` {r}
+fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels)
+fishplot::drawLegend(epifish_output$fish, nrow=2)
+```
+
+**using `epifish::drawLegend2()` to adjust the legend spacing:**
+``` {r}
+fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels)
+epifish::drawLegend2(epifish_output$fish, nrow=2, widthratio=0.3, xsp=0.2)
+```
+
+
+
 
 ### Specify timepoints and their labels manually
 
@@ -212,10 +267,10 @@ The fishplot package provides flexibility in where to display the vertical lines
   
 Say you want to add a "zero" timepoint with the first case, which starts on the fourth day of the first epi week (we'll also make the text a bit smaller so it doesn't overlap):
 ``` {r}
-vlines <- c((4/7), epifish_list$timepoints)
-vlabs <- c("1\nJan", epifish_list$timepoint_labels)
+vlines <- c((4/7), epifish_output$timepoints)
+vlabs <- c("1\nJan", epifish_output$timepoint_labels)
 
-fishplot::fishPlot(epifish_list$fish, pad.left=0.1, shape="spline", 
+fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline", 
                    vlines=vlines, vlab=vlabs, cex.vlab=0.5)
 
 ```
@@ -226,7 +281,7 @@ Or we can use completely custom labels that describe an epidemiological story, w
 vlines <- c((4/7), 3, 4, 8, 14)
 vlabs <- c("first\ncases", "peak 1", "quarantine\n", "quarantine\nlifted", "peak 2")
 
-fishplot::fishPlot(epifish_list$fish, pad.left=0.1, shape="spline", 
+fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline", 
                    vlines=vlines, vlab=vlabs, col.vline="red")
 
 ```

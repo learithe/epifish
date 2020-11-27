@@ -11,19 +11,34 @@ This package provides tools to use Chris Miller’s fishplot package
 (<https://github.com/chrisamiller/fishplot>) with epidemiological
 datasets, to generate fishplot epi-curves.
 
-## Why?
-
+**Why?**  
 A count matrix for a fishplot has a set of specific rules which an
-epidemiological dataset will not naturally fulfill:  
-\* cluster counts can never go completely to zero, if cases reappear
-later  
-\* if a cluster has a parent/child relationship, at every timepoint the
-parent must always have \>= the count of all it’s children.  
-\* counts should be normalised to fit the fishplot y-axis
+epidemiological dataset will not naturally fulfill:
+
+  - cluster counts can never go completely to zero, if cases reappear
+    later
+  - if a cluster has a parent/child relationship, at every timepoint the
+    parent must always have \>= the count of all it’s children.
+  - counts should be normalised to fit the fishplot y-axis
 
 This package exists to make it easy to convert a list of samples into a
 normalised and appropriately “padded” relative count matrix that fulfils
 these requirements.
+
+## Contents
+
+  - [Installation](#installation)
+  - [Quick demo](#quick-demo)
+  - [Input format](#input-format)
+  - [Output](#output)
+  - [Extras](#extras)
+      - [Using raw dates to create
+        timepoints](#using-raw-dates-to-create-timepoints)
+      - [Use custom timepoint labels](#use-custom-timepoint-labels)
+      - [Control legend spacing](#control-legend-spacing)
+      - [Specify timepoints and their labels
+        manually](#specify-timepoints-and-their-labels-manually)
+  - [Citation](#citation)
 
 ## Installation
 
@@ -60,7 +75,7 @@ fishplot object, and assorted summary
 information:
 
 ``` r
-epifish_list <- epifish::build_epifish (sample_df, parent_df=parent_df, colour_df=colour_df)
+epifish_output <- epifish::build_epifish( sample_df, parent_df=parent_df, colour_df=colour_df)
 #> Padding parent values in matrix: 
 #> adding child  D.4  to parent  D.2 
 #> adding child  D.3  to parent  D.2 
@@ -70,24 +85,26 @@ epifish_list <- epifish::build_epifish (sample_df, parent_df=parent_df, colour_d
 #> The maximum sample count per timepoint (height of Y-axis) is:  15
 ```
 
-Then use the fishplot package to generate a
-fishplot:
+Then use the fishplot package to generate a fishplot:
 
 ``` r
-fishplot::fishPlot(epifish_list$fish, pad.left=0.1, shape="spline", vlines=epifish_list$timepoints, vlab=epifish_list$timepoints)
-fishplot::drawLegend(epifish_list$fish, nrow=1)
+fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline", 
+                   vlines=epifish_output$timepoints, vlab=epifish_output$timepoints)
+fishplot::drawLegend(epifish_output$fish, nrow=1)
 ```
 
 <img src="man/figures/README-unnamed-chunk-4-1.png" width="100%" />
 
 If you’re happy with the default colours, or all your clusters are
-independent, you don’t need the parent or colour dataframes:
+independent, you don’t need those dataframes:
 
 ``` r
-epifish_list <- epifish::build_epifish (sample_df)
+epifish_output <- epifish::build_epifish( sample_df )
 #> The maximum sample count per timepoint (height of Y-axis) is:  15
-fishplot::fishPlot(epifish_list$fish, pad.left=0.1, shape="spline", vlines=epifish_list$timepoints, vlab=epifish_list$timepoints)
-fishplot::drawLegend(epifish_list$fish, nrow=1)
+
+fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline", 
+                   vlines=epifish_output$timepoints, vlab=epifish_output$timepoints)
+fishplot::drawLegend(epifish_output$fish, nrow=1)
 ```
 
 <img src="man/figures/README-unnamed-chunk-5-1.png" width="100%" />
@@ -99,148 +116,18 @@ clusters are
 small\!*
 
 ``` r
-epifish_list <- build_epifish (sample_df, colour_df=colour_df, min_cluster_size=10)
+epifish_output <- epifish::build_epifish(sample_df, colour_df=colour_df, min_cluster_size=10)
 #> Warning in set_fish_colours(colour_df, fishplot_names): 
 #> WARNING: existing clusters not found in colour list, setting these to white: clusters < 10
 #> Warning in set_fish_colours(colour_df, fishplot_names): 
 #> WARNING: some clusters in colour list not found in data: B, D.1, D.2, D.3, D.4
 #> The maximum sample count per timepoint (height of Y-axis) is:  15
 
-fishplot::fishPlot(epifish_list$fish, pad.left=0.1, shape="spline", 
-                   vlines=epifish_list$timepoints, vlab=epifish_list$timepoints)
-fishplot::drawLegend(epifish_list$fish, nrow=1)
+fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoints)
+fishplot::drawLegend(epifish_output$fish, nrow=1)
 ```
 
 <img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" />
-
-Take a look “under the hood” at the underlying matrix and data summaries
-that epifish generates:
-
-``` r
-
-epifish_list <- epifish::build_epifish (sample_df, parent_df=parent_df, colour_df=colour_df)
-#> Padding parent values in matrix: 
-#> adding child  D.4  to parent  D.2 
-#> adding child  D.3  to parent  D.2 
-#> adding child  D.2  to parent  D.1 
-#> adding child  D.1  to parent  D 
-#> adding child  A.1  to parent  A 
-#> The maximum sample count per timepoint (height of Y-axis) is:  15
-
-epifish_list$timepoint_counts
-#> # A tibble: 34 x 3
-#> # Groups:   timepoint [14]
-#>    timepoint FPCluster     n
-#>        <int> <chr>     <int>
-#>  1         1 A             3
-#>  2         1 B             1
-#>  3         2 A             2
-#>  4         2 B             2
-#>  5         3 A             9
-#>  6         3 A.1           1
-#>  7         3 B             4
-#>  8         3 C             1
-#>  9         4 A             2
-#> 10         4 A.1           4
-#> # … with 24 more rows
-
-epifish_list$timepoint_sums
-#> # A tibble: 14 x 2
-#>    timepoint     n
-#>        <int> <int>
-#>  1         1     4
-#>  2         2     4
-#>  3         3    15
-#>  4         4    11
-#>  5         5     5
-#>  6         6     4
-#>  7         7     3
-#>  8         8     1
-#>  9        10     2
-#> 10        11     5
-#> 11        12     4
-#> 12        13     8
-#> 13        14    13
-#> 14        15     5
-
-epifish_list$cluster_sums
-#> # A tibble: 9 x 2
-#>   FPCluster     n
-#>   <chr>     <int>
-#> 1 A             6
-#> 2 A.1           6
-#> 3 B             4
-#> 4 C             4
-#> 5 D             5
-#> 6 D.1           3
-#> 7 D.2           3
-#> 8 D.3           2
-#> 9 D.4           1
-
-epifish_list$parents
-#>   A   B A.1   C   D D.1 D.2 D.3 D.4 
-#>   0   0   1   0   0   5   6   7   7
-
-epifish_list$timepoint_labels
-#>  [1] "1"  "2"  "3"  "4"  "5"  "6"  "7"  "8"  "10" "11" "12" "13" "14" "15"
-
-epifish_list$raw_table
-#>    A B A.1 C D D.1 D.2 D.3 D.4
-#> 1  3 1   0 0 0   0   0   0   0
-#> 2  2 2   0 0 0   0   0   0   0
-#> 3  9 4   1 1 0   0   0   0   0
-#> 4  2 1   4 4 0   0   0   0   0
-#> 5  0 0   2 3 0   0   0   0   0
-#> 6  1 0   0 3 0   0   0   0   0
-#> 7  3 0   0 0 0   0   0   0   0
-#> 8  0 0   1 0 0   0   0   0   0
-#> 10 0 0   1 0 1   0   0   0   0
-#> 11 0 0   1 0 4   0   0   0   0
-#> 12 0 0   0 0 3   1   0   0   0
-#> 13 0 0   0 0 5   2   1   0   0
-#> 14 0 0   0 0 0   6   3   2   2
-#> 15 0 0   0 0 1   0   1   3   0
-
-epifish_list$fish_table
-#>          A     B     A.1     C       D   D.1   D.2   D.3   D.4
-#> 1  19.7700  6.59  0.0000  0.00  0.0000  0.00  0.00  0.00  0.00
-#> 2  13.1800 13.18  0.0000  0.00  0.0000  0.00  0.00  0.00  0.00
-#> 3  65.9000 26.36  6.5900  6.59  0.0000  0.00  0.00  0.00  0.00
-#> 4  39.5400  6.59 26.3600 26.36  0.0000  0.00  0.00  0.00  0.00
-#> 5  13.1801  0.00 13.1800 19.77  0.0000  0.00  0.00  0.00  0.00
-#> 6   6.5901  0.00  0.0001 19.77  0.0000  0.00  0.00  0.00  0.00
-#> 7  19.7701  0.00  0.0001  0.00  0.0000  0.00  0.00  0.00  0.00
-#> 8   6.5900  0.00  6.5900  0.00  0.0000  0.00  0.00  0.00  0.00
-#> 10  6.5900  0.00  6.5900  0.00  6.5900  0.00  0.00  0.00  0.00
-#> 11  6.5900  0.00  6.5900  0.00 26.3600  0.00  0.00  0.00  0.00
-#> 12  0.0000  0.00  0.0000  0.00 26.3600  6.59  0.00  0.00  0.00
-#> 13  0.0000  0.00  0.0000  0.00 52.7200 19.77  6.59  0.00  0.00
-#> 14  0.0000  0.00  0.0000  0.00 85.6701 85.67 46.13 13.18 13.18
-#> 15  0.0000  0.00  0.0000  0.00 32.9500 26.36 26.36 19.77  0.00
-
-#this is the final matrix used to generate the fishplot object epifishf
-epifish_list$fish_matrix
-#>           1     2     3     4       5       6       7    8   10    11
-#>  [1,] 19.77 13.18 65.90 39.54 13.1801  6.5901 19.7701 6.59 6.59  6.59
-#>  [2,]  6.59 13.18 26.36  6.59  0.0000  0.0000  0.0000 0.00 0.00  0.00
-#>  [3,]  0.00  0.00  6.59 26.36 13.1800  0.0001  0.0001 6.59 6.59  6.59
-#>  [4,]  0.00  0.00  6.59 26.36 19.7700 19.7700  0.0000 0.00 0.00  0.00
-#>  [5,]  0.00  0.00  0.00  0.00  0.0000  0.0000  0.0000 0.00 6.59 26.36
-#>  [6,]  0.00  0.00  0.00  0.00  0.0000  0.0000  0.0000 0.00 0.00  0.00
-#>  [7,]  0.00  0.00  0.00  0.00  0.0000  0.0000  0.0000 0.00 0.00  0.00
-#>  [8,]  0.00  0.00  0.00  0.00  0.0000  0.0000  0.0000 0.00 0.00  0.00
-#>  [9,]  0.00  0.00  0.00  0.00  0.0000  0.0000  0.0000 0.00 0.00  0.00
-#>          12    13      14    15
-#>  [1,]  0.00  0.00  0.0000  0.00
-#>  [2,]  0.00  0.00  0.0000  0.00
-#>  [3,]  0.00  0.00  0.0000  0.00
-#>  [4,]  0.00  0.00  0.0000  0.00
-#>  [5,] 26.36 52.72 85.6701 32.95
-#>  [6,]  6.59 19.77 85.6700 26.36
-#>  [7,]  0.00  6.59 46.1300 26.36
-#>  [8,]  0.00  0.00 13.1800 19.77
-#>  [9,]  0.00  0.00 13.1800  0.00
-```
 
 ## Input format
 
@@ -253,17 +140,21 @@ Optional data frames may also be provided that describe parent-child
 relationships for clusters (eg cluster A.1 evolved from cluster A), or a
 custom colour scheme.
 
-the last few rows of sample data:
+It is easiest and safest (especially when working with dates) to save
+and maintain these tables in `.csv` (comma-separated values) format, and
+to read them into R using `read.csv("filename", stringsAsFactors=FALSE)`
+as shown in the example above. However you can use whatever methods you
+want to create these dataframes, as long as they contain the required
+columns in character or numeric (NOT factor) format.
+
+**the last few rows of sample data:**  
+(Note that the order doesn’t matter)
 
 <table>
 
 <thead>
 
 <tr>
-
-<th style="text-align:left;">
-
-</th>
 
 <th style="text-align:right;">
 
@@ -297,12 +188,6 @@ timepoint
 
 <tr>
 
-<td style="text-align:left;">
-
-79
-
-</td>
-
 <td style="text-align:right;">
 
 80
@@ -331,12 +216,6 @@ D.3
 
 <tr>
 
-<td style="text-align:left;">
-
-80
-
-</td>
-
 <td style="text-align:right;">
 
 81
@@ -365,12 +244,6 @@ D.4
 
 <tr>
 
-<td style="text-align:left;">
-
-81
-
-</td>
-
 <td style="text-align:right;">
 
 82
@@ -398,12 +271,6 @@ D.4
 </tr>
 
 <tr>
-
-<td style="text-align:left;">
-
-82
-
-</td>
 
 <td style="text-align:right;">
 
@@ -432,12 +299,6 @@ D.3
 </tr>
 
 <tr>
-
-<td style="text-align:left;">
-
-83
-
-</td>
 
 <td style="text-align:right;">
 
@@ -466,12 +327,6 @@ D.3
 </tr>
 
 <tr>
-
-<td style="text-align:left;">
-
-84
-
-</td>
 
 <td style="text-align:right;">
 
@@ -503,7 +358,7 @@ A.1
 
 </table>
 
-the parent-child data:
+**the parent-child data:**
 
 <table>
 
@@ -539,8 +394,6 @@ A
 
 <td style="text-align:left;">
 
-NA
-
 </td>
 
 </tr>
@@ -571,8 +424,6 @@ B
 
 <td style="text-align:left;">
 
-NA
-
 </td>
 
 </tr>
@@ -587,8 +438,6 @@ C
 
 <td style="text-align:left;">
 
-NA
-
 </td>
 
 </tr>
@@ -602,8 +451,6 @@ D
 </td>
 
 <td style="text-align:left;">
-
-NA
 
 </td>
 
@@ -677,7 +524,7 @@ D.2
 
 </table>
 
-a custom colour scheme:
+**a custom colour scheme:**
 
 <table>
 
@@ -855,7 +702,23 @@ blue3
 
 The output of epifish is a list variable containing: a fishplot object,
 the data structures needed to generate it, and some extra data summary
-tables.
+tables:
+
+  - `fish` epi-fishplot object to pass to `fishplot::fishPlot()`
+  - `timepoint_counts` summary table of number of samples per cluster
+    per timepoint
+  - `timepoint_sums` summary table of number of samples per timepoint
+  - `cluster_sums` summary table of total number of samples per cluster
+  - `timepoints` vector of timepoints used
+  - `timepoint_labels` vector of the names of timepoints assigned in the
+    plot
+  - `parents` named list matching child clusters to their parent’s
+    position in the matrix (0 means cluster is independent)
+  - `raw_table` initial table of counts per cluster per timepoint,
+    before padding and normalisation
+  - `fish_table` normalised and parent-padded table for the epi-fishplot
+  - `fish_matrix` final transformed matrix used to make the epifish
+    object
 
 This can be used with the fishplot package’s fishPlot() function to
 generate an R plot image, as shown above. If using RStudio, it is most
@@ -867,7 +730,140 @@ reason, it can be done like
 so:
 
 ``` r
-write.csv(epifish_list$fish_table, "fishplot_table.csv", row.names=FALSE)
+write.csv(epifish_output$fish_table, "fishplot_table.csv", row.names=FALSE)
+```
+
+This is the summary data that epifish creates:
+
+``` r
+
+epifish_output <- epifish::build_epifish( sample_df, parent_df=parent_df, colour_df=colour_df)
+#> Padding parent values in matrix: 
+#> adding child  D.4  to parent  D.2 
+#> adding child  D.3  to parent  D.2 
+#> adding child  D.2  to parent  D.1 
+#> adding child  D.1  to parent  D 
+#> adding child  A.1  to parent  A 
+#> The maximum sample count per timepoint (height of Y-axis) is:  15
+
+#this is the final matrix used to generate the fishplot object epifish
+epifish_output$timepoint_counts
+#> # A tibble: 34 x 3
+#> # Groups:   timepoint [14]
+#>    timepoint FPCluster     n
+#>        <int> <chr>     <int>
+#>  1         1 A             3
+#>  2         1 B             1
+#>  3         2 A             2
+#>  4         2 B             2
+#>  5         3 A             9
+#>  6         3 A.1           1
+#>  7         3 B             4
+#>  8         3 C             1
+#>  9         4 A             2
+#> 10         4 A.1           4
+#> # … with 24 more rows
+
+epifish_output$timepoint_sums
+#> # A tibble: 14 x 2
+#>    timepoint     n
+#>        <int> <int>
+#>  1         1     4
+#>  2         2     4
+#>  3         3    15
+#>  4         4    11
+#>  5         5     5
+#>  6         6     4
+#>  7         7     3
+#>  8         8     1
+#>  9        10     2
+#> 10        11     5
+#> 11        12     4
+#> 12        13     8
+#> 13        14    13
+#> 14        15     5
+
+epifish_output$cluster_sums
+#> # A tibble: 9 x 2
+#>   FPCluster     n
+#>   <chr>     <int>
+#> 1 A             6
+#> 2 A.1           6
+#> 3 B             4
+#> 4 C             4
+#> 5 D             5
+#> 6 D.1           3
+#> 7 D.2           3
+#> 8 D.3           2
+#> 9 D.4           1
+
+epifish_output$parents
+#>   A   B A.1   C   D D.1 D.2 D.3 D.4 
+#>   0   0   1   0   0   5   6   7   7
+
+epifish_output$timepoints
+#>  1  2  3  4  5  6  7  8 10 11 12 13 14 15 
+#>  1  2  3  4  5  6  7  8 10 11 12 13 14 15
+
+epifish_output$timepoint_labels
+#>  [1] "1"  "2"  "3"  "4"  "5"  "6"  "7"  "8"  "10" "11" "12" "13" "14" "15"
+
+epifish_output$raw_table
+#>    A B A.1 C D D.1 D.2 D.3 D.4
+#> 1  3 1   0 0 0   0   0   0   0
+#> 2  2 2   0 0 0   0   0   0   0
+#> 3  9 4   1 1 0   0   0   0   0
+#> 4  2 1   4 4 0   0   0   0   0
+#> 5  0 0   2 3 0   0   0   0   0
+#> 6  1 0   0 3 0   0   0   0   0
+#> 7  3 0   0 0 0   0   0   0   0
+#> 8  0 0   1 0 0   0   0   0   0
+#> 10 0 0   1 0 1   0   0   0   0
+#> 11 0 0   1 0 4   0   0   0   0
+#> 12 0 0   0 0 3   1   0   0   0
+#> 13 0 0   0 0 5   2   1   0   0
+#> 14 0 0   0 0 0   6   3   2   2
+#> 15 0 0   0 0 1   0   1   3   0
+
+epifish_output$fish_table
+#>          A     B     A.1     C       D   D.1   D.2   D.3   D.4
+#> 1  19.7700  6.59  0.0000  0.00  0.0000  0.00  0.00  0.00  0.00
+#> 2  13.1800 13.18  0.0000  0.00  0.0000  0.00  0.00  0.00  0.00
+#> 3  65.9000 26.36  6.5900  6.59  0.0000  0.00  0.00  0.00  0.00
+#> 4  39.5400  6.59 26.3600 26.36  0.0000  0.00  0.00  0.00  0.00
+#> 5  13.1801  0.00 13.1800 19.77  0.0000  0.00  0.00  0.00  0.00
+#> 6   6.5901  0.00  0.0001 19.77  0.0000  0.00  0.00  0.00  0.00
+#> 7  19.7701  0.00  0.0001  0.00  0.0000  0.00  0.00  0.00  0.00
+#> 8   6.5900  0.00  6.5900  0.00  0.0000  0.00  0.00  0.00  0.00
+#> 10  6.5900  0.00  6.5900  0.00  6.5900  0.00  0.00  0.00  0.00
+#> 11  6.5900  0.00  6.5900  0.00 26.3600  0.00  0.00  0.00  0.00
+#> 12  0.0000  0.00  0.0000  0.00 26.3600  6.59  0.00  0.00  0.00
+#> 13  0.0000  0.00  0.0000  0.00 52.7200 19.77  6.59  0.00  0.00
+#> 14  0.0000  0.00  0.0000  0.00 85.6701 85.67 46.13 13.18 13.18
+#> 15  0.0000  0.00  0.0000  0.00 32.9500 26.36 26.36 19.77  0.00
+
+#this is the final matrix used to generate the epifish fishplot object
+epifish_output$fish_matrix
+#>           1     2     3     4       5       6       7    8   10    11
+#>  [1,] 19.77 13.18 65.90 39.54 13.1801  6.5901 19.7701 6.59 6.59  6.59
+#>  [2,]  6.59 13.18 26.36  6.59  0.0000  0.0000  0.0000 0.00 0.00  0.00
+#>  [3,]  0.00  0.00  6.59 26.36 13.1800  0.0001  0.0001 6.59 6.59  6.59
+#>  [4,]  0.00  0.00  6.59 26.36 19.7700 19.7700  0.0000 0.00 0.00  0.00
+#>  [5,]  0.00  0.00  0.00  0.00  0.0000  0.0000  0.0000 0.00 6.59 26.36
+#>  [6,]  0.00  0.00  0.00  0.00  0.0000  0.0000  0.0000 0.00 0.00  0.00
+#>  [7,]  0.00  0.00  0.00  0.00  0.0000  0.0000  0.0000 0.00 0.00  0.00
+#>  [8,]  0.00  0.00  0.00  0.00  0.0000  0.0000  0.0000 0.00 0.00  0.00
+#>  [9,]  0.00  0.00  0.00  0.00  0.0000  0.0000  0.0000 0.00 0.00  0.00
+#>          12    13      14    15
+#>  [1,]  0.00  0.00  0.0000  0.00
+#>  [2,]  0.00  0.00  0.0000  0.00
+#>  [3,]  0.00  0.00  0.0000  0.00
+#>  [4,]  0.00  0.00  0.0000  0.00
+#>  [5,] 26.36 52.72 85.6701 32.95
+#>  [6,]  6.59 19.77 85.6700 26.36
+#>  [7,]  0.00  6.59 46.1300 26.36
+#>  [8,]  0.00  0.00 13.1800 19.77
+#>  [9,]  0.00  0.00 13.1800  0.00
 ```
 
 ## Extras
@@ -1258,7 +1254,7 @@ labels. *Note: you can only have one unique label per timepoint value.*
 sample_df$timepoint <- sample_df$epiweek  
 
 #tell epifish to use the "timepoint_label" column we created above
-epifish_list <- epifish::build_epifish (sample_df, parent_df, colour_df, timepoint_labels=TRUE)
+epifish_output <- epifish::build_epifish( sample_df, parent_df, colour_df, timepoint_labels=TRUE)
 #> Padding parent values in matrix: 
 #> adding child  D.4  to parent  D.2 
 #> adding child  D.3  to parent  D.2 
@@ -1267,11 +1263,39 @@ epifish_list <- epifish::build_epifish (sample_df, parent_df, colour_df, timepoi
 #> adding child  A.1  to parent  A 
 #> The maximum sample count per timepoint (height of Y-axis) is:  15
 
-fishplot::fishPlot(epifish_list$fish, pad.left=0.1, shape="spline", vlines=epifish_list$timepoints, vlab=epifish_list$timepoint_labels)
-fishplot::drawLegend(epifish_list$fish, nrow=1)
+fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels)
+fishplot::drawLegend(epifish_output$fish, nrow=1)
 ```
 
 <img src="man/figures/README-unnamed-chunk-12-1.png" width="100%" />
+
+### Control legend spacing
+
+You can use `epifish::drawLegend2()` to modify the spacing of the
+epi-fishplot legend, which is especially useful with long cluster names.
+Use `widthratio` to adjust the width between columns relative to the
+longest cluster name (lower number = more space), and `xsp` to control
+space between the colour box and the text (larger = more space)
+
+**default
+`fishplot::drawLegend()`:**
+
+``` r
+fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels)
+fishplot::drawLegend(epifish_output$fish, nrow=2)
+```
+
+<img src="man/figures/README-unnamed-chunk-14-1.png" width="100%" />
+
+**using `epifish::drawLegend2()` to adjust the legend
+spacing:**
+
+``` r
+fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels)
+epifish::drawLegend2(epifish_output$fish, nrow=2, widthratio=0.3, xsp=0.2)
+```
+
+<img src="man/figures/README-unnamed-chunk-15-1.png" width="100%" />
 
 ### Specify timepoints and their labels manually
 
@@ -1284,14 +1308,14 @@ on the fourth day of the first epi week (we’ll also make the text a bit
 smaller so it doesn’t overlap):
 
 ``` r
-vlines <- c((4/7), epifish_list$timepoints)
-vlabs <- c("1\nJan", epifish_list$timepoint_labels)
+vlines <- c((4/7), epifish_output$timepoints)
+vlabs <- c("1\nJan", epifish_output$timepoint_labels)
 
-fishplot::fishPlot(epifish_list$fish, pad.left=0.1, shape="spline", 
+fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline", 
                    vlines=vlines, vlab=vlabs, cex.vlab=0.5)
 ```
 
-<img src="man/figures/README-unnamed-chunk-13-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-16-1.png" width="100%" />
 
 Or we can use completely custom labels that describe an epidemiological
 story, with red lines:
@@ -1300,11 +1324,11 @@ story, with red lines:
 vlines <- c((4/7), 3, 4, 8, 14)
 vlabs <- c("first\ncases", "peak 1", "quarantine\n", "quarantine\nlifted", "peak 2")
 
-fishplot::fishPlot(epifish_list$fish, pad.left=0.1, shape="spline", 
+fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline", 
                    vlines=vlines, vlab=vlabs, col.vline="red")
 ```
 
-<img src="man/figures/README-unnamed-chunk-14-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-17-1.png" width="100%" />
 
 ## Citation:
 
