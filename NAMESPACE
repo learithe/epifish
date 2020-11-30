@@ -2,7 +2,8 @@
 
 export(build_epifish)
 export(drawLegend2)
+export(get_epimonth)
 export(get_epiweek)
 export(get_epiweek_span)
-export(get_month)
+export(get_month_text)
 export(pad_matrix)

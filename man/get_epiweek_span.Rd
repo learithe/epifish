@@ -9,7 +9,8 @@ get_epiweek_span(
   return_end = FALSE,
   add_year = FALSE,
   first_month = TRUE,
-  date_format = "ymd"
+  date_format = "ymd",
+  week_start = 7
 )
 }
 \arguments{
@@ -22,19 +23,22 @@ get_epiweek_span(
 \item{first_month}{TRUE/FALSE whether to include the first month in the text}
 
 \item{date_format}{character date format: "ymd" "dmy" or "mdy" (default is "ymd")}
+
+\item{week_start}{integer day that weeks start on (1=Monday, 6=Saturday, 7=Sunday)}
 }
 \value{
 character string
 }
 \description{
-Given a case date, returns a text description of the epi week it represents
+Given a case date, returns a text description of the epi week it belongs in
 (eg "29 Mar - 4 Apr"). If `return_end` is `TRUE` just returns the end date
 (eg "4 Apr"). If `add_year` is `TRUE` appends the year (eg "4 Apr 2020"). If
 `first_month` is FALSE will skip the first month entry (eg "29-4 Apr")
 }
 \details{
-A CDC-format "epi week" starts on Sunday and ends on Saturday. This function takes a case
-date, and returns a human-friendly description of that week (useful for labelling plots).
+This function takes a case date, and returns a human-friendly description of that week
+(useful for labelling plots). By default this function uses the CDC's description of an epi week
+which starts on Sunday and ends on Monday; If your weeks start on a different day, use the `week_start` variable.
 }
 \examples{
 get_epiweek_span( "2020/01/25")

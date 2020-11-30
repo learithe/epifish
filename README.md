@@ -13,12 +13,12 @@ datasets, to generate fishplot epi-curves.
 
 **Why?**  
 A count matrix for a fishplot has a set of specific rules which an
-epidemiological dataset will not naturally fulfill:
+epidemiological dataset will not naturally fulfil:
 
   - cluster counts can never go completely to zero, if cases reappear
     later
   - if a cluster has a parent/child relationship, at every timepoint the
-    parent must always have \>= the count of all it’s children.
+    parent must always have \>= the count of all its children.
   - counts should be normalised to fit the fishplot y-axis
 
 This package exists to make it easy to convert a list of samples into a
@@ -873,8 +873,8 @@ epifish_output$fish_matrix
 ### Using raw dates to create timepoints
 
 Epifish also has a few functions to make it easy to convert dates to
-CDC-defined epi weeks (to use as timepoints), and generate
-label-friendly versions of epi week dates.
+epidemic weeks or months (to use as timepoints), and generate
+label-friendly versions of timpoint dates.
 
 *NOTE: when working with dates in both R and Excel, be sure to check
 that your values match what you expect\! When using R for analysis it is
@@ -890,22 +890,28 @@ Excel.*
 sample_df <- sample_df %>% rowwise() %>% 
              mutate("epiweek"= epifish::get_epiweek(cdate = date_of_collection, 
                                                     start_date = "1/1/20", 
-                                                    date_format = "dmy"))
+                                                    date_format = "dmy",
+                                                    week_start=7))
 
 #create a timepoint label column that gives the last day of each epi week the sample was collected in:
 sample_df <- sample_df %>% rowwise() %>% 
-             mutate("timepoint_label"= epifish::get_epiweek_span(cdate = date_of_collection, 
+             mutate("epiweek_label"= epifish::get_epiweek_span(cdate = date_of_collection, 
                                                                  return_end = TRUE, 
-                                                                 date_format = "dmy")) 
+                                                                 date_format = "dmy",
+                                                                 week_start=7)) 
 
 #replace the space in the labels with a newline to look pretty
 sample_df <- sample_df %>% rowwise() %>% 
-             mutate("timepoint_label"= gsub(" ", "\n", timepoint_label))  
+             mutate("epiweek_label"= gsub(" ", "\n", epiweek_label))  
   
 #create a "month" column just for fun:
 sample_df <- sample_df %>% rowwise() %>% 
-             mutate("month"= epifish::get_month(cdate = date_of_collection, 
-                                                date_format = "dmy")) 
+             mutate("epimonth"= epifish::get_epimonth(cdate = date_of_collection, 
+                                                      start_date = "1/1/20", 
+                                                      date_format = "dmy")) 
+sample_df <- sample_df %>% rowwise() %>% 
+             mutate("epimonth_label"= epifish::get_month_text(cdate = date_of_collection, 
+                                                              date_format = "dmy")) 
 
 #look at what we created 
 kable( tail(sample_df) )
@@ -949,13 +955,19 @@ epiweek
 
 <th style="text-align:left;">
 
-timepoint\_label
+epiweek\_label
+
+</th>
+
+<th style="text-align:right;">
+
+epimonth
 
 </th>
 
 <th style="text-align:left;">
 
-month
+epimonth\_label
 
 </th>
 
@@ -1000,6 +1012,12 @@ D.3
 <td style="text-align:left;">
 
 11 Apr
+
+</td>
+
+<td style="text-align:right;">
+
+4
 
 </td>
 
@@ -1049,6 +1067,12 @@ D.4
 
 </td>
 
+<td style="text-align:right;">
+
+4
+
+</td>
+
 <td style="text-align:left;">
 
 Apr
@@ -1092,6 +1116,12 @@ D.4
 <td style="text-align:left;">
 
 4 Apr
+
+</td>
+
+<td style="text-align:right;">
+
+4
 
 </td>
 
@@ -1141,6 +1171,12 @@ D.3
 
 </td>
 
+<td style="text-align:right;">
+
+4
+
+</td>
+
 <td style="text-align:left;">
 
 Apr
@@ -1184,6 +1220,12 @@ D.3
 <td style="text-align:left;">
 
 4 Apr
+
+</td>
+
+<td style="text-align:right;">
+
+4
 
 </td>
 
@@ -1233,6 +1275,12 @@ A.1
 
 </td>
 
+<td style="text-align:right;">
+
+1
+
+</td>
+
 <td style="text-align:left;">
 
 Jan
@@ -1251,9 +1299,12 @@ If you call `build_epifish ()` with `timepoint_labels=TRUE`, epifish
 will look for a column called “timepoint\_label” to use as the timepoint
 labels. *Note: you can only have one unique label per timepoint value.*
 
+**Use the epi weeks we just calculated:**
+
 ``` r
 #fill the "timepoint" column with our  newly calculated epi weeks above
 sample_df$timepoint <- sample_df$epiweek  
+sample_df$timepoint_label <- sample_df$epiweek_label
 
 #tell epifish to use the "timepoint_label" column we created above
 epifish_output <- epifish::build_epifish( sample_df, parent_df, colour_df, timepoint_labels=TRUE)
@@ -1265,11 +1316,38 @@ epifish_output <- epifish::build_epifish( sample_df, parent_df, colour_df, timep
 #> adding child  A.1  to parent  A 
 #> The maximum sample count per timepoint (height of Y-axis) is:  15
 
-fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels)
+fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline", 
+                   vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels)
 fishplot::drawLegend(epifish_output$fish, nrow=1)
 ```
 
 <img src="man/figures/README-unnamed-chunk-12-1.png" width="100%" />
+
+**Use the epi months we just calculated:**  
+*Note: switching to “polygon” shape because “spline” has issues with the
+duplicate values created for this timepoint set*
+
+``` r
+#fill the "timepoint" column with our  newly calculated epi weeks above
+sample_df$timepoint <- sample_df$epimonth
+sample_df$timepoint_label <- sample_df$epimonth_label
+
+#tell epifish to use the "timepoint_label" column we created above
+epifish_output <- epifish::build_epifish( sample_df, parent_df, colour_df, timepoint_labels=TRUE)
+#> Padding parent values in matrix: 
+#> adding child  D.4  to parent  D.2 
+#> adding child  D.3  to parent  D.2 
+#> adding child  D.2  to parent  D.1 
+#> adding child  D.1  to parent  D 
+#> adding child  A.1  to parent  A 
+#> The maximum sample count per timepoint (height of Y-axis) is:  38
+
+fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="polygon", 
+                   vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels)
+fishplot::drawLegend(epifish_output$fish, nrow=1)
+```
+
+<img src="man/figures/README-unnamed-chunk-13-1.png" width="100%" />
 
 ### Specify timepoints and their labels manually
 
@@ -1282,6 +1360,17 @@ on the fourth day of the first epi week (we’ll also make the text a bit
 smaller so it doesn’t overlap):
 
 ``` r
+sample_df$timepoint <- sample_df$epiweek
+sample_df$timepoint_label <- sample_df$epiweek_label
+epifish_output <- epifish::build_epifish( sample_df, parent_df, colour_df, timepoint_labels=TRUE)
+#> Padding parent values in matrix: 
+#> adding child  D.4  to parent  D.2 
+#> adding child  D.3  to parent  D.2 
+#> adding child  D.2  to parent  D.1 
+#> adding child  D.1  to parent  D 
+#> adding child  A.1  to parent  A 
+#> The maximum sample count per timepoint (height of Y-axis) is:  15
+
 vlines <- c((4/7), epifish_output$timepoints)
 vlabs <- c("1\nJan", epifish_output$timepoint_labels)
 
@@ -1289,7 +1378,7 @@ fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline",
                    vlines=vlines, vlab=vlabs, cex.vlab=0.5)
 ```
 
-<img src="man/figures/README-unnamed-chunk-13-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-14-1.png" width="100%" />
 
 Or we can use completely custom timepoints nd labels that describe an
 epidemiological story, with red lines:
@@ -1302,7 +1391,7 @@ fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline",
                    vlines=vlines, vlab=vlabs, col.vline="red")
 ```
 
-<img src="man/figures/README-unnamed-chunk-14-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-15-1.png" width="100%" />
 
 ### Control legend spacing
 
@@ -1320,7 +1409,7 @@ fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline", vlines=epi
 fishplot::drawLegend(epifish_output$fish, nrow=2)
 ```
 
-<img src="man/figures/README-unnamed-chunk-16-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-17-1.png" width="100%" />
 
 **using `epifish::drawLegend2()` to adjust the legend
 spacing:**
@@ -1330,12 +1419,12 @@ fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline", vlines=epi
 epifish::drawLegend2(epifish_output$fish, nrow=2, widthratio=0.3, xsp=0.2)
 ```
 
-<img src="man/figures/README-unnamed-chunk-17-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-18-1.png" width="100%" />
 
 ## Citation:
 
 **If you use epifish in your work, please don’t forget to cite the
-fishplot package:**  
+fishplot package as well:**  
 Visualizing tumor evolution with the fishplot package for R. Miller CA,
 McMichael J, Dang HX, Maher CA, Ding L, Ley TJ, Mardis ER, Wilson RK.
 BMC Genomics. <doi:10.1186/s12864-016-3195-z>

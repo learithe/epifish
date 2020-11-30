@@ -10,7 +10,12 @@ build_epifish(
   colour_df = NULL,
   min_cluster_size = 1,
   timepoint_labels = FALSE,
-  label_clusters = TRUE
+  label_clusters = TRUE,
+  label_pos = 2,
+  label_cex = 0.7,
+  label_col = "black",
+  label_angle = 0,
+  label_offset = 0.2
 )
 }
 \arguments{
