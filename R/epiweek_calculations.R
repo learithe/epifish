@@ -58,7 +58,8 @@ get_epiweek<- function(cdate, start_date, date_format="ymd", week_start=7) {
 #' Given a case date, returns a text description of the epi week it belongs in
 #' (eg "29 Mar - 4 Apr"). If `return_end` is `TRUE` just returns the end date
 #' (eg "4 Apr"). If `add_year` is `TRUE` appends the year (eg "4 Apr 2020"). If
-#' `first_month` is FALSE will skip the first month entry (eg "29-4 Apr")
+#' `first_month` is FALSE will skip the first month entry (eg "29-4 Apr"). If
+#' `newline` is TRUE will use a newline instead of a space (eg `29-4\\nApr``).
 #'
 #'
 #' @details
@@ -72,6 +73,7 @@ get_epiweek<- function(cdate, start_date, date_format="ymd", week_start=7) {
 #' @param first_month TRUE/FALSE whether to include the first month in the text
 #' @param date_format character date format: "ymd" "dmy" or "mdy" (default is "ymd")
 #' @param week_start integer day that weeks start on (1=Monday, 6=Saturday, 7=Sunday)
+#' @param newline TRUE/FALSE whether to use newlines instead of spaces
 #'
 #' @return character string
 #'
@@ -82,8 +84,8 @@ get_epiweek<- function(cdate, start_date, date_format="ymd", week_start=7) {
 #'
 #' @export
 #'
-#'
-get_epiweek_span <- function(cdate, return_end=FALSE, add_year=FALSE, first_month=TRUE, date_format="ymd", week_start=7){
+get_epiweek_span <- function(cdate, return_end=FALSE, add_year=FALSE, first_month=TRUE,
+                             date_format="ymd", week_start=7, newline=FALSE){
 
   if ( date_format == "ymd") {
     t <-  lubridate::ymd(cdate)
@@ -115,6 +117,8 @@ get_epiweek_span <- function(cdate, return_end=FALSE, add_year=FALSE, first_mont
                    "-", ret)
   }
 
+  if(newline==TRUE){ ret <- gsub(" ", "\n", ret) }
+
   return(ret)
 
 }
@@ -144,36 +148,38 @@ get_epiweek_span <- function(cdate, return_end=FALSE, add_year=FALSE, first_mont
 #'
 get_epimonth<- function(cdate, start_date, date_format="ymd") {
 
+  cdate <- paste0(cdate, " 00:00:00")
+  start_date <- paste0(start_date, " 00:00:01")
+
   if ( date_format == "ymd") {
-    d1 <- lubridate::ymd(cdate)
-    d2 <- lubridate::ymd(start_date)
+    d1 <- lubridate::ymd_hms(cdate)
+    d2 <- lubridate::ymd_hms(start_date)
 
   } else if ( date_format == "mdy") {
-    d1 <- lubridate::mdy(cdate)
-    d2 <- lubridate::mdy(start_date)
+    d1 <- lubridate::mdy_hms(cdate)
+    d2 <- lubridate::mdy_hms(start_date)
 
   } else if ( date_format == "dmy") {
-    d1 <- lubridate::dmy(cdate)
-    d2 <- lubridate::dmy(start_date)
+    d1 <- lubridate::dmy_hms(cdate)
+    d2 <- lubridate::dmy_hms(start_date)
 
   } else {
     warning("ERROR: date_format must one of ('ymd', 'dmy', 'mdy')")
     return(NA)
   }
 
-  d2 <- lubridate::floor_date(d2, unit="month") -1
+  d2 <- lubridate::ceiling_date(d2, unit="month")
+  d1 <- lubridate:: floor_date(d1, unit="month")
   e <- ceiling( lubridate::time_length( difftime(d1, d2), unit="month") )
-  return(e)
+
+  return(e + 2)
 
 }
 
 
-
-
-
 #' Extract the month in text form from a date
 #'
-#' Given a case date, returns the month it belongs to (eg "Apr" or "Apr 2020")
+#' Given a case date, returns the month it belongs to (eg "Apr" or "Apr 2020" or `Apr\\n2020`)
 #'
 #' @details
 #' This function takes a case date, and returns a human-friendly description
@@ -182,17 +188,18 @@ get_epimonth<- function(cdate, start_date, date_format="ymd") {
 #' @param cdate character string date (2020/1/19, 20-1-19, 20.01.19, or similar)
 #' @param add_year TRUE/FALSE whether to include the year
 #' @param date_format character date format: "ymd" "dmy" or "mdy" (default is "ymd")
+#' @param newline TRUE/FALSE whether to use a newline instead of a space before the year
 #'
 #' @return character string
 #'
 #' @examples
 #' get_month_text( "2020.01.25")
 #' get_month_text( "2020.01.25", add_year=TRUE)
-#' get_month_text( "25/1/20", add_year=TRUE, date_format="dmy")
+#' get_month_text( "25/1/20", add_year=TRUE, date_format="dmy", newline=TRUE)
 #'
 #' @export
 #'
-get_month_text <- function(cdate, add_year=FALSE, date_format="ymd"){
+get_month_text <- function(cdate, add_year=FALSE, date_format="ymd", newline=FALSE){
 
   if ( date_format == "ymd") {
     t <-  lubridate::ymd(cdate)
@@ -208,6 +215,7 @@ get_month_text <- function(cdate, add_year=FALSE, date_format="ymd"){
   ret <- paste0( as.character( lubridate::month(t, label=TRUE)) )
 
   if(add_year==TRUE){ ret <- paste0( ret, " ", lubridate::year(t)) }
+  if(newline==TRUE){ ret <- gsub(" ", "\n", ret) }
   return(ret)
 
 }

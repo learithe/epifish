@@ -131,7 +131,6 @@ build_epifish <- function( sample_df, parent_df=NULL, colour_df=NULL, min_cluste
   if (timepoint_labels==TRUE) {
 
     if("timepoint_label" %in% names(df) ) {
-
       tmpdf <- select(sample_df, timepoint, timepoint_label) %>% distinct()
       tmpdf <- arrange(tmpdf, timepoint)
       names(timepoints) <- tmpdf$timepoint_label
@@ -158,18 +157,18 @@ build_epifish <- function( sample_df, parent_df=NULL, colour_df=NULL, min_cluste
 
 
   # temporarily create a new version of the fishplot annotClone() function
-  # allows some control of cluster label position
-  # default annotClone is:
-  #    annotClone <- function(x, y, annot, annot.angle=0, annot.col = "black") {
-  #       text(x, y, annot, pos = 4, cex = 0.5, col = col, xpd = NA, srt = angle, offset = 0.5)
-  #    }
-  #annotClone <- function(x, y, annot, angle=0, col = "black") {
-  #  text(x, y, annot, pos = 2, cex = 0.7, col = col, xpd = NA, srt = angle, offset = 0.2)
-#
- # }
-  #tmpfun <- get("annotClone", envir = asNamespace("fishplot"))
-  #environment(annotClone) <- environment(tmpfun)
-  #utils::assignInNamespace("annotClone", annotClone, ns="fishplot")
+  # to modify the cluster label position
+  # will remove this when my flexible version is implemented in the official fishplot package
+  # default annotClone() is:
+  #   annotClone <- function(x, y, annot, angle=0, col = "black") {
+  #     text(x, y, annot, pos = 4, cex = 0.5, col = col, xpd = NA, srt = angle, offset = 0.5)
+  #   }
+  annotClone <- function(x, y, annot, angle=0, col = "black", cex = 0.7, pos = 2, offset = 0.2) {
+    text(x, y, annot, pos = 2, cex = 0.7, col = col, xpd = NA, srt = angle, offset = 0.2)
+  }
+  tmpfun <- get("annotClone", envir = asNamespace("fishplot"))
+  environment(annotClone) <- environment(tmpfun)
+  utils::assignInNamespace("annotClone", annotClone, ns="fishplot")
 
 
   # create the fishplot object!

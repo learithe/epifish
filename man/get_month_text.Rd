@@ -4,7 +4,7 @@
 \alias{get_month_text}
 \title{Extract the month in text form from a date}
 \usage{
-get_month_text(cdate, add_year = FALSE, date_format = "ymd")
+get_month_text(cdate, add_year = FALSE, date_format = "ymd", newline = FALSE)
 }
 \arguments{
 \item{cdate}{character string date (2020/1/19, 20-1-19, 20.01.19, or similar)}
@@ -12,12 +12,14 @@ get_month_text(cdate, add_year = FALSE, date_format = "ymd")
 \item{add_year}{TRUE/FALSE whether to include the year}
 
 \item{date_format}{character date format: "ymd" "dmy" or "mdy" (default is "ymd")}
+
+\item{newline}{TRUE/FALSE whether to use a newline instead of a space before the year}
 }
 \value{
 character string
 }
 \description{
-Given a case date, returns the month it belongs to (eg "Apr" or "Apr 2020")
+Given a case date, returns the month it belongs to (eg "Apr" or "Apr 2020" or `Apr\\n2020`)
 }
 \details{
 This function takes a case date, and returns a human-friendly description
@@ -26,6 +28,6 @@ of the month it belongs to (useful for labelling plots).
 \examples{
 get_month_text( "2020.01.25")
 get_month_text( "2020.01.25", add_year=TRUE)
-get_month_text( "25/1/20", add_year=TRUE, date_format="dmy")
+get_month_text( "25/1/20", add_year=TRUE, date_format="dmy", newline=TRUE)
 
 }

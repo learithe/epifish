@@ -10,7 +10,8 @@ get_epiweek_span(
   add_year = FALSE,
   first_month = TRUE,
   date_format = "ymd",
-  week_start = 7
+  week_start = 7,
+  newline = FALSE
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ get_epiweek_span(
 \item{date_format}{character date format: "ymd" "dmy" or "mdy" (default is "ymd")}
 
 \item{week_start}{integer day that weeks start on (1=Monday, 6=Saturday, 7=Sunday)}
+
+\item{newline}{TRUE/FALSE whether to use newlines instead of spaces}
 }
 \value{
 character string
@@ -33,7 +36,8 @@ character string
 Given a case date, returns a text description of the epi week it belongs in
 (eg "29 Mar - 4 Apr"). If `return_end` is `TRUE` just returns the end date
 (eg "4 Apr"). If `add_year` is `TRUE` appends the year (eg "4 Apr 2020"). If
-`first_month` is FALSE will skip the first month entry (eg "29-4 Apr")
+`first_month` is FALSE will skip the first month entry (eg "29-4 Apr"). If
+`newline` is TRUE will use a newline instead of a space (eg `29-4\\nApr``).
 }
 \details{
 This function takes a case date, and returns a human-friendly description of that week
