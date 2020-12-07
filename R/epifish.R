@@ -1,5 +1,3 @@
-
-
 #== epifish.R
 #
 # A package of functions to generate an epidemic curve fishplot
@@ -53,6 +51,13 @@ build_epifish <- function( sample_df, parent_df=NULL, colour_df=NULL, min_cluste
 
   #clear any prior rowwise() and groupby() operations
   df <- ungroup(sample_df)
+
+
+  #make sure we're not dealing with factors
+  if (!is.null(parent_df)){ parent_df <- parent_df %>% mutate_if(is.factor, as.character) }
+  if (!is.null(colour_df)){ colour_df <- colour_df %>% mutate_if(is.factor, as.character) }
+  sample_df <- sample_df %>% mutate_if(is.factor, as.character)
+
 
   #-- process clusters to display ------------------------------------------------
   # initialise new cluster column with original cluster values
@@ -278,13 +283,16 @@ set_fish_colours <- function(colour_df, fishplot_names){
   missing = fishplot_names[ ! fishplot_names %in% names(fish_colours) ]
   if( length(missing) > 0 ){
     warning( "\nWARNING: existing clusters not found in colour list, setting these to white: ", paste(missing, collapse=", "))
-    missing_clusters <- rep("white", 1:length(missing))
+    missing_clusters <- rep("white", length(missing))
     names(missing_clusters) <- missing
     fish_colours <- c(fish_colours, missing_clusters)
+
   } else {
     extra_clusters <- list()
   }
+
   extra = names(fish_colours)[ ! names(fish_colours) %in% fishplot_names ]
+
   if( length(extra) > 0 ){
     warning( "\nWARNING: some clusters in colour list not found in data: ", paste(extra, collapse=", "))
   }
@@ -322,17 +330,18 @@ make_parent_list <- function(parent_df, fishplot_names) {
   names(plist) <- fishplot_names
 
   for( i in 1:nrow(parent_df)){
-    if( ! is.na(parent_df[i, "parent"]) ){
+
+    if( ! is.na(parent_df[i, "parent"]) &  parent_df[i, "parent"] != "" ){
 
       parent <- parent_df[i, 2]
       child <- parent_df[i, 1]
-      #cat(parent, child, "\n")
+      #cat("parent: ", parent, " child: ", child, "\n")
 
       if (! parent %in% names(plist) | ! child %in% names(plist) ) {
         warning(paste0("Requested parent or child cluster not present in fish table names: ", parent) )
       } else {
         position <- match(parent, names(plist))
-        #cat("setting parent position of child", child, " to ", position, "\n")
+        cat("setting parent position of child", child, " to ", position, "\n")
         plist[ child ] <- match(parent, names(plist))
       }
     }
@@ -426,8 +435,4 @@ drawLegend2 <- function(fish, xpos=0, ypos=-5, nrow=NULL, cex=1, widthratio=1.5,
   legend(xpos,ypos,fill=col, legend=lab, bty="n", ncol=ncol, xpd=T, col="grey30", border="grey30", cex=cex*0.8,
          text.width=col_width, x.intersp=xsp)
 }
-
-
-
-
 
