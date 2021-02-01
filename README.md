@@ -55,6 +55,7 @@ relative count matrix that fulfils these requirements.
       - [Manual timepoints and labels](#manual-timepoints-and-labels)
       - [Control legend spacing](#control-legend-spacing)
   - [Citation](#citation)
+  - [Acknowledgements](#acknowledgements)
 
 ## Installation
 
@@ -594,7 +595,9 @@ D.2
 
 </table>
 
-**a custom colour scheme:** (Note that you can use named ggplot colours,
+**a custom colour scheme:**  
+(Note that you can use [named ggplot
+colours](https://www.nceas.ucsb.edu/sites/default/files/2020-04/colorPaletteCheatsheet.pdf)
 or hex codes (eg “red” or “\#ff0000”) )
 
 <table>
@@ -771,9 +774,9 @@ blue3
 
 ## Output
 
-The output of epifish is a list variable containing: a fishplot object
-(`epifish_output$fish`), the data structures needed to generate it, and
-some extra data summary tables:
+The output of epifish is a list variable (named `epifish_output` here)
+containing: a fishplot object (`epifish_output$fish`), the data
+structures needed to generate it, and some extra data summary tables:
 
   - `fish` fishplot object to pass to `fishplot::fishPlot()`
   - `timepoint_counts` summary table of number of samples per cluster
@@ -791,38 +794,23 @@ some extra data summary tables:
   - `fish_matrix` final transformed matrix used to make the epifish
     object
 
-This can be used with the fishplot package’s fishPlot() function to
-generate an R plot image, as shown above. If using RStudio, it is most
-straightforward to save the R plot as PDF image from the RStudio plot
-window (Export -\> “Save as PDF”).
+The epifish fishplot object output `epifish_output$fish` is used with
+the fishplot package’s `fishPlot()` function to generate an R plot
+image, as shown above. If using RStudio, it is most straightforward to
+save the R plot as PDF image from the RStudio plot window (Export -\>
+“Save as PDF”).
 
-If you wish to save individual tables from the output list for any
-reason, it can be done like
+If you wish to save individual tables from the epifish output list for
+any reason, it can be done like
 so:
 
 ``` r
-write.csv(epifish_output$fish_table, "fishplot_table.csv", row.names=FALSE)
+write.csv(epifish_output$fish_table, "epifishplot_table.csv", row.names=FALSE)
 ```
 
 This is the extra summary data that epifish creates:
 
 ``` r
-
-epifish_output <- epifish::build_epifish( sample_df, parent_df=parent_df, colour_df=colour_df)
-#> setting parent position of child A.1  to  1 
-#> setting parent position of child D.3  to  7 
-#> setting parent position of child D.2  to  6 
-#> setting parent position of child D.1  to  5 
-#> setting parent position of child D.4  to  7 
-#> Padding parent values in matrix: 
-#> adding child  D.4  to parent  D.2 
-#> adding child  D.3  to parent  D.2 
-#> adding child  D.2  to parent  D.1 
-#> adding child  D.1  to parent  D 
-#> adding child  A.1  to parent  A 
-#> The maximum sample count per timepoint (height of Y-axis) is:  15
-
-
 epifish_output$timepoint_counts
 #> # A tibble: 34 x 3
 #> # Groups:   timepoint [14]
@@ -952,7 +940,7 @@ label-friendly versions of timepoint dates.
 
 *NOTE: when working with dates in both R and Excel, be sure to check
 that your values match what you expect\! When using R for analysis it is
-best practice tosave your data files in a text-based format like `.csv`
+best practice to save your data files in a text-based format like `.csv`
 (comma-separated-value) format rather than Excel format, because [Excel
 has many issues with how it handles
 dates](https://datacarpentry.org/spreadsheets-socialsci/03-dates-as-data/),
@@ -979,12 +967,14 @@ sample_df <- sample_df %>% rowwise() %>%
 #create a timepoint label column that gives the last day of each epi week the sample was collected in:
 sample_df <- sample_df %>% rowwise() %>% 
              mutate("epiweek_label"= epifish::get_epiweek_span(cdate = date_of_collection, 
-                                                                date_format = "dmy",
-                                                                return_end = TRUE, 
-                                                                newline=TRUE))
+                                                               date_format = "dmy",
+                                                               return_end = TRUE, 
+                                                               newline=TRUE))
+```
 
+``` r
 #look at what we created 
-kable( tail(sample_df) )
+tail(sample_df)
 ```
 
 <table>
@@ -1315,7 +1305,7 @@ fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline",
 fishplot::drawLegend(epifish_output$fish, nrow=1)
 ```
 
-<img src="man/figures/README-unnamed-chunk-15-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-17-1.png" width="100%" />
 
 #### Use epi months as timepoints:
 
@@ -1355,7 +1345,7 @@ fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="polygon",
 fishplot::drawLegend(epifish_output$fish, nrow=1, xpos=0.7)
 ```
 
-<img src="man/figures/README-unnamed-chunk-16-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-18-1.png" width="100%" />
 
 ### Manual timepoints and labels
 
@@ -1394,7 +1384,7 @@ fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline",
                    vlines=vlines, vlab=vlabs)
 ```
 
-<img src="man/figures/README-unnamed-chunk-17-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-19-1.png" width="100%" />
 
 Or add a “zero” timepoint with the first case, which starts on the
 fourth day of the first epi week (we’ll also make the text a bit smaller
@@ -1408,7 +1398,7 @@ fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline",
                    vlines=vlines, vlab=vlabs, cex.vlab=0.5)
 ```
 
-<img src="man/figures/README-unnamed-chunk-18-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-20-1.png" width="100%" />
 
 Or we can use completely custom timepoints and labels that describe an
 epidemiological story, with red lines:
@@ -1421,7 +1411,7 @@ fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline",
                    vlines=vlines, vlab=vlabs, col.vline="red")
 ```
 
-<img src="man/figures/README-unnamed-chunk-19-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-21-1.png" width="100%" />
 
 ### Control legend spacing
 
@@ -1439,7 +1429,7 @@ fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline", vlines=epi
 fishplot::drawLegend(epifish_output$fish, nrow=2)
 ```
 
-<img src="man/figures/README-unnamed-chunk-21-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-23-1.png" width="100%" />
 
 **using `epifish::drawLegend2()` to adjust the legend
 spacing:**
@@ -1449,12 +1439,25 @@ fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline", vlines=epi
 epifish::drawLegend2(epifish_output$fish, nrow=2, widthratio=0.3, xsp=0.2)
 ```
 
-<img src="man/figures/README-unnamed-chunk-22-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-24-1.png" width="100%" />
 
 ## Citation:
 
-**If you use epifish in your work, please don’t forget to cite the
-fishplot package as well:**  
-Visualizing tumor evolution with the fishplot package for R. Miller CA,
-McMichael J, Dang HX, Maher CA, Ding L, Ley TJ, Mardis ER, Wilson RK.
-BMC Genomics. <doi:10.1186/s12864-016-3195-z>
+**If you use epifish in your work, please cite:**
+
+  - **epifish**: this github page.
+  - **fishplot**: Visualizing tumor evolution with the fishplot package
+    for R. Miller CA, McMichael J, Dang HX, Maher CA, Ding L, Ley TJ,
+    Mardis ER, Wilson RK. BMC Genomics. <doi:10.1186/s12864-016-3195-z>
+
+## Acknowledgements:
+
+This work extends the Chris Miller’s fishplot package
+(<https://github.com/chrisamiller/fishplot>). It was written by
+Dr. Jenny Draper as an employee of [New South Wales Health
+Pathology](https://www.pathology.health.nsw.gov.au), at the Westmead
+Hospital Institute of Clinical Pathology & Medical Research (ICPMR)
+[Centre for Infectious Diseases and Microbiology - Public
+Health](https://www.wslhd.health.nsw.gov.au/Education-Portal/Research/Research-Categories/Centre-for-Infectious-Diseases-and-Microbiology-Public-Health/About-CIDMPH)
+in Australia. `epifish` was initially developed to track genomic
+clusters during the NSW government’s response to COVID-19.

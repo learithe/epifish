@@ -48,6 +48,7 @@ This package exists to make it easy to convert a list of samples in an epidemolo
       -   [Manual timepoints and labels](#manual-timepoints-and-labels)
       -   [Control legend spacing](#control-legend-spacing)
   -   [Citation](#citation)
+  -   [Acknowledgements](#acknowledgements)
 
 
 ## Installation
@@ -184,8 +185,8 @@ options(knitr.kable.NA = '')
 kable(parent_df)
 ```
 
-**a custom colour scheme:**
-(Note that you can use named ggplot colours, or hex codes (eg "red" or "#ff0000") )
+**a custom colour scheme:**  
+(Note that you can use [named ggplot colours](https://www.nceas.ucsb.edu/sites/default/files/2020-04/colorPaletteCheatsheet.pdf) or hex codes (eg "red" or "#ff0000") )
 ```{r echo=F}
 kable(colour_df)
 ```
@@ -193,7 +194,7 @@ kable(colour_df)
 
 ## Output
 
-The output of epifish is a list variable containing: a fishplot object (`epifish_output$fish`), the data structures needed to generate it, and some extra data summary tables:
+The output of epifish is a list variable (named `epifish_output` here) containing: a fishplot object (`epifish_output$fish`), the data structures needed to generate it, and some extra data summary tables:
 
   -   `fish` fishplot object to pass to `fishplot::fishPlot()`
   -   `timepoint_counts` summary table of number of samples per cluster per timepoint
@@ -206,20 +207,18 @@ The output of epifish is a list variable containing: a fishplot object (`epifish
   -   `fish_table` normalised and parent-padded table for the epi-fishplot
   -   `fish_matrix` final transformed matrix used to make the epifish object
 
-This can be used with the fishplot package's fishPlot() function to generate an R plot image, as shown above. If using RStudio, it is most straightforward to save the R plot as PDF image from the RStudio plot window (Export -> "Save as PDF").
+The epifish fishplot object output `epifish_output$fish` is used with the fishplot package's `fishPlot()` function to generate an R plot image, as shown above. If using RStudio, it is most straightforward to save the R plot as PDF image from the RStudio plot window (Export -> "Save as PDF").
 
-
-If you wish to save individual tables from the output list for any reason, it can be done like so:
+If you wish to save individual tables from the epifish output list for any reason, it can be done like so:
 ``` r
-write.csv(epifish_output$fish_table, "fishplot_table.csv", row.names=FALSE)
+write.csv(epifish_output$fish_table, "epifishplot_table.csv", row.names=FALSE)
 ```
 
 This is the extra summary data that epifish creates:
-```{r}
-
+```{r include=FALSE}
 epifish_output <- epifish::build_epifish( sample_df, parent_df=parent_df, colour_df=colour_df)
-
-
+```
+```{r}
 epifish_output$timepoint_counts
 
 epifish_output$timepoint_sums
@@ -251,7 +250,7 @@ epifish_output$fish_matrix
 ### Using raw dates to create timepoints
 Epifish also has a few functions to make it easy to convert dates to epidemic weeks or months (to use as timepoints), and generate label-friendly versions of timepoint dates.  
 
-*NOTE: when working with dates in both R and Excel, be sure to check that your values match what you expect! When using R for analysis it is best practice tosave your data files in a text-based format like `.csv` (comma-separated-value) format rather than Excel format, because [Excel has many issues with how it handles dates](https://datacarpentry.org/spreadsheets-socialsci/03-dates-as-data/), and using a text-only format avoids having your dates messed up by Excel.*
+*NOTE: when working with dates in both R and Excel, be sure to check that your values match what you expect! When using R for analysis it is best practice to save your data files in a text-based format like `.csv` (comma-separated-value) format rather than Excel format, because [Excel has many issues with how it handles dates](https://datacarpentry.org/spreadsheets-socialsci/03-dates-as-data/), and using a text-only format avoids having your dates messed up by Excel.*
 
 #### Calculate epi weeks and text labels
 Given a date column name (`date_of_collection` here), the start date of the epidemic, and the date format, you can use `get_epiweek()` to calculate the number of weeks since the start of the epidemic each sample belongs to, and `get_epiweek_span()` to give the epi week a clear text label. *Note: these functions have customisation options, check their documentation for details.*
@@ -265,15 +264,18 @@ sample_df <- sample_df %>% rowwise() %>%
 #create a timepoint label column that gives the last day of each epi week the sample was collected in:
 sample_df <- sample_df %>% rowwise() %>% 
              mutate("epiweek_label"= epifish::get_epiweek_span(cdate = date_of_collection, 
-                                                                date_format = "dmy",
-                                                                return_end = TRUE, 
-                                                                newline=TRUE))
-
+                                                               date_format = "dmy",
+                                                               return_end = TRUE, 
+                                                               newline=TRUE))
+```
+``` r
+#look at what we created 
+tail(sample_df)
+```
+```{r echo=FALSE}
 #look at what we created 
 kable( tail(sample_df) )
-
 ```
-
    
    
 ### Using informative timepoint labels
@@ -390,10 +392,14 @@ epifish::drawLegend2(epifish_output$fish, nrow=2, widthratio=0.3, xsp=0.2)
 
 ## Citation:
 
-**If you use epifish in your work, please don't forget to cite the fishplot package as well:**   
-Visualizing tumor evolution with the fishplot package for R. Miller CA, McMichael J, Dang HX, Maher CA, Ding L, Ley TJ, Mardis ER, Wilson RK. BMC Genomics. doi:10.1186/s12864-016-3195-z
+**If you use epifish in your work, please cite:**
+
+- **epifish**: this github page.
+- **fishplot**: Visualizing tumor evolution with the fishplot package for R. Miller CA, McMichael J, Dang HX, Maher CA, Ding L, Ley TJ, Mardis ER, Wilson RK. BMC Genomics. doi:10.1186/s12864-016-3195-z
 
 
 
 
+## Acknowledgements:
+This work extends the Chris Miller's fishplot package (https://github.com/chrisamiller/fishplot). It was written by Dr. Jenny Draper as an employee of [New South Wales Health Pathology](https://www.pathology.health.nsw.gov.au), at the Westmead Hospital Institute of Clinical Pathology & Medical Research (ICPMR) [Centre for Infectious Diseases and Microbiology - Public Health](https://www.wslhd.health.nsw.gov.au/Education-Portal/Research/Research-Categories/Centre-for-Infectious-Diseases-and-Microbiology-Public-Health/About-CIDMPH) in Australia. `epifish` was initially developed to track genomic clusters during the NSW government's response to COVID-19. 
 
