@@ -11,24 +11,36 @@ This package provides tools to use Chris Miller’s fishplot package
 (<https://github.com/chrisamiller/fishplot>) with epidemiological
 datasets, to generate fishplot epi-curves.
 
-**Why?**  
-A count matrix for a fishplot has a set of specific rules which an
-epidemiological dataset will not naturally fulfil:
+**Why?**
 
-  - cluster counts can never go completely to zero, if cases reappear
-    later
+A fishplot is variety of
+[streamgraph](https://www.data-to-viz.com/graph/streamgraph.html), which
+is designed specifically for categorical data where where individual
+categories can mutate to form subcategories. Originally designed for
+[plotting evolution of tumor cell
+lineages,](https://bmcgenomics.biomedcentral.com/articles/10.1186/s12864-016-3195-z)
+we have found fishplots especially useful for illustrating the rise and
+fall of genomic clusters in disease outbreaks, which can have a similar
+evolutionary pattern.
+
+However, a count matrix for a fishplot has a set of specific rules which
+an epidemiological dataset will not naturally fulfill:
+
+  - cluster counts per timepoint can never go completely to zero, if
+    cases reappear later
   - if a cluster has a parent/child relationship, at every timepoint the
     parent must always have \>= the count of all its children.
   - counts should be normalised to fit the fishplot y-axis
 
-This package exists to make it easy to convert a list of samples into a
-normalised and appropriately “padded” relative count matrix that fulfils
-these requirements.
+This package exists to make it easy to convert a list of samples in an
+epidemological dataset into a normalised and appropriately “padded”
+relative count matrix that fulfils these requirements.
 
 ## Contents
 
   - [Installation](#installation)
-  - [Quick demo](#quick-demo)
+  - [Quick start](#quick-start)
+  - [Basic demo](#basic-demo)
   - [Input format](#input-format)
   - [Output](#output)
   - [Extras](#extras)
@@ -57,7 +69,53 @@ library(devtools)
 devtools::install_github("learithe/epifish")
 ```
 
+## Quick Start
+
+To get started with a basic epi fishplot, given an input file in the
+right format (details below), this is all you need:
+
+``` r
+# load required libraries
+library(fishplot); library(dplyr); library(tidyr); library(lubridate); library(epifish)
+
+# read data file
+sample_df <- read.csv("inst/extdata/samples.csv", stringsAsFactors=FALSE)
+
+# run epifish 
+epifish_output <- epifish::build_epifish( sample_df )
+
+# run fishplot on the epifish output
+fishplot::fishPlot( epifish_output$fish, shape="spline" )  
+```
+
+<img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />
+
+**If you want to include evolutionary relationships with subclusters:**
+
+``` r
+# load required libraries
+library(fishplot); library(dplyr); library(tidyr); library(lubridate); library(epifish)
+
+# read data files
+sample_df <- read.csv("inst/extdata/samples.csv", stringsAsFactors=FALSE)
+parent_df <- read.csv("inst/extdata/parents.csv", stringsAsFactors=FALSE)
+
+# run epifish 
+epifish_output <- epifish::build_epifish( sample_df, parent_df )
+
+# run fishplot on the epifish output
+fishplot::fishPlot( epifish_output$fish, shape="spline" )  
+```
+
+<img src="man/figures/README-unnamed-chunk-5-1.png" width="100%" />
+
 ## Quick demo
+
+*This demo expands on the quick-start example. It runs on a set of
+example data that is present within the epifish package, the files can
+be accessed here, in the
+[`inst/extdata`](https://github.com/learithe/epifish/tree/main/inst/extdata)
+directory.* <br><br>
 
 Load epifish and required
 packages
@@ -66,14 +124,14 @@ packages
 library(fishplot); library(dplyr); library(tidyr); library(lubridate); library(epifish)
 ```
 
-Read in the table of sample data, parent-child relationships, and custom
-colour
+Read in the tables of sample data, cluster parent-child relationships,
+and custom colour
 scheme:
 
 ``` r
-sample_df <- read.csv("epifish/inst/extdata/samples.csv", stringsAsFactors=FALSE)
-parent_df <- read.csv("epifish/inst/extdata/parents.csv", stringsAsFactors=FALSE)
-colour_df <- read.csv("epifish/inst/extdata/colours.csv", stringsAsFactors=FALSE)
+sample_df <- read.csv("inst/extdata/samples.csv", stringsAsFactors=FALSE)
+parent_df <- read.csv("inst/extdata/parents.csv", stringsAsFactors=FALSE)
+colour_df <- read.csv("inst/extdata/colours.csv", stringsAsFactors=FALSE)
 ```
 
 Use epifish to convert this into a fishplot object, with extra assorted
@@ -82,6 +140,11 @@ information:
 
 ``` r
 epifish_output <- epifish::build_epifish( sample_df, parent_df=parent_df, colour_df=colour_df)
+#> setting parent position of child A.1  to  1 
+#> setting parent position of child D.3  to  7 
+#> setting parent position of child D.2  to  6 
+#> setting parent position of child D.1  to  5 
+#> setting parent position of child D.4  to  7 
 #> Padding parent values in matrix: 
 #> adding child  D.4  to parent  D.2 
 #> adding child  D.3  to parent  D.2 
@@ -99,7 +162,7 @@ fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline",
 fishplot::drawLegend(epifish_output$fish, nrow=1)
 ```
 
-<img src="man/figures/README-unnamed-chunk-4-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
 
 If you’re happy with the default colours, or all your clusters are
 independent, you don’t need those dataframes:
@@ -113,12 +176,12 @@ fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline",
 fishplot::drawLegend(epifish_output$fish, nrow=1)
 ```
 
-<img src="man/figures/README-unnamed-chunk-5-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-8-1.png" width="100%" />
 
 You also can automatically collapse any clusters of a minimum size into
 a group with `min_cluster_size`:  
-*Note: this does not work with parent/child relationships if any child
-clusters are
+*Note: this currently does not work well with parent/child relationships
+if any child clusters are
 small\!*
 
 ``` r
@@ -133,14 +196,15 @@ fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline", vlines=epi
 fishplot::drawLegend(epifish_output$fish, nrow=1)
 ```
 
-<img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-9-1.png" width="100%" />
 
 ## Input format
 
 Example input files/templates can be found in the `inst/extdata` folder
 in this repository. The basic requirement is a data frame containing one
 row per sample, with columns `cluster_id` and `timepoint` (any other
-columns are ignored).
+columns are ignored). Optionally, the `timepoint` column can be
+calculated using epifish from a column of dates (see below).
 
 Optional data frames may also be provided that describe parent-child
 relationships for clusters (eg cluster A.1 evolved from cluster A), or a
@@ -530,7 +594,8 @@ D.2
 
 </table>
 
-**a custom colour scheme:**
+**a custom colour scheme:** (Note that you can use named ggplot colours,
+or hex codes (eg “red” or “\#ff0000”) )
 
 <table>
 
@@ -744,6 +809,11 @@ This is the extra summary data that epifish creates:
 ``` r
 
 epifish_output <- epifish::build_epifish( sample_df, parent_df=parent_df, colour_df=colour_df)
+#> setting parent position of child A.1  to  1 
+#> setting parent position of child D.3  to  7 
+#> setting parent position of child D.2  to  6 
+#> setting parent position of child D.1  to  5 
+#> setting parent position of child D.4  to  7 
 #> Padding parent values in matrix: 
 #> adding child  D.4  to parent  D.2 
 #> adding child  D.3  to parent  D.2 
@@ -1227,6 +1297,11 @@ sample_df$timepoint_label <- sample_df$epiweek_label
 
 #tell epifish to use the "timepoint_label" column we just created
 epifish_output <- epifish::build_epifish( sample_df, parent_df, colour_df, timepoint_labels=TRUE)
+#> setting parent position of child A.1  to  1 
+#> setting parent position of child D.3  to  7 
+#> setting parent position of child D.2  to  6 
+#> setting parent position of child D.1  to  5 
+#> setting parent position of child D.4  to  7 
 #> Padding parent values in matrix: 
 #> adding child  D.4  to parent  D.2 
 #> adding child  D.3  to parent  D.2 
@@ -1240,7 +1315,7 @@ fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline",
 fishplot::drawLegend(epifish_output$fish, nrow=1)
 ```
 
-<img src="man/figures/README-unnamed-chunk-12-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-15-1.png" width="100%" />
 
 #### Use epi months as timepoints:
 
@@ -1261,6 +1336,11 @@ sample_df <- sample_df %>% rowwise() %>%
 
 #tell epifish to use the "timepoint_label" column we created above
 epifish_output <- epifish::build_epifish( sample_df, parent_df, colour_df, timepoint_labels=TRUE)
+#> setting parent position of child A.1  to  1 
+#> setting parent position of child D.3  to  7 
+#> setting parent position of child D.2  to  6 
+#> setting parent position of child D.1  to  5 
+#> setting parent position of child D.4  to  7 
 #> Padding parent values in matrix: 
 #> adding child  D.4  to parent  D.2 
 #> adding child  D.3  to parent  D.2 
@@ -1275,7 +1355,7 @@ fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="polygon",
 fishplot::drawLegend(epifish_output$fish, nrow=1, xpos=0.7)
 ```
 
-<img src="man/figures/README-unnamed-chunk-13-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-16-1.png" width="100%" />
 
 ### Manual timepoints and labels
 
@@ -1292,6 +1372,11 @@ sample_df$timepoint_label <- sample_df$epiweek_label
 
 #run epifish
 epifish_output <- epifish::build_epifish( sample_df, parent_df, colour_df, timepoint_labels=TRUE)
+#> setting parent position of child A.1  to  1 
+#> setting parent position of child D.3  to  7 
+#> setting parent position of child D.2  to  6 
+#> setting parent position of child D.1  to  5 
+#> setting parent position of child D.4  to  7 
 #> Padding parent values in matrix: 
 #> adding child  D.4  to parent  D.2 
 #> adding child  D.3  to parent  D.2 
@@ -1309,7 +1394,7 @@ fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline",
                    vlines=vlines, vlab=vlabs)
 ```
 
-<img src="man/figures/README-unnamed-chunk-14-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-17-1.png" width="100%" />
 
 Or add a “zero” timepoint with the first case, which starts on the
 fourth day of the first epi week (we’ll also make the text a bit smaller
@@ -1323,7 +1408,7 @@ fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline",
                    vlines=vlines, vlab=vlabs, cex.vlab=0.5)
 ```
 
-<img src="man/figures/README-unnamed-chunk-15-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-18-1.png" width="100%" />
 
 Or we can use completely custom timepoints and labels that describe an
 epidemiological story, with red lines:
@@ -1336,7 +1421,7 @@ fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline",
                    vlines=vlines, vlab=vlabs, col.vline="red")
 ```
 
-<img src="man/figures/README-unnamed-chunk-16-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-19-1.png" width="100%" />
 
 ### Control legend spacing
 
@@ -1354,7 +1439,7 @@ fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline", vlines=epi
 fishplot::drawLegend(epifish_output$fish, nrow=2)
 ```
 
-<img src="man/figures/README-unnamed-chunk-18-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-21-1.png" width="100%" />
 
 **using `epifish::drawLegend2()` to adjust the legend
 spacing:**
@@ -1364,7 +1449,7 @@ fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline", vlines=epi
 epifish::drawLegend2(epifish_output$fish, nrow=2, widthratio=0.3, xsp=0.2)
 ```
 
-<img src="man/figures/README-unnamed-chunk-19-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-22-1.png" width="100%" />
 
 ## Citation:
 
