@@ -1269,6 +1269,8 @@ A.1
 
 </table>
 
+<br>
+
 ### Using informative timepoint labels
 
 If you call `build_epifish ()` with `timepoint_labels=TRUE`, epifish
@@ -1421,16 +1423,6 @@ Use `widthratio` to adjust the width between columns relative to the
 longest cluster name (smaller value = more space), and `xsp` to control
 space between the colour box and the text (larger = more space)
 
-**default
-`fishplot::drawLegend()`:**
-
-``` r
-fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels)
-fishplot::drawLegend(epifish_output$fish, nrow=2)
-```
-
-<img src="man/figures/README-unnamed-chunk-23-1.png" width="100%" />
-
 **using `epifish::drawLegend2()` to adjust the legend
 spacing:**
 
@@ -1439,7 +1431,7 @@ fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline", vlines=epi
 epifish::drawLegend2(epifish_output$fish, nrow=2, widthratio=0.3, xsp=0.2)
 ```
 
-<img src="man/figures/README-unnamed-chunk-24-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-23-1.png" width="100%" />
 
 ## Citation:
 
@@ -1448,16 +1440,20 @@ epifish::drawLegend2(epifish_output$fish, nrow=2, widthratio=0.3, xsp=0.2)
   - **epifish**: this github page.
   - **fishplot**: Visualizing tumor evolution with the fishplot package
     for R. Miller CA, McMichael J, Dang HX, Maher CA, Ding L, Ley TJ,
-    Mardis ER, Wilson RK. BMC Genomics. <doi:10.1186/s12864-016-3195-z>
+    Mardis ER, Wilson RK. BMC Genomics.
+    [doi:10.1186/s12864-016-3195-z](https://bmcgenomics.biomedcentral.com/articles/10.1186/s12864-016-3195-z)
+
+<br>
 
 ## Acknowledgements:
 
 This work extends the Chris Miller’s fishplot package
 (<https://github.com/chrisamiller/fishplot>). It was written by
-Dr. Jenny Draper as an employee of [New South Wales Health
+Dr. Jenny Draper, a member of the pathogen genomics team employed by
+[New South Wales Health
 Pathology](https://www.pathology.health.nsw.gov.au), at the Westmead
 Hospital Institute of Clinical Pathology & Medical Research (ICPMR)
 [Centre for Infectious Diseases and Microbiology - Public
 Health](https://www.wslhd.health.nsw.gov.au/Education-Portal/Research/Research-Categories/Centre-for-Infectious-Diseases-and-Microbiology-Public-Health/About-CIDMPH)
-in Australia. `epifish` was initially developed to track genomic
-clusters during the NSW government’s response to COVID-19.
+in Australia. `epifish` was initially developed as part of the NSW
+government’s response to COVID-19.

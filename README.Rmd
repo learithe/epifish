@@ -277,7 +277,8 @@ tail(sample_df)
 kable( tail(sample_df) )
 ```
    
-   
+<br>
+
 ### Using informative timepoint labels
 If you call `build_epifish ()` with `timepoint_labels=TRUE`, epifish will look for a column called `timepoint_label` to use as the timepoint labels. (You can also set this up as a column in your input file, rather than calculating it as shown here.) *Note: you can only have one unique label per timepoint value.*  
 
@@ -374,12 +375,6 @@ You can use `epifish::drawLegend2()` to modify the spacing of the epi-fishplot l
 epifish_output <- build_epifish (sample_df, parent_df, colour_df)
 ```
 
-**default `fishplot::drawLegend()`:**
-``` {r}
-fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels)
-fishplot::drawLegend(epifish_output$fish, nrow=2)
-```
-
 **using `epifish::drawLegend2()` to adjust the legend spacing:**
 ``` {r}
 fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels)
@@ -395,11 +390,12 @@ epifish::drawLegend2(epifish_output$fish, nrow=2, widthratio=0.3, xsp=0.2)
 **If you use epifish in your work, please cite:**
 
 - **epifish**: this github page.
-- **fishplot**: Visualizing tumor evolution with the fishplot package for R. Miller CA, McMichael J, Dang HX, Maher CA, Ding L, Ley TJ, Mardis ER, Wilson RK. BMC Genomics. doi:10.1186/s12864-016-3195-z
+- **fishplot**: Visualizing tumor evolution with the fishplot package for R. Miller CA, McMichael J, Dang HX, Maher CA, Ding L, Ley TJ, Mardis ER, Wilson RK. BMC Genomics. [doi:10.1186/s12864-016-3195-z](https://bmcgenomics.biomedcentral.com/articles/10.1186/s12864-016-3195-z)
 
 
 
+<br>
 
 ## Acknowledgements:
-This work extends the Chris Miller's fishplot package (https://github.com/chrisamiller/fishplot). It was written by Dr. Jenny Draper as an employee of [New South Wales Health Pathology](https://www.pathology.health.nsw.gov.au), at the Westmead Hospital Institute of Clinical Pathology & Medical Research (ICPMR) [Centre for Infectious Diseases and Microbiology - Public Health](https://www.wslhd.health.nsw.gov.au/Education-Portal/Research/Research-Categories/Centre-for-Infectious-Diseases-and-Microbiology-Public-Health/About-CIDMPH) in Australia. `epifish` was initially developed to track genomic clusters during the NSW government's response to COVID-19. 
+This work extends the Chris Miller's fishplot package (https://github.com/chrisamiller/fishplot). It was written by Dr. Jenny Draper, a member of the pathogen genomics team employed by [New South Wales Health Pathology](https://www.pathology.health.nsw.gov.au), at the Westmead Hospital Institute of Clinical Pathology & Medical Research (ICPMR) [Centre for Infectious Diseases and Microbiology - Public Health](https://www.wslhd.health.nsw.gov.au/Education-Portal/Research/Research-Categories/Centre-for-Infectious-Diseases-and-Microbiology-Public-Health/About-CIDMPH) in Australia. `epifish` was initially developed as part of the NSW government's response to COVID-19. 
 
