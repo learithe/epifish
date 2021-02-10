@@ -11,10 +11,12 @@ This package provides tools to use Chris Miller’s fishplot package
 (<https://github.com/chrisamiller/fishplot>) with epidemiological
 datasets, to generate fishplot epi-curves.
 
+<img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />
+
 **Why?**
 
-A fishplot is variety of
-[streamgraph](https://www.data-to-viz.com/graph/streamgraph.html), which
+A fishplot is variety of [themeriver /
+streamgraph](https://www.data-to-viz.com/graph/streamgraph.html), which
 is designed specifically for categorical data where where individual
 categories can mutate to form subcategories. Originally designed for
 [plotting evolution of tumor cell
@@ -80,7 +82,7 @@ right format (details below), this is all you need:
 library(fishplot); library(dplyr); library(tidyr); library(lubridate); library(epifish)
 
 # read data file
-sample_df <- read.csv("inst/extdata/samples.csv", stringsAsFactors=FALSE)
+sample_df <- read.csv("https://raw.githubusercontent.com/learithe/epifish/main/inst/extdata/samples.csv", stringsAsFactors=FALSE)
 
 # run epifish 
 epifish_output <- epifish::build_epifish( sample_df )
@@ -89,7 +91,7 @@ epifish_output <- epifish::build_epifish( sample_df )
 fishplot::fishPlot( epifish_output$fish, shape="spline" )  
 ```
 
-<img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-5-1.png" width="100%" />
 
 **If you want to include evolutionary relationships with subclusters:**
 
@@ -98,8 +100,8 @@ fishplot::fishPlot( epifish_output$fish, shape="spline" )
 library(fishplot); library(dplyr); library(tidyr); library(lubridate); library(epifish)
 
 # read data files
-sample_df <- read.csv("inst/extdata/samples.csv", stringsAsFactors=FALSE)
-parent_df <- read.csv("inst/extdata/parents.csv", stringsAsFactors=FALSE)
+sample_df <- read.csv("https://raw.githubusercontent.com/learithe/epifish/main/inst/extdata/samples.csv", stringsAsFactors=FALSE)
+parent_df <- read.csv("https://raw.githubusercontent.com/learithe/epifish/main/inst/extdata/parents.csv", stringsAsFactors=FALSE)
 
 # run epifish 
 epifish_output <- epifish::build_epifish( sample_df, parent_df )
@@ -108,13 +110,12 @@ epifish_output <- epifish::build_epifish( sample_df, parent_df )
 fishplot::fishPlot( epifish_output$fish, shape="spline" )  
 ```
 
-<img src="man/figures/README-unnamed-chunk-5-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
 
 ## Quick demo
 
-*This demo expands on the quick-start example. It runs on a set of
-example data that is present within the epifish package, the files can
-be accessed here, in the
+*This demo expands on the quick-start example. It runs on a made-up set
+of example data that can be accessed here, in the
 [`inst/extdata`](https://github.com/learithe/epifish/tree/main/inst/extdata)
 directory.* <br><br>
 
@@ -130,9 +131,9 @@ and custom colour
 scheme:
 
 ``` r
-sample_df <- read.csv("inst/extdata/samples.csv", stringsAsFactors=FALSE)
-parent_df <- read.csv("inst/extdata/parents.csv", stringsAsFactors=FALSE)
-colour_df <- read.csv("inst/extdata/colours.csv", stringsAsFactors=FALSE)
+sample_df <- read.csv("https://raw.githubusercontent.com/learithe/epifish/main/inst/extdata/samples.csv", stringsAsFactors=FALSE)
+parent_df <- read.csv("https://raw.githubusercontent.com/learithe/epifish/main/inst/extdata/parents.csv", stringsAsFactors=FALSE)
+colour_df <- read.csv("https://raw.githubusercontent.com/learithe/epifish/main/inst/extdata/colours.csv", stringsAsFactors=FALSE)
 ```
 
 Use epifish to convert this into a fishplot object, with extra assorted
@@ -163,7 +164,7 @@ fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline",
 fishplot::drawLegend(epifish_output$fish, nrow=1)
 ```
 
-<img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-9-1.png" width="100%" />
 
 If you’re happy with the default colours, or all your clusters are
 independent, you don’t need those dataframes:
@@ -177,7 +178,7 @@ fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline",
 fishplot::drawLegend(epifish_output$fish, nrow=1)
 ```
 
-<img src="man/figures/README-unnamed-chunk-8-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-10-1.png" width="100%" />
 
 You also can automatically collapse any clusters of a minimum size into
 a group with `min_cluster_size`:  
@@ -197,7 +198,7 @@ fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline", vlines=epi
 fishplot::drawLegend(epifish_output$fish, nrow=1)
 ```
 
-<img src="man/figures/README-unnamed-chunk-9-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-11-1.png" width="100%" />
 
 ## Input format
 
@@ -1307,7 +1308,7 @@ fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline",
 fishplot::drawLegend(epifish_output$fish, nrow=1)
 ```
 
-<img src="man/figures/README-unnamed-chunk-17-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-19-1.png" width="100%" />
 
 #### Use epi months as timepoints:
 
@@ -1347,7 +1348,7 @@ fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="polygon",
 fishplot::drawLegend(epifish_output$fish, nrow=1, xpos=0.7)
 ```
 
-<img src="man/figures/README-unnamed-chunk-18-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-20-1.png" width="100%" />
 
 ### Manual timepoints and labels
 
@@ -1386,7 +1387,7 @@ fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline",
                    vlines=vlines, vlab=vlabs)
 ```
 
-<img src="man/figures/README-unnamed-chunk-19-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-21-1.png" width="100%" />
 
 Or add a “zero” timepoint with the first case, which starts on the
 fourth day of the first epi week (we’ll also make the text a bit smaller
@@ -1400,20 +1401,19 @@ fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline",
                    vlines=vlines, vlab=vlabs, cex.vlab=0.5)
 ```
 
-<img src="man/figures/README-unnamed-chunk-20-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-22-1.png" width="100%" />
 
 Or we can use completely custom timepoints and labels that describe an
 epidemiological story, with red lines:
 
 ``` r
-vlines <- c((4/7), 3, 4, 8, 14)
-vlabs <- c("first\ncases", "peak 1", "quarantine\n", "quarantine\nlifted", "peak 2")
-
+vlines <- c((4/7), 3, 8.5, 14)
+vlabs <- c("first\ncases", "wave 1", "quarantine\nbreach", "wave 2")
 fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline", 
                    vlines=vlines, vlab=vlabs, col.vline="red")
 ```
 
-<img src="man/figures/README-unnamed-chunk-21-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-23-1.png" width="100%" />
 
 ### Control legend spacing
 
@@ -1431,7 +1431,7 @@ fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline", vlines=epi
 epifish::drawLegend2(epifish_output$fish, nrow=2, widthratio=0.3, xsp=0.2)
 ```
 
-<img src="man/figures/README-unnamed-chunk-23-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-25-1.png" width="100%" />
 
 ## Citation:
 
