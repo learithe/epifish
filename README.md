@@ -159,7 +159,7 @@ epifish_output <- epifish::build_epifish( sample_df, parent_df=parent_df, colour
 Then use the fishplot package to generate a fishplot:
 
 ``` r
-fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline", 
+fishplot::fishPlot(epifish_output$fish, shape="spline", 
                    vlines=epifish_output$timepoints, vlab=epifish_output$timepoints)
 fishplot::drawLegend(epifish_output$fish, nrow=1)
 ```
@@ -173,7 +173,7 @@ independent, you don’t need those dataframes:
 epifish_output <- epifish::build_epifish( sample_df )
 #> The maximum sample count per timepoint (height of Y-axis) is:  15
 
-fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline", 
+fishplot::fishPlot(epifish_output$fish, shape="spline", 
                    vlines=epifish_output$timepoints, vlab=epifish_output$timepoints)
 fishplot::drawLegend(epifish_output$fish, nrow=1)
 ```
@@ -194,7 +194,7 @@ epifish_output <- epifish::build_epifish(sample_df, colour_df=colour_df, min_clu
 #> WARNING: some clusters in colour list not found in data: B, D.1, D.2, D.3, D.4
 #> The maximum sample count per timepoint (height of Y-axis) is:  15
 
-fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoints)
+fishplot::fishPlot(epifish_output$fish, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoints)
 fishplot::drawLegend(epifish_output$fish, nrow=1)
 ```
 
@@ -1303,7 +1303,7 @@ epifish_output <- epifish::build_epifish( sample_df, parent_df, colour_df, timep
 #> adding child  A.1  to parent  A 
 #> The maximum sample count per timepoint (height of Y-axis) is:  15
 
-fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline", 
+fishplot::fishPlot(epifish_output$fish, shape="spline", 
                    vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels)
 fishplot::drawLegend(epifish_output$fish, nrow=1)
 ```
@@ -1343,7 +1343,7 @@ epifish_output <- epifish::build_epifish( sample_df, parent_df, colour_df, timep
 #> The maximum sample count per timepoint (height of Y-axis) is:  38
 
 #use "polygon" shape here as "spline" and "bezier" have some issues...
-fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="polygon", 
+fishplot::fishPlot(epifish_output$fish, shape="polygon", 
                    vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels)
 fishplot::drawLegend(epifish_output$fish, nrow=1, xpos=0.7)
 ```
@@ -1383,8 +1383,7 @@ vlines <- epifish_output$timepoints[c(TRUE, FALSE)]
 vlabs  <- epifish_output$timepoint_labels[c(TRUE, FALSE)]
 
 #plot
-fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline", 
-                   vlines=vlines, vlab=vlabs)
+fishplot::fishPlot(epifish_output$fish, shape="spline", vlines=vlines, vlab=vlabs)
 ```
 
 <img src="man/figures/README-unnamed-chunk-21-1.png" width="100%" />
@@ -1397,7 +1396,7 @@ so it doesn’t overlap):
 vlines <- c((4/7), epifish_output$timepoints)
 vlabs <- c("1\nJan", epifish_output$timepoint_labels)
 
-fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline", 
+fishplot::fishPlot(epifish_output$fish, shape="spline", 
                    vlines=vlines, vlab=vlabs, cex.vlab=0.5)
 ```
 
@@ -1409,11 +1408,22 @@ epidemiological story, with red lines:
 ``` r
 vlines <- c((4/7), 3, 8.5, 14)
 vlabs <- c("first\ncases", "wave 1", "quarantine\nbreach", "wave 2")
-fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline", 
+
+fishplot::fishPlot(epifish_output$fish, shape="spline", 
                    vlines=vlines, vlab=vlabs, col.vline="red")
 ```
 
 <img src="man/figures/README-unnamed-chunk-23-1.png" width="100%" />
+
+We can also ajust how far “back in time” clusters appear to begin using
+fishplot’s `pad.left` value:
+
+``` r
+fishplot::fishPlot(epifish_output$fish, pad.left=0.4, shape="spline", 
+                   vlines=vlines, vlab=vlabs, col.vline="red")
+```
+
+<img src="man/figures/README-unnamed-chunk-24-1.png" width="100%" />
 
 ### Control legend spacing
 
@@ -1427,11 +1437,11 @@ space between the colour box and the text (larger = more space)
 spacing:**
 
 ``` r
-fishplot::fishPlot(epifish_output$fish, pad.left=0.1, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels)
+fishplot::fishPlot(epifish_output$fish, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels)
 epifish::drawLegend2(epifish_output$fish, nrow=2, widthratio=0.3, xsp=0.2)
 ```
 
-<img src="man/figures/README-unnamed-chunk-25-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-26-1.png" width="100%" />
 
 ## Citation:
 
