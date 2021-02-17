@@ -11,11 +11,8 @@ build_epifish(
   min_cluster_size = 1,
   timepoint_labels = FALSE,
   label_clusters = TRUE,
-  label_pos = 2,
-  label_cex = 0.7,
   label_col = "black",
-  label_angle = 0,
-  label_offset = 0.2
+  label_angle = 0
 )
 }
 \arguments{
@@ -25,9 +22,15 @@ build_epifish(
 
 \item{colour_df}{[optional] data frame with character columns `cluster` and `colour`}
 
-\item{min_cluster_size}{[optional] numeric whether to collapse all clusters < a given size together (default 1 to s}
+\item{min_cluster_size}{[optional] numeric whether to collapse all clusters < a given size together (default 1 to show all)}
 
-\item{timepoint_labels}{[optional] TRUE/FALSE whether to look for a `timepoint_label` column in `sample_df` to use as the timepoint labels}
+\item{timepoint_labels}{[optional] T/F whether to look for a `timepoint_label` column in `sample_df` to use as the timepoint labels (default is FALSE)}
+
+\item{label_clusters}{[optional] T/F whether to show cluster labels inside the plot (default is TRUE)}
+
+\item{label_col}{[optional] string colour for cluster labels inside plot (default is "black")}
+
+\item{label_angle}{[optional] numeric angle for cluster labels inside plot (default is 0 for no rotation)}
 }
 \value{
 A list with the components:

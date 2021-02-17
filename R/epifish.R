@@ -16,8 +16,12 @@
 #' @param sample_df input sample data with character columns `cluster_id`, `timepoint`, and optionally `timepoint_label`
 #' @param parent_df [optional] data frame with character columns `parent` and `child` describing cluster relationships; leave `NA` for independent clusters
 #' @param colour_df [optional] data frame with character columns `cluster` and `colour`
-#' @param timepoint_labels [optional] TRUE/FALSE whether to look for a `timepoint_label` column in `sample_df` to use as the timepoint labels
-#' @param min_cluster_size [optional] numeric whether to collapse all clusters < a given size together (default 1 to s
+#' @param timepoint_labels [optional] T/F whether to look for a `timepoint_label` column in `sample_df` to use as the timepoint labels (default is FALSE)
+#' @param min_cluster_size [optional] numeric whether to collapse all clusters < a given size together (default 1 to show all)
+#' @param label_col [optional] string colour for cluster labels inside plot (default is "black")
+#' @param label_angle [optional] numeric angle for cluster labels inside plot (default is 0 for no rotation)
+#' @param label_clusters [optional] T/F whether to show cluster labels inside the plot (default is TRUE)
+#' 
 #'
 #' @details
 #' Takes a data frame of epi sample data (one sample per row, containing columns `cluster_id` and `timepoint`).
@@ -46,7 +50,8 @@
 #' @export
 #<'
 build_epifish <- function( sample_df, parent_df=NULL, colour_df=NULL, min_cluster_size=1, timepoint_labels=FALSE, label_clusters=TRUE,
-                           label_pos=2, label_cex=0.7, label_col="black", label_angle=0, label_offset=0.2)
+                           label_col="black", label_angle=0)
+                           #waiting for fishplot pull request integration: label_pos=2, label_cex=0.7, label_offset=0.2)
 {
 
   #clear any prior rowwise() and groupby() operations
@@ -177,7 +182,8 @@ build_epifish <- function( sample_df, parent_df=NULL, colour_df=NULL, min_cluste
 
 
   # create the fishplot object!
-  fish = createFishObject(fish_matrix, as.numeric(parents), timepoints, clone.labels=fishplot_names)
+  fish = createFishObject(fish_matrix, as.numeric(parents), timepoints, clone.labels=fishplot_names, 
+                          clone.annots.col=label_col, clone.annots.angle=label_angle)
   fish = layoutClones(fish)
   if(! is.null(fish_colours) ){ fish = setCol(fish, unlist(fish_colours)) }
   if( label_clusters==TRUE ){ fish@clone.annots = fishplot_names } #this adds labels onto the plot
