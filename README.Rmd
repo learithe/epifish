@@ -70,6 +70,7 @@ This package exists to make it easy to convert a list of samples in an epidemolo
       -   [Add extra start or end timepoints](#add-extra-start-or-end-timepoints)
       -   [Control legend spacing](#control-legend-spacing)
       -   [Change cluster label appearance](#change-cluster-label-appearance)
+      -   [Don’t show cluster labels](#dont-show-cluster-labels)
       -   [Change fishplot titles and background](#change-fishplot-titles-and-background)
 
   -   [Citation](#citation)
@@ -444,6 +445,19 @@ epifish_output <- build_epifish (sample_df, parent_df, colour_df,
 fishplot::fishPlot(epifish_output$fish, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels,  pad.left=0.05)
 fishplot::drawLegend(epifish_output$fish)
 ```
+
+
+
+### Don't show cluster labels
+
+If you don't want to show the cluster labels on the fishplot, set `label_clusters=FALSE` in `epifish::build_epifish()`.
+```{r}
+epifish_output <- build_epifish (sample_df, parent_df, colour_df, label_clusters=FALSE)
+
+fishplot::fishPlot(epifish_output$fish, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels,  pad.left=0.05)
+fishplot::drawLegend(epifish_output$fish)
+```
+
 
 
 ### Change fishplot titles and background

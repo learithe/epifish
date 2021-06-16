@@ -127,9 +127,13 @@ build_epifish <- function( sample_df, parent_df=NULL, colour_df=NULL, min_cluste
   clusters_by_timepoint <- arrange(clusters_by_timepoint, timepoint) 
   sums_by_timepoint <- arrange(sums_by_timepoint, timepoint) 
   
+  #some versions of tidyverse will add a ".groups" column to the summary tables; strip these if they're there
+  clusters_by_timepoint$`.groups` <- NULL
+  sums_by_timepoint$`.groups` <- NULL
+  
   #get count matrix (one row per cluster/timepoint pair)
   count_table <- pivot_wider(clusters_by_timepoint, names_from= FPCluster, values_from= n) %>%
-    mutate_at(vars(-group_cols()), ~replace(., is.na(.), 0))
+                 mutate_at(vars(-group_cols()), ~replace(., is.na(.), 0))
   
   #collapse to one row per timepoint
   count_table <- count_table %>% group_by(`timepoint`) %>% summarise_all(~sum(.))

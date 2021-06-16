@@ -68,6 +68,7 @@ relative count matrix that fulfils these requirements.
       - [Control legend spacing](#control-legend-spacing)
       - [Change cluster label
         appearance](#change-cluster-label-appearance)
+      - [Don’t show cluster labels](#dont-show-cluster-labels)
       - [Change fishplot titles and
         background](#change-fishplot-titles-and-background)
   - [Citation](#citation)
@@ -1805,7 +1806,7 @@ fishplot::fishPlot(epifish_output$fish, shape="spline",
 
 #### Use completely manual timepoint lines and labels
 
-We can specify ompletely custom timepoints and labels that describe an
+We can specify completely custom timepoints and labels that describe an
 epidemiological story, with red lines:
 
 ``` r
@@ -1915,6 +1916,35 @@ fishplot::drawLegend(epifish_output$fish)
 
 <img src="man/figures/README-unnamed-chunk-30-1.png" width="100%" />
 
+### Don’t show cluster labels
+
+If you don’t want to show the cluster labels on the fishplot, set
+`label_clusters=FALSE` in
+`epifish::build_epifish()`.
+
+``` r
+epifish_output <- build_epifish (sample_df, parent_df, colour_df, label_clusters=FALSE)
+#> Checking for missing timepoints: 
+#>  - Adding zero counts for missing timepoint: 9
+#> setting parent position of child A.1  to  1 
+#> setting parent position of child D.3  to  7 
+#> setting parent position of child D.2  to  6 
+#> setting parent position of child D.1  to  5 
+#> setting parent position of child D.4  to  7 
+#> Padding parent values in matrix: 
+#> adding child  D.4  to parent  D.2 
+#> adding child  D.3  to parent  D.2 
+#> adding child  D.2  to parent  D.1 
+#> adding child  D.1  to parent  D 
+#> adding child  A.1  to parent  A 
+#> The maximum sample count per timepoint (height of Y-axis) is:  15
+
+fishplot::fishPlot(epifish_output$fish, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels,  pad.left=0.05)
+fishplot::drawLegend(epifish_output$fish)
+```
+
+<img src="man/figures/README-unnamed-chunk-31-1.png" width="100%" />
+
 ### Change fishplot titles and background
 
 You can also adjust assorted aspects of the fishplot as arguments to
@@ -1948,7 +1978,7 @@ fishplot::fishPlot(epifish_output$fish, shape="spline", vlines=epifish_output$ti
 fishplot::drawLegend(epifish_output$fish, nrow=1, xpos=-1)
 ```
 
-<img src="man/figures/README-unnamed-chunk-31-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-32-1.png" width="100%" />
 
 ## Citation:
 
