@@ -1,7 +1,7 @@
 Package: epifish
 Type: Package
 Title: Create epi-curve fishplots
-Version: 1.0
+Version: 1.1
 Author: Jenny Draper
 Maintainer: Jenny Draper <jenny.draper@health.nsw.gov.au>
 Description: This package converts a table of case/sample data into a normalised, padded relative count matrix and fishplot object, which can be used with the fishplot package to generate a epi-curve fishplot of cluster case counts over time.
