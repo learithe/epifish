@@ -44,23 +44,34 @@ However, a count matrix for a fishplot has a set of specific rules which an epid
   -   if a cluster has a parent/child relationship, at every timepoint the parent must always have >= the count of all its children.
   -   counts should be normalised to fit the fishplot y-axis
 
-This package exists to make it easy to convert a list of samples in an epidemological dataset into a normalised and appropriately "padded" relative count matrix that fulfils these requirements.
-
+This package exists to make it easy to convert a list of samples in an epidemological dataset into a normalised and appropriately "padded" relative count matrix that fulfils these requirements.  
+<br><br>
 
 ## Contents
 
   -   [Installation](#installation)
-  -   [Quick start](#quick-start)
-  -   [Basic demo](#basic-demo)
-  -   [Input format](#input-format)
-  -   [Output](#output)
-  -   [Extras](#extras)
-      -   [Using raw dates to create timepoints](#using-raw-dates-to-create-timepoints)
-          -   [Calculate epi weeks and text labels](#calculate-epi-weeks-and-text-labels)
-          -   [Use epi months as timepoints](#use-epi-months-as-timepoints)
-      -   [Using informative timepoint labels](#using-informative-timepoint-labels)
-      -   [Manual timepoints and labels](#manual-timepoints-and-labels)
+  -   Usage
+      -   [Quick start](#quick-start)
+      -   [Basic demo](#basic-demo)
+  -   Input/Output
+      -  [Input format](#input-format)
+      -  [Output](#output)
+  -   Calculate timepoints
+      -   [Calculate epi weeks](#calculate-epi-weeks-and-text-labels)
+      -   [Calculate timepoint labels](#calculate-epi-weeks-and-text-labels)
+      -   [Calculate epi months](#calculate-epi-months)
+  -   Using informative timepoint labels
+      -   [Using timepoint labels](#using-informative-timepoint-labels)
+      -   [Plot every other week](#plot-every-other-week)
+      -   [Add extra timepoint lines](#add-extra-timepoint-lines-not-present-in-the-data)
+      -   [Use completely manual timepoint lines and labels](#use-completely-manual-timepoint-lines-and-labels)
+  -   Controlling appearance
+      -   [Control how far back in time clusters appear](#control-how-far-back-in-time-clusters-appear)
+      -   [Add extra start or end timepoints](#add-extra-start-or-end-timepoints)
       -   [Control legend spacing](#control-legend-spacing)
+      -   [Change cluster label appearance](#change-cluster-label-appearance)
+      -   [Change fishplot titles and background](#change-fishplot-titles-and-background)
+
   -   [Citation](#citation)
   -   [Acknowledgements](#acknowledgements)
 
@@ -71,9 +82,12 @@ You can install epifish with:
 ``` r
 #install devtools if you don't have it already
 install.packages("devtools")
-
-#then load devtools & install epifish
 library(devtools)
+
+#install fishplot if you haven't already
+devtools::install_github("chrisamiller/fishplot")
+
+#install epifish
 devtools::install_github("learithe/epifish")
 ```
 
@@ -125,7 +139,7 @@ fishplot::fishPlot(epifish_output$fish, shape="spline")
 
 
   
-## Quick demo
+## Basic demo
 
 *This demo expands on the quick-start example. It runs on a made-up set of example data that can be accessed here, in the [`inst/extdata`](https://github.com/learithe/epifish/tree/main/inst/extdata) directory.*
 <br><br>
@@ -143,7 +157,7 @@ colour_df <- read.csv("https://raw.githubusercontent.com/learithe/epifish/main/i
 
 Use epifish to convert this into a fishplot object, with extra assorted summary information:
 ```{r}
-epifish_output <- epifish::build_epifish( sample_df, parent_df=parent_df, colour_df=colour_df)
+epifish_output <- epifish::build_epifish( sample_df, parent_df=parent_df, colour_df=colour_df, add_missing_timepoints=TRUE)
 ```
 
 Then use the fishplot package to generate a fishplot:
@@ -232,41 +246,45 @@ This is the extra summary data that epifish creates:
 epifish_output <- epifish::build_epifish( sample_df, parent_df=parent_df, colour_df=colour_df)
 ```
 ```{r}
-epifish_output$timepoint_counts
+# total cases per cluster per timepoint
+print( as.data.frame(epifish_output$timepoint_counts), row.names=FALSE )
 
-epifish_output$timepoint_sums
+# total cases per timepoint
+print( as.data.frame(epifish_output$timepoint_sums), row.names=FALSE )
 
-epifish_output$cluster_sums
+# total cases per cluster
+print( as.data.frame(epifish_output$cluster_sums), row.names=FALSE )
 
-epifish_output$parents
+# parent relationship table
+print( epifish_output$parents )
 
-epifish_output$timepoints
+# list of timepoints to display
+print( epifish_output$timepoints )
 
-epifish_output$timepoint_labels
+# list of labels for each timepoint
+print( epifish_output$timepoint_labels )
 
-epifish_output$raw_table
+# raw count table
+print( epifish_output$raw_table )
 
-epifish_output$fish_table
+# normalised and padded count table
+print( epifish_output$fish_table )
 
-#this is the final matrix used to generate the epifish fishplot object
-epifish_output$fish_matrix
+# rotated final matrix used to generate the epifish fishplot object
+print( epifish_output$fish_matrix )
+      
 ```
 
 
 
-
-
-
-## Extras
+## Calculate timepoints 
   
-  
-### Using raw dates to create timepoints
 Epifish also has a few functions to make it easy to convert dates to epidemic weeks or months (to use as timepoints), and generate label-friendly versions of timepoint dates.  
 
 *NOTE: when working with dates in both R and Excel, be sure to check that your values match what you expect! When using R for analysis it is best practice to save your data files in a text-based format like `.csv` (comma-separated-value) format rather than Excel format, because [Excel has many issues with how it handles dates](https://datacarpentry.org/spreadsheets-socialsci/03-dates-as-data/), and using a text-only format avoids having your dates messed up by Excel.*
 
 #### Calculate epi weeks and text labels
-Given a date column name (`date_of_collection` here), the start date of the epidemic, and the date format, you can use `get_epiweek()` to calculate the number of weeks since the start of the epidemic each sample belongs to, and `get_epiweek_span()` to give the epi week a clear text label. *Note: these functions have customisation options, check their documentation for details.*
+Given a date column name (`date_of_collection` here), the start date of the epidemic, and the date format, you can use `get_epiweek()` to calculate the number of weeks since the start of the epidemic each sample belongs to, and `get_epiweek_span()` to give the epi week a clear text label. *Note: these functions have customisation options for different date/range formats; check their documentation for details.*
 ``` {r}
 #calculate epiweek timepoints from the column "date_of_collection" & create text labels to match them
 sample_df <- sample_df %>% rowwise() %>% 
@@ -282,84 +300,76 @@ sample_df <- sample_df %>% rowwise() %>%
                                                                newline=TRUE))
 ```
 ``` r
-#look at what we created 
+#peek at what we created 
 tail(sample_df)
 ```
 ```{r echo=FALSE}
-#look at what we created 
+#peek at what we created 
 kable( tail(sample_df) )
 ```
    
 <br>
 
-### Using informative timepoint labels
-If you call `build_epifish ()` with `timepoint_labels=TRUE`, epifish will look for a column called `timepoint_label` to use as the timepoint labels. (You can also set this up as a column in your input file, rather than calculating it as shown here.) *Note: you can only have one unique label per timepoint value.*  
-
-#### Use calculated epi weeks as the timepoints
-``` {r}
-#fill the "timepoint" and "timepoint_label" columns with our newly calculated epi weeks above
-sample_df$timepoint <- sample_df$epiweek  
-sample_df$timepoint_label <- sample_df$epiweek_label
-
-#tell epifish to use the "timepoint_label" column we just created
-epifish_output <- epifish::build_epifish( sample_df, parent_df, colour_df, timepoint_labels=TRUE)
-
-fishplot::fishPlot(epifish_output$fish, shape="spline", 
-                   vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels)
-fishplot::drawLegend(epifish_output$fish, nrow=1)
-```
-
-
-#### Use epi months as timepoints:  
+#### Calculate epi months:  
 Epifish also has `get_epimonth()` and `get_month_text()` functions for calculating epi months from dates:
 
 ``` {r}
 
 #create a "epimonth" timepoint:
 sample_df <- sample_df %>% rowwise() %>% 
-             mutate("timepoint"= epifish::get_epimonth(cdate = date_of_collection, 
+             mutate("epimonth"= epifish::get_epimonth(cdate = date_of_collection, 
                                                       start_date = "1/1/20", 
                                                       date_format = "dmy")) 
 #and an epimonth label
 sample_df <- sample_df %>% rowwise() %>% 
-             mutate("timepoint_label"= epifish::get_month_text(cdate = date_of_collection, 
+             mutate("epimonth_label"= epifish::get_month_text(cdate = date_of_collection, 
                                                               date_format = "dmy")) 
+```
+``` r
+#peek at what we created 
+tail(sample_df)
+```
+```{r echo=FALSE}
+#peek at what we created 
+kable( tail(sample_df) )
+```
+   
 
-#tell epifish to use the "timepoint_label" column we created above
+## Using informative timepoint labels
+
+If you call `build_epifish ()` with `timepoint_labels=TRUE`, epifish will look for a column called `timepoint_label` to use as the timepoint labels. You can set this up as a column in your input file by hand, or you can calculate it from dates as shown above.) *Note: you can only have one unique label per timepoint value.*  
+
+``` {r}
+
+#to use the epiweeks and epiweek labels we calculated above, we need to set these as columns named "timepoint" and "timepoint_label" in the sample dataframe:
+sample_df$timepoint <- sample_df$epiweek  
+sample_df$timepoint_label <- sample_df$epiweek_label
+
+#then generate the epifish object, specifying that you want to use timepoint labels
 epifish_output <- epifish::build_epifish( sample_df, parent_df, colour_df, timepoint_labels=TRUE)
 
-#use "polygon" shape here as "spline" and "bezier" have some issues...
-fishplot::fishPlot(epifish_output$fish, shape="polygon", 
+#and draw the fishplot
+fishplot::fishPlot(epifish_output$fish, shape="spline", 
                    vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels)
-fishplot::drawLegend(epifish_output$fish, nrow=1, xpos=0.7)
+fishplot::drawLegend(epifish_output$fish, nrow=1)
 ```
 
 
-   
-### Manual timepoints and labels
+The fishplot package provides further flexibility in where to display the vertical lines and what text to show, which can be used to create custom combinations rather than using the epifish defaults:
 
-The fishplot package provides flexibility in where to display the vertical lines and what text to show, which can be used to create custom combinations rather than using the epifish default:
-  
-
-You can plot every other week:
+#### Plot every other week:
+If things are getting crowded, you can label just every other week:
 ``` {r}
-#calculate use the epiweek timepoints
-sample_df$timepoint <- sample_df$epiweek
-sample_df$timepoint_label <- sample_df$epiweek_label
-
-#run epifish
-epifish_output <- epifish::build_epifish( sample_df, parent_df, colour_df, timepoint_labels=TRUE)
 
 #subset timepoints and labels to ever other entry
 vlines <- epifish_output$timepoints[c(TRUE, FALSE)]
 vlabs  <- epifish_output$timepoint_labels[c(TRUE, FALSE)]
 
-#plot
 fishplot::fishPlot(epifish_output$fish, shape="spline", vlines=vlines, vlab=vlabs)
 
 ```
 
-
+#### Add extra timepoint lines not present in the data
 Or add a "zero" timepoint with the first case, which starts on the fourth day of the first epi week (we'll also make the text a bit smaller so it doesn't overlap):
 ``` {r}
 vlines <- c((4/7), epifish_output$timepoints)
@@ -370,38 +380,86 @@ fishplot::fishPlot(epifish_output$fish, shape="spline",
 
 ```
 
-Or we can use completely custom timepoints and labels that describe an epidemiological story, with red lines:
+#### Use completely manual timepoint lines and labels
+We can specify completely custom timepoints and labels that describe an epidemiological story, with red lines:
 ``` {r}
 vlines <- c((4/7), 3, 8.5, 14)
 vlabs <- c("first\ncases", "wave 1", "quarantine\nbreach", "wave 2")
 
 fishplot::fishPlot(epifish_output$fish, shape="spline", 
                    vlines=vlines, vlab=vlabs, col.vline="red")
-
-```
-
-We can also ajust how far "back in time" clusters appear to begin using fishplot's `pad.left` value: 
-```{r}
-fishplot::fishPlot(epifish_output$fish, pad.left=0.4, shape="spline", 
-                   vlines=vlines, vlab=vlabs, col.vline="red")
 ```
 
 
+## Controlling appearance
    
-### Control legend spacing 
-You can use `epifish::drawLegend2()` to modify the spacing of the epi-fishplot legend, which is especially useful with long cluster names.  Use `widthratio` to adjust the width between columns relative to the longest cluster name (smaller value = more space), and `xsp` to control space between the colour box and the text (larger = more space)
+   
+### Control how far back in time clusters appear
+
+You can modify how far back in time the clusters seem to "begin" using the `pad_left` argument to `fishplot::fishPlot()`:
 ```{r, include=FALSE}
 epifish_output <- build_epifish (sample_df, parent_df, colour_df)
 ```
+``` {r}
+fishplot::fishPlot(epifish_output$fish, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels,  pad.left=0.05)
+fishplot::drawLegend(epifish_output$fish, nrow=2, widthratio=0.3, xsp=0.2)
+```
 
-**using `epifish::drawLegend2()` to adjust the legend spacing:**
+
+### Add extra start or end timepoints
+
+You can add extra "padding" timepoints to the start and end of the data using the `start_time` and `end_time` arguments of `epifish::build_epifish`:
+```{r}
+epifish_output <- build_epifish (sample_df, parent_df, colour_df, start_time = 0, end_time = 17)
+
+fishplot::fishPlot(epifish_output$fish, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels,  pad.left=0.05)
+fishplot::drawLegend(epifish_output$fish, nrow=2, widthratio=0.3, xsp=0.2)
+```
+
+
+### Control legend spacing 
+
+Using fishplot v0.5.1+, you can modify the spacing of the epi-fishplot legend, which is especially useful with long cluster names.  Use `widthratio` to adjust the width between columns relative to the longest cluster name (smaller value = more space), and `xsp` to control space between the colour box and the text (larger = more space)
+```{r, include=FALSE}
+epifish_output <- build_epifish (sample_df, parent_df, colour_df)
+```
 ``` {r}
 fishplot::fishPlot(epifish_output$fish, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels)
-epifish::drawLegend2(epifish_output$fish, nrow=2, widthratio=0.3, xsp=0.2)
+fishplot::drawLegend(epifish_output$fish, nrow=2, widthratio=0.3, xsp=0.2)
 ```
 
 
 
+### Change cluster label appearance
+
+Using fishplot v0.5.1+, you can modify the size, colour, position, and angle of cluster labels when building fishplot objects. You can set these values using arguments to `epifish::build_epifish()`.
+```{r}
+epifish_output <- build_epifish (sample_df, parent_df, colour_df,
+                                 label_col = "purple",
+                                 label_angle = -45,
+                                 label_cex = 1.2,
+                                 label_pos=2, 
+                                 label_offset=0.05
+                                 )
+fishplot::fishPlot(epifish_output$fish, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels,  pad.left=0.05)
+fishplot::drawLegend(epifish_output$fish)
+```
+
+
+### Change fishplot titles and background
+
+You can also adjust assorted aspects of the fishplot as arguments to `fishplot::fishPlot()`. For details, refer to the documentation for the fishplot package (try the command `?fishplot::fishPlot`).
+```{r}
+epifish_output <- build_epifish (sample_df, parent_df, colour_df)
+fishplot::fishPlot(epifish_output$fish, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels,  pad.left=0.2,
+                   cex.vlab=0.85,
+                   title="Epi-fishplot of outbreak waves",
+                   title.btm="number of cases per epi week over time",
+                   cex.title=1,
+                   bg.type="solid",
+                   bg.col="grey95")
+fishplot::drawLegend(epifish_output$fish, nrow=1, xpos=-1)
+```
 
 
 ## Citation:

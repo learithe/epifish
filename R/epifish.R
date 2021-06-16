@@ -21,6 +21,9 @@
 #' @param label_col [optional] string colour for cluster labels inside plot (default is "black")
 #' @param label_angle [optional] numeric angle for cluster labels inside plot (default is 0 for no rotation)
 #' @param label_clusters [optional] T/F whether to show cluster labels inside the plot (default is TRUE)
+#' @param add_missing_timepoints [optional] T/F whether to add "missing" intermediate timepoints with no observations (default is TRUE)
+#' @param start_time [optional] alternate earlier timepoint to start on. Requires add_missing_timepoints=TRUE
+#' @param end_time [optional] alternate timepoint to end on. Requires add_missing_timepoints=TRUE
 #' 
 #'
 #' @details
@@ -50,55 +53,97 @@
 #' @export
 #<'
 build_epifish <- function( sample_df, parent_df=NULL, colour_df=NULL, min_cluster_size=1, timepoint_labels=FALSE, label_clusters=TRUE,
-                           label_col="black", label_angle=0)
-                           #waiting for fishplot pull request integration: label_pos=2, label_cex=0.7, label_offset=0.2)
+                           label_col="black", label_angle=0, label_pos=2, label_cex=0.7, label_offset=0.2,
+                           add_missing_timepoints=TRUE, start_time=NULL, end_time=NULL)
 {
-
+  
+  
+  #check fishplot version
+  if(packageVersion("fishplot") < "0.5.1") {
+    warning("WARNING: you are using an old version of the fishplot package. Please update to version >= 0.5.1 or you may enounter errors. To install the latest version, refer to: https://github.com/chrisamiller/fishplot")
+  }
+  
   #clear any prior rowwise() and groupby() operations
   df <- ungroup(sample_df)
-
-
+  
+  
   #make sure we're not dealing with factors
   if (!is.null(parent_df)){ parent_df <- parent_df %>% mutate_if(is.factor, as.character) }
   if (!is.null(colour_df)){ colour_df <- colour_df %>% mutate_if(is.factor, as.character) }
   sample_df <- sample_df %>% mutate_if(is.factor, as.character)
-
-
+  
+  
   #-- process clusters to display ------------------------------------------------
   # initialise new cluster column with original cluster values
   df$FPCluster <- select(df, cluster_id)[[1]]
-
+  
   # identify all clusters big enough to label
   clustercounts <- df %>% group_by(FPCluster) %>% count()
   big_clusters <- clustercounts[clustercounts$n >= min_cluster_size,  ]$FPCluster
-
+  
   # lump small clusters together
   df <- df %>% mutate("FPCluster"= ifelse(FPCluster %in% big_clusters, FPCluster, paste0("clusters < ",min_cluster_size)))
-
-
+  
+  
   #-- generate per-timepoint count table -----------------------------------------
   # get count of each population per timepoint
-  clusters_by_timepoint <- df %>% group_by(timepoint, FPCluster) %>% summarise(n = n())
-  clusters_by_timepoint <- arrange(clusters_by_timepoint, timepoint) #ensure we're in time order
+  clusters_by_timepoint <- df %>% group_by(timepoint, FPCluster) %>% summarise(n = n(), .groups="keep") %>% ungroup()
+  
+  #generate summary table for total counts per week
   sums_by_timepoint <- df %>% group_by(timepoint) %>% summarise(n = n())
-
+  
+  # add missing timepoints if requested
+  if (add_missing_timepoints == TRUE){
+    
+    cat("Checking for missing timepoints: \n")
+    clusters <- unique(df$FPCluster)
+    
+    #pad with start/end timepoints if specified
+    timepoint_labels_adjusted = c()
+    start <- ifelse(!is.null(start_time), start_time, min(df$timepoint))
+    end <- ifelse(!is.null(end_time), end_time, max(df$timepoint))
+    timerange <- c( start : end)
+    
+    for (tp in timerange){
+      if ( ! tp %in% clusters_by_timepoint$timepoint ){
+        cat(sprintf(" - Adding zero counts for missing timepoint: %d\n", tp))
+        
+        timepoint_labels_adjusted <- c(timepoint_labels_adjusted, "")
+        sums_by_timepoint <- sums_by_timepoint %>% add_row("timepoint"=tp, "n"=0)
+        
+        for (cluster in clusters){
+          clusters_by_timepoint <- clusters_by_timepoint %>% add_row("timepoint"=tp, "FPCluster"=cluster, "n"=0)
+        }
+      } else {
+        tl <- filter(df, timepoint==tp)[1, "timepoint_label"]
+        timepoint_labels_adjusted <- c(timepoint_labels_adjusted, tl)
+      }
+    }
+  } else {
+    timepoint_labels_adjusted <- NULL
+  }
+  
+  #ensure we're in time order
+  clusters_by_timepoint <- arrange(clusters_by_timepoint, timepoint) 
+  sums_by_timepoint <- arrange(sums_by_timepoint, timepoint) 
+  
   #get count matrix (one row per cluster/timepoint pair)
   count_table <- pivot_wider(clusters_by_timepoint, names_from= FPCluster, values_from= n) %>%
     mutate_at(vars(-group_cols()), ~replace(., is.na(.), 0))
-
+  
   #collapse to one row per timepoint
   count_table <- count_table %>% group_by(`timepoint`) %>% summarise_all(~sum(.))
   #remove any duplicate rows prev step creates
   count_table <- filter(count_table, `timepoint` %in% unique(clusters_by_timepoint$`timepoint`))
-
-
+  
+  
   #convert to fishplot-friendly format
   count_table <- as.data.frame(count_table)
   rownames(count_table) <- count_table$`timepoint`; count_table$`timepoint` <- NULL
-
-
+  
+  
   ## - NORMALISE counts to a max sum of 99/timepoint for relative fishplot display ---------------
-
+  
   # get multiplier to normalise maximum timepoint count to ~99 for display
   norms <- c()
   for (i in 1:nrow(count_table)) {
@@ -108,64 +153,69 @@ build_epifish <- function( sample_df, parent_df=NULL, colour_df=NULL, min_cluste
   }
   normaliser <- min(norms)
   normaliser <- normaliser - 0.01  #make room for padding
-
+  
   # generate normalised table
   fish_table <- round(count_table*normaliser, 3)
   fishplot_names <- names(fish_table)
-
+  
   # pad "temporary dropouts" to fit fishplot rules
   fish_table <- pad_matrix(fish_table, 0.0001)
-
-
+  
+  
   #-- set up parent vector & padding if needed -----------------------------------
   if(is.null(parent_df)){
     parents <- rep(0, length(fishplot_names))
-
+    
   } else {
-
+    
     parents <- make_parent_list(parent_df, fishplot_names)
-
-    #NOTE this relies on fact that children must arise after parents & that fishplot_names is a time-sorted ascending list)
+    
     #correct the ratios for parent/child relationship
+    #NOTE this relies on fact that children must arise after parents & that fishplot_names is a time-sorted ascending list)
     fish_table <- pad_parents(fish_table, parents)
-
+    
   }
-
-
+  
+  
   #-- prepare timepoints-----------------------------------------------------------
   timepoints <- as.numeric(unique(clusters_by_timepoint$`timepoint`))
   names(timepoints) <- timepoints
-
-
+  
+  
   #-- use custom timepoint labels if desired
   if (timepoint_labels==TRUE) {
-
+    
     if("timepoint_label" %in% names(df) ) {
       tmpdf <- select(sample_df, timepoint, timepoint_label) %>% distinct()
       tmpdf <- arrange(tmpdf, timepoint)
-      names(timepoints) <- tmpdf$timepoint_label
-
+      
+      if (add_missing_timepoints == TRUE ){
+        names(timepoints) <- timepoint_labels_adjusted
+      } else{ 
+        names(timepoints) <- tmpdf$timepoint_label
+      }
+      
     } else {
       warning("\nWARNING: Column 'timepoint_label' not found in sample dataframe; skipping use of custom labels")
       names(timepoints) <- as.character(timepoints)
     }
   }
-
-
+  
+  
   #-- build the fishplot -----------------------------------------------------------------
-
+  
   # convert our table to a matrix
   fish_matrix <- as.matrix(fish_table); colnames(fish_matrix) <- NULL;
   fish_matrix <- t(fish_matrix) #rows are clones, cols are timepoints
-
+  
   # set up fish colour scheme if it was defined (and do some common error checking)
   if (! is.null(colour_df) ){
     fish_colours <- set_fish_colours(colour_df, fishplot_names)
   } else {
     fish_colours <- NULL
   }
-
-
+  
+  
   # temporarily create a new version of the fishplot annotClone() function
   # to modify the cluster label position
   # will remove this when my flexible version is implemented in the official fishplot package
@@ -173,42 +223,44 @@ build_epifish <- function( sample_df, parent_df=NULL, colour_df=NULL, min_cluste
   #   annotClone <- function(x, y, annot, angle=0, col = "black") {
   #     text(x, y, annot, pos = 4, cex = 0.5, col = col, xpd = NA, srt = angle, offset = 0.5)
   #   }
-  annotClone <- function(x, y, annot, angle=0, col = "black", cex = 0.7, pos = 2, offset = 0.2) {
-    text(x, y, annot, pos = 2, cex = 0.7, col = col, xpd = NA, srt = angle, offset = 0.2)
-  }
-  tmpfun <- get("annotClone", envir = asNamespace("fishplot"))
-  environment(annotClone) <- environment(tmpfun)
-  utils::assignInNamespace("annotClone", annotClone, ns="fishplot")
-
-
+  #annotClone <- function(x, y, annot, angle=0, col = "black", cex = 0.7, pos = 2, offset = 0.2) {
+  #  text(x, y, annot, pos = 2, cex = 0.7, col = col, xpd = NA, srt = angle, offset = 0.2)
+  #}
+  #tmpfun <- get("annotClone", envir = asNamespace("fishplot"))
+  #environment(annotClone) <- environment(tmpfun)
+  #utils::assignInNamespace("annotClone", annotClone, ns="fishplot")
+  
+  
   # create the fishplot object!
   fish = createFishObject(fish_matrix, as.numeric(parents), timepoints, clone.labels=fishplot_names, 
-                          clone.annots.col=label_col, clone.annots.angle=label_angle)
+                          clone.annots.col=label_col, clone.annots.angle=label_angle,
+                          clone.annots.cex=label_cex, clone.annots.pos=label_pos, 
+                          clone.annots.offset=label_offset)
+  
   fish = layoutClones(fish)
   if(! is.null(fish_colours) ){ fish = setCol(fish, unlist(fish_colours)) }
   if( label_clusters==TRUE ){ fish@clone.annots = fishplot_names } #this adds labels onto the plot
-
-
+  
+  
   #-- prepare list of fish object & associated data tables to return ----------------------
   ret <- list()
   ret$timepoint_counts <- clusters_by_timepoint
   ret$timepoint_sums <- sums_by_timepoint
   ret$cluster_sums <- clusters_by_timepoint %>% group_by(FPCluster) %>% summarise(n = n())
-
+  
   ret$fish <- fish
-
+  
   ret$timepoints <- timepoints
   ret$timepoint_labels <- names(timepoints)
   ret$raw_table <- count_table
   ret$fish_table <- fish_table
   ret$fish_matrix <- fish_matrix
   ret$parents <- parents
-
+  
   cat("The maximum sample count per timepoint (height of Y-axis) is: ", max(rowSums(count_table)))
-
+  
   return(ret)
 }
-
 
 
 
