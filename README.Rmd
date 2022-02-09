@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 <!-- badges: start -->
 <!-- badges: end -->
 
-This package provides tools to use Chris Miller's fishplot package (https://github.com/chrisamiller/fishplot) with epidemiological datasets, to generate fishplot epi-curves. 
+This package provides tools to use Chris Miller's fishplot package (https://github.com/chrisamiller/fishplot) with epidemiological datasets, to generate fishplot epi-curves.
 
 ```{r, include=FALSE}
 library(fishplot); library(dplyr); library(tidyr); library(lubridate); library(epifish); library(knitr); library(kableExtra)
@@ -79,7 +79,7 @@ This package exists to make it easy to convert a list of samples in an epidemolo
 
 ## Installation
 
-You can install epifish with: 
+You can install epifish with:
 ``` r
 #install devtools if you don't have it already
 install.packages("devtools")
@@ -95,14 +95,14 @@ devtools::install_github("learithe/epifish")
 ## Quick Start
 
 To get started with a basic epi fishplot, given an input file in the right format (details below), this is all you need:
-``` r 
+``` r
 # load required libraries
 library(fishplot); library(dplyr); library(tidyr); library(lubridate); library(epifish)
 
 # read data file
 sample_df <- read.csv("https://raw.githubusercontent.com/learithe/epifish/main/inst/extdata/samples.csv", stringsAsFactors=FALSE)
 
-# run epifish 
+# run epifish
 epifish_output <- epifish::build_epifish( sample_df )
 
 # run fishplot on the epifish output
@@ -116,7 +116,7 @@ fishplot::fishPlot(epifish_output$fish, shape="spline")
 ```
 
 **If you want to include evolutionary relationships with subclusters:**
-``` r 
+``` r
 # load required libraries
 library(fishplot); library(dplyr); library(tidyr); library(lubridate); library(epifish)
 
@@ -124,29 +124,29 @@ library(fishplot); library(dplyr); library(tidyr); library(lubridate); library(e
 sample_df <- read.csv("https://raw.githubusercontent.com/learithe/epifish/main/inst/extdata/samples.csv", stringsAsFactors=FALSE)
 parent_df <- read.csv("https://raw.githubusercontent.com/learithe/epifish/main/inst/extdata/parents.csv", stringsAsFactors=FALSE)
 
-# run epifish 
+# run epifish
 epifish_output <- epifish::build_epifish( sample_df, parent_df )
 
 # run fishplot on the epifish output
 fishplot::fishPlot( epifish_output$fish, shape="spline" )  
 ```
 
-```{r, include=FALSE} 
-epifish_output <- epifish::build_epifish( sample_df, parent_df) 
+```{r, include=FALSE}
+epifish_output <- epifish::build_epifish( sample_df, parent_df)
 ```
 ```{r, echo=FALSE}
 fishplot::fishPlot(epifish_output$fish, shape="spline")
 ```
 
 
-  
+
 ## Basic demo
 
 *This demo expands on the quick-start example. It runs on a made-up set of example data that can be accessed here, in the [`inst/extdata`](https://github.com/learithe/epifish/tree/main/inst/extdata) directory.*
 <br><br>
 
 Load epifish and required packages
-``` r 
+``` r
 library(fishplot); library(dplyr); library(tidyr); library(lubridate); library(epifish)
 ```
 Read in the tables of sample data, cluster parent-child relationships, and custom colour scheme:
@@ -163,7 +163,7 @@ epifish_output <- epifish::build_epifish( sample_df, parent_df=parent_df, colour
 
 Then use the fishplot package to generate a fishplot:
 ```{r}
-fishplot::fishPlot(epifish_output$fish, shape="spline", 
+fishplot::fishPlot(epifish_output$fish, shape="spline",
                    vlines=epifish_output$timepoints, vlab=epifish_output$timepoints)
 fishplot::drawLegend(epifish_output$fish, nrow=1)
 
@@ -173,7 +173,7 @@ If you're happy with the default colours, or all your clusters are independent, 
 ```{r}
 epifish_output <- epifish::build_epifish( sample_df )
 
-fishplot::fishPlot(epifish_output$fish, shape="spline", 
+fishplot::fishPlot(epifish_output$fish, shape="spline",
                    vlines=epifish_output$timepoints, vlab=epifish_output$timepoints)
 fishplot::drawLegend(epifish_output$fish, nrow=1)
 
@@ -209,7 +209,7 @@ kable(tail(sample_df), row.names=FALSE)
 
 **the parent-child data:**
 ```{r echo=F}
-options(knitr.kable.NA = '') 
+options(knitr.kable.NA = '')
 kable(parent_df)
 ```
 
@@ -273,13 +273,13 @@ print( epifish_output$fish_table )
 
 # rotated final matrix used to generate the epifish fishplot object
 print( epifish_output$fish_matrix )
-      
+
 ```
 
 
 
-## Calculate timepoints 
-  
+## Calculate timepoints
+
 Epifish also has a few functions to make it easy to convert dates to epidemic weeks or months (to use as timepoints), and generate label-friendly versions of timepoint dates.  
 
 *NOTE: when working with dates in both R and Excel, be sure to check that your values match what you expect! When using R for analysis it is best practice to save your data files in a text-based format like `.csv` (comma-separated-value) format rather than Excel format, because [Excel has many issues with how it handles dates](https://datacarpentry.org/spreadsheets-socialsci/03-dates-as-data/), and using a text-only format avoids having your dates messed up by Excel.*
@@ -288,27 +288,27 @@ Epifish also has a few functions to make it easy to convert dates to epidemic we
 Given a date column name (`date_of_collection` here), the start date of the epidemic, and the date format, you can use `get_epiweek()` to calculate the number of weeks since the start of the epidemic each sample belongs to, and `get_epiweek_span()` to give the epi week a clear text label. *Note: these functions have customisation options for different date/range formats; check their documentation for details.*
 ``` {r}
 #calculate epiweek timepoints from the column "date_of_collection" & create text labels to match them
-sample_df <- sample_df %>% rowwise() %>% 
-             mutate("epiweek"= epifish::get_epiweek(cdate = date_of_collection, 
-                                                    start_date = "1/1/20", 
+sample_df <- sample_df %>% rowwise() %>%
+             mutate("epiweek"= epifish::get_epiweek(cdate = date_of_collection,
+                                                    start_date = "1/1/20",
                                                     date_format = "dmy"))
 
 #create a timepoint label column that gives the last day of each epi week the sample was collected in:
-sample_df <- sample_df %>% rowwise() %>% 
-             mutate("epiweek_label"= epifish::get_epiweek_span(cdate = date_of_collection, 
+sample_df <- sample_df %>% rowwise() %>%
+             mutate("epiweek_label"= epifish::get_epiweek_span(cdate = date_of_collection,
                                                                date_format = "dmy",
-                                                               return_end = TRUE, 
+                                                               return_end = TRUE,
                                                                newline=TRUE))
 ```
 ``` r
-#peek at what we created 
+#peek at what we created
 tail(sample_df)
 ```
 ```{r echo=FALSE}
-#peek at what we created 
+#peek at what we created
 kable( tail(sample_df) )
 ```
-   
+
 <br>
 
 #### Calculate epi months:  
@@ -317,24 +317,24 @@ Epifish also has `get_epimonth()` and `get_month_text()` functions for calculati
 ``` {r}
 
 #create a "epimonth" timepoint:
-sample_df <- sample_df %>% rowwise() %>% 
-             mutate("epimonth"= epifish::get_epimonth(cdate = date_of_collection, 
-                                                      start_date = "1/1/20", 
-                                                      date_format = "dmy")) 
+sample_df <- sample_df %>% rowwise() %>%
+             mutate("epimonth"= epifish::get_epimonth(cdate = date_of_collection,
+                                                      start_date = "1/1/20",
+                                                      date_format = "dmy"))
 #and an epimonth label
-sample_df <- sample_df %>% rowwise() %>% 
-             mutate("epimonth_label"= epifish::get_month_text(cdate = date_of_collection, 
-                                                              date_format = "dmy")) 
+sample_df <- sample_df %>% rowwise() %>%
+             mutate("epimonth_label"= epifish::get_month_text(cdate = date_of_collection,
+                                                              date_format = "dmy"))
 ```
 ``` r
-#peek at what we created 
+#peek at what we created
 tail(sample_df)
 ```
 ```{r echo=FALSE}
-#peek at what we created 
+#peek at what we created
 kable( tail(sample_df) )
 ```
-   
+
 
 ## Using informative timepoint labels
 
@@ -350,7 +350,7 @@ sample_df$timepoint_label <- sample_df$epiweek_label
 epifish_output <- epifish::build_epifish( sample_df, parent_df, colour_df, timepoint_labels=TRUE)
 
 #and draw the fishplot
-fishplot::fishPlot(epifish_output$fish, shape="spline", 
+fishplot::fishPlot(epifish_output$fish, shape="spline",
                    vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels)
 fishplot::drawLegend(epifish_output$fish, nrow=1)
 ```
@@ -376,7 +376,7 @@ Or add a "zero" timepoint with the first case, which starts on the fourth day of
 vlines <- c((4/7), epifish_output$timepoints)
 vlabs <- c("1\nJan", epifish_output$timepoint_labels)
 
-fishplot::fishPlot(epifish_output$fish, shape="spline", 
+fishplot::fishPlot(epifish_output$fish, shape="spline",
                    vlines=vlines, vlab=vlabs, cex.vlab=0.5)
 
 ```
@@ -387,14 +387,14 @@ We can specify completely custom timepoints and labels that describe an epidemio
 vlines <- c((4/7), 3, 8.5, 14)
 vlabs <- c("first\ncases", "wave 1", "quarantine\nbreach", "wave 2")
 
-fishplot::fishPlot(epifish_output$fish, shape="spline", 
+fishplot::fishPlot(epifish_output$fish, shape="spline",
                    vlines=vlines, vlab=vlabs, col.vline="red")
 ```
 
 
 ## Controlling appearance
-   
-   
+
+
 ### Control how far back in time clusters appear
 
 You can modify how far back in time the clusters seem to "begin" using the `pad_left` argument to `fishplot::fishPlot()`:
@@ -418,7 +418,7 @@ fishplot::drawLegend(epifish_output$fish, nrow=2, widthratio=0.3, xsp=0.2)
 ```
 
 
-### Control legend spacing 
+### Control legend spacing
 
 Using fishplot v0.5.1+, you can modify the spacing of the epi-fishplot legend, which is especially useful with long cluster names.  Use `widthratio` to adjust the width between columns relative to the longest cluster name (smaller value = more space), and `xsp` to control space between the colour box and the text (larger = more space)
 ```{r, include=FALSE}
@@ -439,7 +439,7 @@ epifish_output <- build_epifish (sample_df, parent_df, colour_df,
                                  label_col = "purple",
                                  label_angle = -45,
                                  label_cex = 1.2,
-                                 label_pos=2, 
+                                 label_pos=2,
                                  label_offset=0.05
                                  )
 fishplot::fishPlot(epifish_output$fish, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels,  pad.left=0.05)
@@ -480,7 +480,7 @@ fishplot::drawLegend(epifish_output$fish, nrow=1, xpos=-1)
 
 **If you use epifish in your work, please cite:**
 
-- **epifish**: this github page.
+- **epifish**: Documenting elimination of co-circulating COVID-19 clusters using genomics in New South Wales, Australia. Arnott A, Draper J et al. BMC Research Notes. [10.1186/s13104-021-05827-x](https://bmcresnotes.biomedcentral.com/articles/10.1186/s13104-021-05827-x)
 - **fishplot**: Visualizing tumor evolution with the fishplot package for R. Miller CA, McMichael J, Dang HX, Maher CA, Ding L, Ley TJ, Mardis ER, Wilson RK. BMC Genomics. [doi:10.1186/s12864-016-3195-z](https://bmcgenomics.biomedcentral.com/articles/10.1186/s12864-016-3195-z)
 
 
@@ -488,5 +488,4 @@ fishplot::drawLegend(epifish_output$fish, nrow=1, xpos=-1)
 <br>
 
 ## Acknowledgements:
-This work extends the Chris Miller's fishplot package (https://github.com/chrisamiller/fishplot). It was written by Dr. Jenny Draper, a member of the pathogen genomics team employed by [New South Wales Health Pathology](https://www.pathology.health.nsw.gov.au), at the Westmead Hospital Institute of Clinical Pathology & Medical Research (ICPMR) [Centre for Infectious Diseases and Microbiology - Public Health](https://www.wslhd.health.nsw.gov.au/Education-Portal/Research/Research-Categories/Centre-for-Infectious-Diseases-and-Microbiology-Public-Health/About-CIDMPH) in Australia. `epifish` was initially developed as part of the NSW government's response to COVID-19. 
-
+This work extends the Chris Miller's fishplot package (https://github.com/chrisamiller/fishplot). It was written by Dr. Jenny Draper, a member of the pathogen genomics team employed by [New South Wales Health Pathology](https://www.pathology.health.nsw.gov.au), at the Westmead Hospital Institute of Clinical Pathology & Medical Research (ICPMR) [Centre for Infectious Diseases and Microbiology - Public Health](https://www.wslhd.health.nsw.gov.au/Education-Portal/Research/Research-Categories/Centre-for-Infectious-Diseases-and-Microbiology-Public-Health/About-CIDMPH) in Australia. `epifish` was initially developed as part of the NSW government's response to COVID-19.

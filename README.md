@@ -4,7 +4,6 @@
 # epifish
 
 <!-- badges: start -->
-
 <!-- badges: end -->
 
 This package provides tools to use Chris Miller’s fishplot package
@@ -28,11 +27,11 @@ evolutionary pattern.
 However, a count matrix for a fishplot has a set of specific rules which
 an epidemiological dataset will not naturally fulfill:
 
-  - cluster counts per timepoint can never go completely to zero, if
+-   cluster counts per timepoint can never go completely to zero, if
     cases reappear later
-  - if a cluster has a parent/child relationship, at every timepoint the
-    parent must always have \>= the count of all its children.
-  - counts should be normalised to fit the fishplot y-axis
+-   if a cluster has a parent/child relationship, at every timepoint the
+    parent must always have >= the count of all its children.
+-   counts should be normalised to fit the fishplot y-axis
 
 This package exists to make it easy to convert a list of samples in an
 epidemological dataset into a normalised and appropriately “padded”
@@ -41,38 +40,38 @@ relative count matrix that fulfils these requirements.
 
 ## Contents
 
-  - [Installation](#installation)
-  - Usage
-      - [Quick start](#quick-start)
-      - [Basic demo](#basic-demo)
-  - Input/Output
-      - [Input format](#input-format)
-      - [Output](#output)
-  - Calculate timepoints
-      - [Calculate epi weeks](#calculate-epi-weeks-and-text-labels)
-      - [Calculate timepoint
+-   [Installation](#installation)
+-   Usage
+    -   [Quick start](#quick-start)
+    -   [Basic demo](#basic-demo)
+-   Input/Output
+    -   [Input format](#input-format)
+    -   [Output](#output)
+-   Calculate timepoints
+    -   [Calculate epi weeks](#calculate-epi-weeks-and-text-labels)
+    -   [Calculate timepoint
         labels](#calculate-epi-weeks-and-text-labels)
-      - [Calculate epi months](#calculate-epi-months)
-  - Using informative timepoint labels
-      - [Using timepoint labels](#using-informative-timepoint-labels)
-      - [Plot every other week](#plot-every-other-week)
-      - [Add extra timepoint
+    -   [Calculate epi months](#calculate-epi-months)
+-   Using informative timepoint labels
+    -   [Using timepoint labels](#using-informative-timepoint-labels)
+    -   [Plot every other week](#plot-every-other-week)
+    -   [Add extra timepoint
         lines](#add-extra-timepoint-lines-not-present-in-the-data)
-      - [Use completely manual timepoint lines and
+    -   [Use completely manual timepoint lines and
         labels](#use-completely-manual-timepoint-lines-and-labels)
-  - Controlling appearance
-      - [Control how far back in time clusters
+-   Controlling appearance
+    -   [Control how far back in time clusters
         appear](#control-how-far-back-in-time-clusters-appear)
-      - [Add extra start or end
+    -   [Add extra start or end
         timepoints](#add-extra-start-or-end-timepoints)
-      - [Control legend spacing](#control-legend-spacing)
-      - [Change cluster label
+    -   [Control legend spacing](#control-legend-spacing)
+    -   [Change cluster label
         appearance](#change-cluster-label-appearance)
-      - [Don’t show cluster labels](#dont-show-cluster-labels)
-      - [Change fishplot titles and
+    -   [Don’t show cluster labels](#dont-show-cluster-labels)
+    -   [Change fishplot titles and
         background](#change-fishplot-titles-and-background)
-  - [Citation](#citation)
-  - [Acknowledgements](#acknowledgements)
+-   [Citation](#citation)
+-   [Acknowledgements](#acknowledgements)
 
 ## Installation
 
@@ -102,7 +101,7 @@ library(fishplot); library(dplyr); library(tidyr); library(lubridate); library(e
 # read data file
 sample_df <- read.csv("https://raw.githubusercontent.com/learithe/epifish/main/inst/extdata/samples.csv", stringsAsFactors=FALSE)
 
-# run epifish 
+# run epifish
 epifish_output <- epifish::build_epifish( sample_df )
 
 # run fishplot on the epifish output
@@ -121,7 +120,7 @@ library(fishplot); library(dplyr); library(tidyr); library(lubridate); library(e
 sample_df <- read.csv("https://raw.githubusercontent.com/learithe/epifish/main/inst/extdata/samples.csv", stringsAsFactors=FALSE)
 parent_df <- read.csv("https://raw.githubusercontent.com/learithe/epifish/main/inst/extdata/parents.csv", stringsAsFactors=FALSE)
 
-# run epifish 
+# run epifish
 epifish_output <- epifish::build_epifish( sample_df, parent_df )
 
 # run fishplot on the epifish output
@@ -137,16 +136,14 @@ of example data that can be accessed here, in the
 [`inst/extdata`](https://github.com/learithe/epifish/tree/main/inst/extdata)
 directory.* <br><br>
 
-Load epifish and required
-packages
+Load epifish and required packages
 
 ``` r
 library(fishplot); library(dplyr); library(tidyr); library(lubridate); library(epifish)
 ```
 
 Read in the tables of sample data, cluster parent-child relationships,
-and custom colour
-scheme:
+and custom colour scheme:
 
 ``` r
 sample_df <- read.csv("https://raw.githubusercontent.com/learithe/epifish/main/inst/extdata/samples.csv", stringsAsFactors=FALSE)
@@ -155,8 +152,7 @@ colour_df <- read.csv("https://raw.githubusercontent.com/learithe/epifish/main/i
 ```
 
 Use epifish to convert this into a fishplot object, with extra assorted
-summary
-information:
+summary information:
 
 ``` r
 epifish_output <- epifish::build_epifish( sample_df, parent_df=parent_df, colour_df=colour_df, add_missing_timepoints=TRUE)
@@ -179,7 +175,7 @@ epifish_output <- epifish::build_epifish( sample_df, parent_df=parent_df, colour
 Then use the fishplot package to generate a fishplot:
 
 ``` r
-fishplot::fishPlot(epifish_output$fish, shape="spline", 
+fishplot::fishPlot(epifish_output$fish, shape="spline",
                    vlines=epifish_output$timepoints, vlab=epifish_output$timepoints)
 fishplot::drawLegend(epifish_output$fish, nrow=1)
 ```
@@ -195,7 +191,7 @@ epifish_output <- epifish::build_epifish( sample_df )
 #>  - Adding zero counts for missing timepoint: 9
 #> The maximum sample count per timepoint (height of Y-axis) is:  15
 
-fishplot::fishPlot(epifish_output$fish, shape="spline", 
+fishplot::fishPlot(epifish_output$fish, shape="spline",
                    vlines=epifish_output$timepoints, vlab=epifish_output$timepoints)
 fishplot::drawLegend(epifish_output$fish, nrow=1)
 ```
@@ -205,8 +201,7 @@ fishplot::drawLegend(epifish_output$fish, nrow=1)
 You also can automatically collapse any clusters of a minimum size into
 a group with `min_cluster_size`:  
 *Note: this currently does not work well with parent/child relationships
-if any child clusters are
-small\!*
+if any child clusters are small!*
 
 ``` r
 epifish_output <- epifish::build_epifish(sample_df, colour_df=colour_df, min_cluster_size=10)
@@ -245,556 +240,282 @@ columns in character or numeric (NOT factor) format.
 
 **the last few rows of sample data:**  
 (Note that the order doesn’t matter)
-
 <table>
-
 <thead>
-
 <tr>
-
 <th style="text-align:right;">
-
-case\_id
-
+ï..case_id
 </th>
-
 <th style="text-align:left;">
-
-cluster\_id
-
+cluster_id
 </th>
-
 <th style="text-align:left;">
-
-date\_of\_collection
-
+date_of_collection
 </th>
-
 <th style="text-align:right;">
-
 timepoint
-
 </th>
-
 </tr>
-
 </thead>
-
 <tbody>
-
 <tr>
-
 <td style="text-align:right;">
-
 80
-
 </td>
-
 <td style="text-align:left;">
-
 D.3
-
 </td>
-
 <td style="text-align:left;">
-
 9/4/2020
-
 </td>
-
 <td style="text-align:right;">
-
 15
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:right;">
-
 81
-
 </td>
-
 <td style="text-align:left;">
-
 D.4
-
 </td>
-
 <td style="text-align:left;">
-
 2/4/2020
-
 </td>
-
 <td style="text-align:right;">
-
 14
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:right;">
-
 82
-
 </td>
-
 <td style="text-align:left;">
-
 D.4
-
 </td>
-
 <td style="text-align:left;">
-
 2/4/2020
-
 </td>
-
 <td style="text-align:right;">
-
 14
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:right;">
-
 83
-
 </td>
-
 <td style="text-align:left;">
-
 D.3
-
 </td>
-
 <td style="text-align:left;">
-
 3/4/2020
-
 </td>
-
 <td style="text-align:right;">
-
 14
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:right;">
-
 85
-
 </td>
-
 <td style="text-align:left;">
-
 D.3
-
 </td>
-
 <td style="text-align:left;">
-
 3/4/2020
-
 </td>
-
 <td style="text-align:right;">
-
 14
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:right;">
-
 84
-
 </td>
-
 <td style="text-align:left;">
-
 A.1
-
 </td>
-
 <td style="text-align:left;">
-
 22/1/2020
-
 </td>
-
 <td style="text-align:right;">
-
 4
-
 </td>
-
 </tr>
-
 </tbody>
-
 </table>
-
 **the parent-child data:**
-
 <table>
-
 <thead>
-
 <tr>
-
 <th style="text-align:left;">
-
 cluster
-
 </th>
-
 <th style="text-align:left;">
-
 parent
-
 </th>
-
 </tr>
-
 </thead>
-
 <tbody>
-
 <tr>
-
 <td style="text-align:left;">
-
 A
-
 </td>
-
 <td style="text-align:left;">
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:left;">
-
 A.1
-
 </td>
-
 <td style="text-align:left;">
-
 A
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:left;">
-
 B
-
 </td>
-
 <td style="text-align:left;">
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:left;">
-
 C
-
 </td>
-
 <td style="text-align:left;">
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:left;">
-
 D
-
 </td>
-
 <td style="text-align:left;">
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:left;">
-
 D.3
-
 </td>
-
 <td style="text-align:left;">
-
 D.2
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:left;">
-
 D.2
-
 </td>
-
 <td style="text-align:left;">
-
 D.1
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:left;">
-
 D.1
-
 </td>
-
 <td style="text-align:left;">
-
 D
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:left;">
-
 D.4
-
 </td>
-
 <td style="text-align:left;">
-
 D.2
-
 </td>
-
 </tr>
-
 </tbody>
-
 </table>
-
 **a custom colour scheme:**  
 (Note that you can use [named ggplot
 colours](https://www.nceas.ucsb.edu/sites/default/files/2020-04/colorPaletteCheatsheet.pdf)
-or hex codes (eg “red” or “\#ff0000”) )
-
+or hex codes (eg “red” or “#ff0000”) )
 <table>
-
 <thead>
-
 <tr>
-
 <th style="text-align:left;">
-
 cluster
-
 </th>
-
 <th style="text-align:left;">
-
 colour
-
 </th>
-
 </tr>
-
 </thead>
-
 <tbody>
-
 <tr>
-
 <td style="text-align:left;">
-
 A
-
 </td>
-
 <td style="text-align:left;">
-
 orange
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:left;">
-
 A.1
-
 </td>
-
 <td style="text-align:left;">
-
 red
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:left;">
-
 B
-
 </td>
-
 <td style="text-align:left;">
-
 yellow
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:left;">
-
 C
-
 </td>
-
 <td style="text-align:left;">
-
 green3
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:left;">
-
 D
-
 </td>
-
 <td style="text-align:left;">
-
 greenyellow
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:left;">
-
 D.1
-
 </td>
-
 <td style="text-align:left;">
-
 springgreen
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:left;">
-
 D.2
-
 </td>
-
 <td style="text-align:left;">
-
 deepskyblue
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:left;">
-
 D.3
-
 </td>
-
 <td style="text-align:left;">
-
 royalblue1
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:left;">
-
 D.4
-
 </td>
-
 <td style="text-align:left;">
-
 blue3
-
 </td>
-
 </tr>
-
 </tbody>
-
 </table>
 
 ## Output
@@ -803,31 +524,30 @@ The output of epifish is a list variable (named `epifish_output` here)
 containing: a fishplot object (`epifish_output$fish`), the data
 structures needed to generate it, and some extra data summary tables:
 
-  - `fish` fishplot object to pass to `fishplot::fishPlot()`
-  - `timepoint_counts` summary table of number of samples per cluster
+-   `fish` fishplot object to pass to `fishplot::fishPlot()`
+-   `timepoint_counts` summary table of number of samples per cluster
     per timepoint
-  - `timepoint_sums` summary table of number of samples per timepoint
-  - `cluster_sums` summary table of total number of samples per cluster
-  - `timepoints` vector of timepoints used
-  - `timepoint_labels` vector of the names of timepoints assigned in the
+-   `timepoint_sums` summary table of number of samples per timepoint
+-   `cluster_sums` summary table of total number of samples per cluster
+-   `timepoints` vector of timepoints used
+-   `timepoint_labels` vector of the names of timepoints assigned in the
     plot
-  - `parents` named list matching child clusters to their parent’s
+-   `parents` named list matching child clusters to their parent’s
     position in the matrix (0 means cluster is independent)
-  - `raw_table` initial table of counts per cluster per timepoint,
+-   `raw_table` initial table of counts per cluster per timepoint,
     before padding and normalisation
-  - `fish_table` normalised and parent-padded table for the epi-fishplot
-  - `fish_matrix` final transformed matrix used to make the epifish
+-   `fish_table` normalised and parent-padded table for the epi-fishplot
+-   `fish_matrix` final transformed matrix used to make the epifish
     object
 
 The epifish fishplot object output `epifish_output$fish` is used with
 the fishplot package’s `fishPlot()` function to generate an R plot
 image, as shown above. If using RStudio, it is most straightforward to
-save the R plot as PDF image from the RStudio plot window (Export -\>
+save the R plot as PDF image from the RStudio plot window (Export ->
 “Save as PDF”).
 
 If you wish to save individual tables from the epifish output list for
-any reason, it can be done like
-so:
+any reason, it can be done like so:
 
 ``` r
 write.csv(epifish_output$fish_table, "epifishplot_table.csv", row.names=FALSE)
@@ -927,8 +647,7 @@ print( epifish_output$timepoints )
 
 # list of labels for each timepoint
 print( epifish_output$timepoint_labels )
-#>  [1] "1"  "2"  "3"  "4"  "5"  "6"  "7"  "8"  "9"  "10" "11" "12" "13" "14"
-#> [15] "15"
+#>  [1] "1"  "2"  "3"  "4"  "5"  "6"  "7"  "8"  "9"  "10" "11" "12" "13" "14" "15"
 
 # raw count table
 print( epifish_output$raw_table )
@@ -951,45 +670,45 @@ print( epifish_output$raw_table )
 
 # normalised and padded count table
 print( epifish_output$fish_table )
-#>          A     B     A.1     C       D   D.1   D.2   D.3   D.4
-#> 1  19.7700  6.59  0.0000  0.00  0.0000  0.00  0.00  0.00  0.00
-#> 2  13.1800 13.18  0.0000  0.00  0.0000  0.00  0.00  0.00  0.00
-#> 3  65.9000 26.36  6.5900  6.59  0.0000  0.00  0.00  0.00  0.00
-#> 4  39.5400  6.59 26.3600 26.36  0.0000  0.00  0.00  0.00  0.00
-#> 5  13.1801  0.00 13.1800 19.77  0.0000  0.00  0.00  0.00  0.00
-#> 6   6.5901  0.00  0.0001 19.77  0.0000  0.00  0.00  0.00  0.00
-#> 7  19.7701  0.00  0.0001  0.00  0.0000  0.00  0.00  0.00  0.00
-#> 8   6.5900  0.00  6.5900  0.00  0.0000  0.00  0.00  0.00  0.00
-#> 9   0.0001  0.00  0.0001  0.00  0.0000  0.00  0.00  0.00  0.00
-#> 10  6.5900  0.00  6.5900  0.00  6.5900  0.00  0.00  0.00  0.00
-#> 11  6.5900  0.00  6.5900  0.00 26.3600  0.00  0.00  0.00  0.00
-#> 12  0.0000  0.00  0.0000  0.00 26.3600  6.59  0.00  0.00  0.00
-#> 13  0.0000  0.00  0.0000  0.00 52.7200 19.77  6.59  0.00  0.00
-#> 14  0.0000  0.00  0.0000  0.00 85.6701 85.67 46.13 13.18 13.18
-#> 15  0.0000  0.00  0.0000  0.00 32.9500 26.36 26.36 19.77  0.00
+#>           A     B     A.1     C        D      D.1   D.2   D.3   D.4
+#> 1  19.77000  6.59  0.0000  0.00  0.00000  0.00000  0.00  0.00  0.00
+#> 2  13.18000 13.18  0.0000  0.00  0.00000  0.00000  0.00  0.00  0.00
+#> 3  65.90000 26.36  6.5900  6.59  0.00000  0.00000  0.00  0.00  0.00
+#> 4  39.54000  6.59 26.3600 26.36  0.00000  0.00000  0.00  0.00  0.00
+#> 5  13.18010  0.00 13.1800 19.77  0.00000  0.00000  0.00  0.00  0.00
+#> 6   6.59010  0.00  0.0001 19.77  0.00000  0.00000  0.00  0.00  0.00
+#> 7  19.77010  0.00  0.0001  0.00  0.00000  0.00000  0.00  0.00  0.00
+#> 8   6.59001  0.00  6.5900  0.00  0.00000  0.00000  0.00  0.00  0.00
+#> 9   0.00011  0.00  0.0001  0.00  0.00000  0.00000  0.00  0.00  0.00
+#> 10  6.59001  0.00  6.5900  0.00  6.59000  0.00000  0.00  0.00  0.00
+#> 11  6.59001  0.00  6.5900  0.00 26.36000  0.00000  0.00  0.00  0.00
+#> 12  0.00000  0.00  0.0000  0.00 26.36000  6.59000  0.00  0.00  0.00
+#> 13  0.00000  0.00  0.0000  0.00 52.72000 19.77000  6.59  0.00  0.00
+#> 14  0.00000  0.00  0.0000  0.00 85.67010 85.67000 46.13 13.18 13.18
+#> 15  0.00000  0.00  0.0000  0.00 32.95001 26.36001 26.36 19.77  0.00
 
 # rotated final matrix used to generate the epifish fishplot object
 print( epifish_output$fish_matrix )
-#>           1     2     3     4       5       6       7    8     9   10
-#>  [1,] 19.77 13.18 65.90 39.54 13.1801  6.5901 19.7701 6.59 1e-04 6.59
-#>  [2,]  6.59 13.18 26.36  6.59  0.0000  0.0000  0.0000 0.00 0e+00 0.00
-#>  [3,]  0.00  0.00  6.59 26.36 13.1800  0.0001  0.0001 6.59 1e-04 6.59
-#>  [4,]  0.00  0.00  6.59 26.36 19.7700 19.7700  0.0000 0.00 0e+00 0.00
-#>  [5,]  0.00  0.00  0.00  0.00  0.0000  0.0000  0.0000 0.00 0e+00 6.59
-#>  [6,]  0.00  0.00  0.00  0.00  0.0000  0.0000  0.0000 0.00 0e+00 0.00
-#>  [7,]  0.00  0.00  0.00  0.00  0.0000  0.0000  0.0000 0.00 0e+00 0.00
-#>  [8,]  0.00  0.00  0.00  0.00  0.0000  0.0000  0.0000 0.00 0e+00 0.00
-#>  [9,]  0.00  0.00  0.00  0.00  0.0000  0.0000  0.0000 0.00 0e+00 0.00
-#>          11    12    13      14    15
-#>  [1,]  6.59  0.00  0.00  0.0000  0.00
-#>  [2,]  0.00  0.00  0.00  0.0000  0.00
-#>  [3,]  6.59  0.00  0.00  0.0000  0.00
-#>  [4,]  0.00  0.00  0.00  0.0000  0.00
-#>  [5,] 26.36 26.36 52.72 85.6701 32.95
-#>  [6,]  0.00  6.59 19.77 85.6700 26.36
-#>  [7,]  0.00  0.00  6.59 46.1300 26.36
-#>  [8,]  0.00  0.00  0.00 13.1800 19.77
-#>  [9,]  0.00  0.00  0.00 13.1800  0.00
+#>           1     2     3     4       5       6       7       8       9      10
+#>  [1,] 19.77 13.18 65.90 39.54 13.1801  6.5901 19.7701 6.59001 0.00011 6.59001
+#>  [2,]  6.59 13.18 26.36  6.59  0.0000  0.0000  0.0000 0.00000 0.00000 0.00000
+#>  [3,]  0.00  0.00  6.59 26.36 13.1800  0.0001  0.0001 6.59000 0.00010 6.59000
+#>  [4,]  0.00  0.00  6.59 26.36 19.7700 19.7700  0.0000 0.00000 0.00000 0.00000
+#>  [5,]  0.00  0.00  0.00  0.00  0.0000  0.0000  0.0000 0.00000 0.00000 6.59000
+#>  [6,]  0.00  0.00  0.00  0.00  0.0000  0.0000  0.0000 0.00000 0.00000 0.00000
+#>  [7,]  0.00  0.00  0.00  0.00  0.0000  0.0000  0.0000 0.00000 0.00000 0.00000
+#>  [8,]  0.00  0.00  0.00  0.00  0.0000  0.0000  0.0000 0.00000 0.00000 0.00000
+#>  [9,]  0.00  0.00  0.00  0.00  0.0000  0.0000  0.0000 0.00000 0.00000 0.00000
+#>             11    12    13      14       15
+#>  [1,]  6.59001  0.00  0.00  0.0000  0.00000
+#>  [2,]  0.00000  0.00  0.00  0.0000  0.00000
+#>  [3,]  6.59000  0.00  0.00  0.0000  0.00000
+#>  [4,]  0.00000  0.00  0.00  0.0000  0.00000
+#>  [5,] 26.36000 26.36 52.72 85.6701 32.95001
+#>  [6,]  0.00000  6.59 19.77 85.6700 26.36001
+#>  [7,]  0.00000  0.00  6.59 46.1300 26.36000
+#>  [8,]  0.00000  0.00  0.00 13.1800 19.77000
+#>  [9,]  0.00000  0.00  0.00 13.1800  0.00000
 ```
 
 ## Calculate timepoints
@@ -999,7 +718,7 @@ epidemic weeks or months (to use as timepoints), and generate
 label-friendly versions of timepoint dates.
 
 *NOTE: when working with dates in both R and Excel, be sure to check
-that your values match what you expect\! When using R for analysis it is
+that your values match what you expect! When using R for analysis it is
 best practice to save your data files in a text-based format like `.csv`
 (comma-separated-value) format rather than Excel format, because [Excel
 has many issues with how it handles
@@ -1014,319 +733,173 @@ the epidemic, and the date format, you can use `get_epiweek()` to
 calculate the number of weeks since the start of the epidemic each
 sample belongs to, and `get_epiweek_span()` to give the epi week a clear
 text label. *Note: these functions have customisation options for
-different date/range formats; check their documentation for
-details.*
+different date/range formats; check their documentation for details.*
 
 ``` r
 #calculate epiweek timepoints from the column "date_of_collection" & create text labels to match them
-sample_df <- sample_df %>% rowwise() %>% 
-             mutate("epiweek"= epifish::get_epiweek(cdate = date_of_collection, 
-                                                    start_date = "1/1/20", 
+sample_df <- sample_df %>% rowwise() %>%
+             mutate("epiweek"= epifish::get_epiweek(cdate = date_of_collection,
+                                                    start_date = "1/1/20",
                                                     date_format = "dmy"))
 
 #create a timepoint label column that gives the last day of each epi week the sample was collected in:
-sample_df <- sample_df %>% rowwise() %>% 
-             mutate("epiweek_label"= epifish::get_epiweek_span(cdate = date_of_collection, 
+sample_df <- sample_df %>% rowwise() %>%
+             mutate("epiweek_label"= epifish::get_epiweek_span(cdate = date_of_collection,
                                                                date_format = "dmy",
-                                                               return_end = TRUE, 
+                                                               return_end = TRUE,
                                                                newline=TRUE))
 ```
 
 ``` r
-#peek at what we created 
+#peek at what we created
 tail(sample_df)
 ```
 
 <table>
-
 <thead>
-
 <tr>
-
 <th style="text-align:right;">
-
-case\_id
-
+ï..case_id
 </th>
-
 <th style="text-align:left;">
-
-cluster\_id
-
+cluster_id
 </th>
-
 <th style="text-align:left;">
-
-date\_of\_collection
-
+date_of_collection
 </th>
-
 <th style="text-align:right;">
-
 timepoint
-
 </th>
-
 <th style="text-align:right;">
-
 epiweek
-
 </th>
-
 <th style="text-align:left;">
-
-epiweek\_label
-
+epiweek_label
 </th>
-
 </tr>
-
 </thead>
-
 <tbody>
-
 <tr>
-
 <td style="text-align:right;">
-
 80
-
 </td>
-
 <td style="text-align:left;">
-
 D.3
-
 </td>
-
 <td style="text-align:left;">
-
 9/4/2020
-
 </td>
-
 <td style="text-align:right;">
-
 15
-
 </td>
-
 <td style="text-align:right;">
-
 15
-
 </td>
-
 <td style="text-align:left;">
-
 11 Apr
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:right;">
-
 81
-
 </td>
-
 <td style="text-align:left;">
-
 D.4
-
 </td>
-
 <td style="text-align:left;">
-
 2/4/2020
-
 </td>
-
 <td style="text-align:right;">
-
 14
-
 </td>
-
 <td style="text-align:right;">
-
 14
-
 </td>
-
 <td style="text-align:left;">
-
 4 Apr
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:right;">
-
 82
-
 </td>
-
 <td style="text-align:left;">
-
 D.4
-
 </td>
-
 <td style="text-align:left;">
-
 2/4/2020
-
 </td>
-
 <td style="text-align:right;">
-
 14
-
 </td>
-
 <td style="text-align:right;">
-
 14
-
 </td>
-
 <td style="text-align:left;">
-
 4 Apr
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:right;">
-
 83
-
 </td>
-
 <td style="text-align:left;">
-
 D.3
-
 </td>
-
 <td style="text-align:left;">
-
 3/4/2020
-
 </td>
-
 <td style="text-align:right;">
-
 14
-
 </td>
-
 <td style="text-align:right;">
-
 14
-
 </td>
-
 <td style="text-align:left;">
-
 4 Apr
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:right;">
-
 85
-
 </td>
-
 <td style="text-align:left;">
-
 D.3
-
 </td>
-
 <td style="text-align:left;">
-
 3/4/2020
-
 </td>
-
 <td style="text-align:right;">
-
 14
-
 </td>
-
 <td style="text-align:right;">
-
 14
-
 </td>
-
 <td style="text-align:left;">
-
 4 Apr
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:right;">
-
 84
-
 </td>
-
 <td style="text-align:left;">
-
 A.1
-
 </td>
-
 <td style="text-align:left;">
-
 22/1/2020
-
 </td>
-
 <td style="text-align:right;">
-
 4
-
 </td>
-
 <td style="text-align:right;">
-
 4
-
 </td>
-
 <td style="text-align:left;">
-
 25 Jan
-
 </td>
-
 </tr>
-
 </tbody>
-
 </table>
 
 <br>
@@ -1337,397 +910,209 @@ Epifish also has `get_epimonth()` and `get_month_text()` functions for
 calculating epi months from dates:
 
 ``` r
-
 #create a "epimonth" timepoint:
-sample_df <- sample_df %>% rowwise() %>% 
-             mutate("epimonth"= epifish::get_epimonth(cdate = date_of_collection, 
-                                                      start_date = "1/1/20", 
-                                                      date_format = "dmy")) 
+sample_df <- sample_df %>% rowwise() %>%
+             mutate("epimonth"= epifish::get_epimonth(cdate = date_of_collection,
+                                                      start_date = "1/1/20",
+                                                      date_format = "dmy"))
 #and an epimonth label
-sample_df <- sample_df %>% rowwise() %>% 
-             mutate("epimonth_label"= epifish::get_month_text(cdate = date_of_collection, 
-                                                              date_format = "dmy")) 
+sample_df <- sample_df %>% rowwise() %>%
+             mutate("epimonth_label"= epifish::get_month_text(cdate = date_of_collection,
+                                                              date_format = "dmy"))
 ```
 
 ``` r
-#peek at what we created 
+#peek at what we created
 tail(sample_df)
 ```
 
 <table>
-
 <thead>
-
 <tr>
-
 <th style="text-align:right;">
-
-case\_id
-
+ï..case_id
 </th>
-
 <th style="text-align:left;">
-
-cluster\_id
-
+cluster_id
 </th>
-
 <th style="text-align:left;">
-
-date\_of\_collection
-
+date_of_collection
 </th>
-
 <th style="text-align:right;">
-
 timepoint
-
 </th>
-
 <th style="text-align:right;">
-
 epiweek
-
 </th>
-
 <th style="text-align:left;">
-
-epiweek\_label
-
+epiweek_label
 </th>
-
 <th style="text-align:right;">
-
 epimonth
-
 </th>
-
 <th style="text-align:left;">
-
-epimonth\_label
-
+epimonth_label
 </th>
-
 </tr>
-
 </thead>
-
 <tbody>
-
 <tr>
-
 <td style="text-align:right;">
-
 80
-
 </td>
-
 <td style="text-align:left;">
-
 D.3
-
 </td>
-
 <td style="text-align:left;">
-
 9/4/2020
-
 </td>
-
 <td style="text-align:right;">
-
 15
-
 </td>
-
 <td style="text-align:right;">
-
 15
-
 </td>
-
 <td style="text-align:left;">
-
 11 Apr
-
 </td>
-
 <td style="text-align:right;">
-
 4
-
 </td>
-
 <td style="text-align:left;">
-
 Apr
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:right;">
-
 81
-
 </td>
-
 <td style="text-align:left;">
-
 D.4
-
 </td>
-
 <td style="text-align:left;">
-
 2/4/2020
-
 </td>
-
 <td style="text-align:right;">
-
 14
-
 </td>
-
 <td style="text-align:right;">
-
 14
-
 </td>
-
 <td style="text-align:left;">
-
 4 Apr
-
 </td>
-
 <td style="text-align:right;">
-
 4
-
 </td>
-
 <td style="text-align:left;">
-
 Apr
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:right;">
-
 82
-
 </td>
-
 <td style="text-align:left;">
-
 D.4
-
 </td>
-
 <td style="text-align:left;">
-
 2/4/2020
-
 </td>
-
 <td style="text-align:right;">
-
 14
-
 </td>
-
 <td style="text-align:right;">
-
 14
-
 </td>
-
 <td style="text-align:left;">
-
 4 Apr
-
 </td>
-
 <td style="text-align:right;">
-
 4
-
 </td>
-
 <td style="text-align:left;">
-
 Apr
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:right;">
-
 83
-
 </td>
-
 <td style="text-align:left;">
-
 D.3
-
 </td>
-
 <td style="text-align:left;">
-
 3/4/2020
-
 </td>
-
 <td style="text-align:right;">
-
 14
-
 </td>
-
 <td style="text-align:right;">
-
 14
-
 </td>
-
 <td style="text-align:left;">
-
 4 Apr
-
 </td>
-
 <td style="text-align:right;">
-
 4
-
 </td>
-
 <td style="text-align:left;">
-
 Apr
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:right;">
-
 85
-
 </td>
-
 <td style="text-align:left;">
-
 D.3
-
 </td>
-
 <td style="text-align:left;">
-
 3/4/2020
-
 </td>
-
 <td style="text-align:right;">
-
 14
-
 </td>
-
 <td style="text-align:right;">
-
 14
-
 </td>
-
 <td style="text-align:left;">
-
 4 Apr
-
 </td>
-
 <td style="text-align:right;">
-
 4
-
 </td>
-
 <td style="text-align:left;">
-
 Apr
-
 </td>
-
 </tr>
-
 <tr>
-
 <td style="text-align:right;">
-
 84
-
 </td>
-
 <td style="text-align:left;">
-
 A.1
-
 </td>
-
 <td style="text-align:left;">
-
 22/1/2020
-
 </td>
-
 <td style="text-align:right;">
-
 4
-
 </td>
-
 <td style="text-align:right;">
-
 4
-
 </td>
-
 <td style="text-align:left;">
-
 25 Jan
-
 </td>
-
 <td style="text-align:right;">
-
 1
-
 </td>
-
 <td style="text-align:left;">
-
 Jan
-
 </td>
-
 </tr>
-
 </tbody>
-
 </table>
 
 ## Using informative timepoint labels
@@ -1739,7 +1124,6 @@ you can calculate it from dates as shown above.) *Note: you can only
 have one unique label per timepoint value.*
 
 ``` r
-
 #to use the epiweeks and epiweek labels we calculated above, we need to set these as columns named "timepoint" and "timepoint_label" in the sample dataframe:
 sample_df$timepoint <- sample_df$epiweek  
 sample_df$timepoint_label <- sample_df$epiweek_label
@@ -1762,7 +1146,7 @@ epifish_output <- epifish::build_epifish( sample_df, parent_df, colour_df, timep
 #> The maximum sample count per timepoint (height of Y-axis) is:  15
 
 #and draw the fishplot
-fishplot::fishPlot(epifish_output$fish, shape="spline", 
+fishplot::fishPlot(epifish_output$fish, shape="spline",
                    vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels)
 fishplot::drawLegend(epifish_output$fish, nrow=1)
 ```
@@ -1778,7 +1162,6 @@ custom combinations rather than using the epifish defaults:
 If things are getting crowded, you can label just every other week:
 
 ``` r
-
 #subset timepoints and labels to ever other entry
 vlines <- epifish_output$timepoints[c(TRUE, FALSE)]
 vlabs  <- epifish_output$timepoint_labels[c(TRUE, FALSE)]
@@ -1798,7 +1181,7 @@ so it doesn’t overlap):
 vlines <- c((4/7), epifish_output$timepoints)
 vlabs <- c("1\nJan", epifish_output$timepoint_labels)
 
-fishplot::fishPlot(epifish_output$fish, shape="spline", 
+fishplot::fishPlot(epifish_output$fish, shape="spline",
                    vlines=vlines, vlab=vlabs, cex.vlab=0.5)
 ```
 
@@ -1813,7 +1196,7 @@ epidemiological story, with red lines:
 vlines <- c((4/7), 3, 8.5, 14)
 vlabs <- c("first\ncases", "wave 1", "quarantine\nbreach", "wave 2")
 
-fishplot::fishPlot(epifish_output$fish, shape="spline", 
+fishplot::fishPlot(epifish_output$fish, shape="spline",
                    vlines=vlines, vlab=vlabs, col.vline="red")
 ```
 
@@ -1824,8 +1207,7 @@ fishplot::fishPlot(epifish_output$fish, shape="spline",
 ### Control how far back in time clusters appear
 
 You can modify how far back in time the clusters seem to “begin” using
-the `pad_left` argument to
-`fishplot::fishPlot()`:
+the `pad_left` argument to `fishplot::fishPlot()`:
 
 ``` r
 fishplot::fishPlot(epifish_output$fish, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels,  pad.left=0.05)
@@ -1872,8 +1254,7 @@ Using fishplot v0.5.1+, you can modify the spacing of the epi-fishplot
 legend, which is especially useful with long cluster names. Use
 `widthratio` to adjust the width between columns relative to the longest
 cluster name (smaller value = more space), and `xsp` to control space
-between the colour box and the text (larger = more
-space)
+between the colour box and the text (larger = more space)
 
 ``` r
 fishplot::fishPlot(epifish_output$fish, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels)
@@ -1893,7 +1274,7 @@ epifish_output <- build_epifish (sample_df, parent_df, colour_df,
                                  label_col = "purple",
                                  label_angle = -45,
                                  label_cex = 1.2,
-                                 label_pos=2, 
+                                 label_pos=2,
                                  label_offset=0.05
                                  )
 #> Checking for missing timepoints: 
@@ -1919,8 +1300,7 @@ fishplot::drawLegend(epifish_output$fish)
 ### Don’t show cluster labels
 
 If you don’t want to show the cluster labels on the fishplot, set
-`label_clusters=FALSE` in
-`epifish::build_epifish()`.
+`label_clusters=FALSE` in `epifish::build_epifish()`.
 
 ``` r
 epifish_output <- build_epifish (sample_df, parent_df, colour_df, label_clusters=FALSE)
@@ -1984,8 +1364,11 @@ fishplot::drawLegend(epifish_output$fish, nrow=1, xpos=-1)
 
 **If you use epifish in your work, please cite:**
 
-  - **epifish**: this github page.
-  - **fishplot**: Visualizing tumor evolution with the fishplot package
+-   **epifish**: Documenting elimination of co-circulating COVID-19
+    clusters using genomics in New South Wales, Australia. Arnott A,
+    Draper J et al. BMC Research Notes.
+    [10.1186/s13104-021-05827-x](https://bmcresnotes.biomedcentral.com/articles/10.1186/s13104-021-05827-x)
+-   **fishplot**: Visualizing tumor evolution with the fishplot package
     for R. Miller CA, McMichael J, Dang HX, Maher CA, Ding L, Ley TJ,
     Mardis ER, Wilson RK. BMC Genomics.
     [doi:10.1186/s12864-016-3195-z](https://bmcgenomics.biomedcentral.com/articles/10.1186/s12864-016-3195-z)

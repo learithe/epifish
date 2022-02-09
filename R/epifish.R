@@ -24,6 +24,7 @@
 #' @param add_missing_timepoints [optional] T/F whether to add "missing" intermediate timepoints with no observations (default is TRUE)
 #' @param start_time [optional] alternate earlier timepoint to start on. Requires add_missing_timepoints=TRUE
 #' @param end_time [optional] alternate timepoint to end on. Requires add_missing_timepoints=TRUE
+#' @param skip_fish [optional] skip generating the fishplot object (just generate all the underlying tables etc). Useful for debugging.
 #' 
 #'
 #' @details
@@ -54,7 +55,7 @@
 #<'
 build_epifish <- function( sample_df, parent_df=NULL, colour_df=NULL, min_cluster_size=1, timepoint_labels=FALSE, label_clusters=TRUE,
                            label_col="black", label_angle=0, label_pos=2, label_cex=0.7, label_offset=0.2,
-                           add_missing_timepoints=TRUE, start_time=NULL, end_time=NULL)
+                           add_missing_timepoints=TRUE, start_time=NULL, end_time=NULL, skip_fish=FALSE)
 {
   
   
@@ -219,31 +220,20 @@ build_epifish <- function( sample_df, parent_df=NULL, colour_df=NULL, min_cluste
     fish_colours <- NULL
   }
   
-  
-  # temporarily create a new version of the fishplot annotClone() function
-  # to modify the cluster label position
-  # will remove this when my flexible version is implemented in the official fishplot package
-  # default annotClone() is:
-  #   annotClone <- function(x, y, annot, angle=0, col = "black") {
-  #     text(x, y, annot, pos = 4, cex = 0.5, col = col, xpd = NA, srt = angle, offset = 0.5)
-  #   }
-  #annotClone <- function(x, y, annot, angle=0, col = "black", cex = 0.7, pos = 2, offset = 0.2) {
-  #  text(x, y, annot, pos = 2, cex = 0.7, col = col, xpd = NA, srt = angle, offset = 0.2)
-  #}
-  #tmpfun <- get("annotClone", envir = asNamespace("fishplot"))
-  #environment(annotClone) <- environment(tmpfun)
-  #utils::assignInNamespace("annotClone", annotClone, ns="fishplot")
-  
-  
+
   # create the fishplot object!
-  fish = createFishObject(fish_matrix, as.numeric(parents), timepoints, clone.labels=fishplot_names, 
-                          clone.annots.col=label_col, clone.annots.angle=label_angle,
-                          clone.annots.cex=label_cex, clone.annots.pos=label_pos, 
-                          clone.annots.offset=label_offset)
-  
-  fish = layoutClones(fish)
-  if(! is.null(fish_colours) ){ fish = setCol(fish, unlist(fish_colours)) }
-  if( label_clusters==TRUE ){ fish@clone.annots = fishplot_names } #this adds labels onto the plot
+  if (skip_fish == FALSE) {
+    fish = createFishObject(fish_matrix, as.numeric(parents), timepoints, clone.labels=fishplot_names, 
+                            clone.annots.col=label_col, clone.annots.angle=label_angle,
+                            clone.annots.cex=label_cex, clone.annots.pos=label_pos, 
+                            clone.annots.offset=label_offset)
+    
+    fish = layoutClones(fish)
+    if(! is.null(fish_colours) ){ fish = setCol(fish, unlist(fish_colours)) }
+    if( label_clusters==TRUE ){ fish@clone.annots = fishplot_names } #this adds labels onto the plot
+  } else {
+    fish <- NULL
+  }
   
   
   #-- prepare list of fish object & associated data tables to return ----------------------
@@ -437,6 +427,15 @@ pad_parents <- function(fish_table, parents){
   pad_parent <- function(ft, parent, child)
   {
     ft[ ,parent] <- ft[ ,parent] + ft[ ,child]
+    
+    # parent must be > child, so pad if needed
+    for ( i in 1:length(ft[ ,parent]) ) {
+      if( ft[i, parent] == ft[i, child] & ft[i, child] != 0 ){
+        ft[i, parent] <- ft[i, parent] + 0.00001  
+      }
+    }
+    
+    
     return(ft)
   }
 

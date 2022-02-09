@@ -12,7 +12,14 @@ build_epifish(
   timepoint_labels = FALSE,
   label_clusters = TRUE,
   label_col = "black",
-  label_angle = 0
+  label_angle = 0,
+  label_pos = 2,
+  label_cex = 0.7,
+  label_offset = 0.2,
+  add_missing_timepoints = TRUE,
+  start_time = NULL,
+  end_time = NULL,
+  skip_fish = FALSE
 )
 }
 \arguments{
@@ -31,6 +38,14 @@ build_epifish(
 \item{label_col}{[optional] string colour for cluster labels inside plot (default is "black")}
 
 \item{label_angle}{[optional] numeric angle for cluster labels inside plot (default is 0 for no rotation)}
+
+\item{add_missing_timepoints}{[optional] T/F whether to add "missing" intermediate timepoints with no observations (default is TRUE)}
+
+\item{start_time}{[optional] alternate earlier timepoint to start on. Requires add_missing_timepoints=TRUE}
+
+\item{end_time}{[optional] alternate timepoint to end on. Requires add_missing_timepoints=TRUE}
+
+\item{skip_fish}{[optional] skip generating the fishplot object (just generate all the underlying tables etc). Useful for debugging.}
 }
 \value{
 A list with the components:
