@@ -17,5 +17,3 @@ Imports:
     fishplot,
     magrittr,
     rlang
-Suggests: 
-    kableExtra

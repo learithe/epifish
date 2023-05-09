@@ -91,66 +91,83 @@ right format (details below), this is all you need:
 
 ``` r
 # load required libraries
-library(fishplot); library(dplyr); library(tidyr); library(lubridate); library(epifish)
+library(fishplot); library(epifish)
+#> Using fishPlot version 0.5.1
 
 # read data file
-sample_df <- read.csv("https://raw.githubusercontent.com/learithe/epifish/main/inst/extdata/samples.csv", stringsAsFactors=FALSE)
+sample_df <- read.csv(system.file("extdata/samples.csv", package = "epifish"), stringsAsFactors=FALSE)
 
 # run epifish
-epifish_output <- epifish::build_epifish( sample_df )
+epifish_output <- build_epifish( sample_df )
+#> Checking for missing timepoints: 
+#>  - Adding zero counts for missing timepoint: 9
+#> The maximum sample count per timepoint (height of Y-axis) is:  15
 
 # run fishplot on the epifish output
 fishplot::fishPlot( epifish_output$fish, shape="spline" )  
 ```
 
-<img src="man/figures/README-unnamed-chunk-5-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-4-1.png" width="100%" />
 
 **If you want to include evolutionary relationships with subclusters:**
 
 ``` r
 # load required libraries
-library(fishplot); library(dplyr); library(tidyr); library(lubridate); library(epifish)
+library(fishplot); library(epifish)
 
 # read data files
-sample_df <- read.csv("https://raw.githubusercontent.com/learithe/epifish/main/inst/extdata/samples.csv", stringsAsFactors=FALSE)
-parent_df <- read.csv("https://raw.githubusercontent.com/learithe/epifish/main/inst/extdata/parents.csv", stringsAsFactors=FALSE)
+sample_df <- read.csv(system.file("extdata/samples.csv", package = "epifish"), stringsAsFactors=FALSE)
+parent_df <- read.csv(system.file("extdata/parents.csv", package = "epifish"), stringsAsFactors=FALSE)
 
 # run epifish
-epifish_output <- epifish::build_epifish( sample_df, parent_df )
+epifish_output <- build_epifish( sample_df, parent_df )
+#> Checking for missing timepoints: 
+#>  - Adding zero counts for missing timepoint: 9
+#> setting parent position of child A.1  to  1 
+#> setting parent position of child D.3  to  7 
+#> setting parent position of child D.2  to  6 
+#> setting parent position of child D.1  to  5 
+#> setting parent position of child D.4  to  7 
+#> Padding parent values in matrix: 
+#> adding child  D.4  to parent  D.2 
+#> adding child  D.3  to parent  D.2 
+#> adding child  D.2  to parent  D.1 
+#> adding child  D.1  to parent  D 
+#> adding child  A.1  to parent  A 
+#> The maximum sample count per timepoint (height of Y-axis) is:  15
 
 # run fishplot on the epifish output
-fishplot::fishPlot( epifish_output$fish, shape="spline" )  
+fishPlot( epifish_output$fish, shape="spline" )  
 ```
 
-<img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-5-1.png" width="100%" />
 
 ## Basic demo
 
 *This demo expands on the quick-start example. It runs on a made-up set
 of example data that can be accessed here, in the
-[`inst/extdata`](https://github.com/learithe/epifish/tree/main/inst/extdata)
-directory.* <br><br>
+[`inst/extdata`](inst/extdata) directory.* <br><br>
 
 Load epifish and required packages
 
 ``` r
-library(fishplot); library(dplyr); library(tidyr); library(lubridate); library(epifish)
+library(fishplot); library(epifish)
 ```
 
 Read in the tables of sample data, cluster parent-child relationships,
 and custom colour scheme:
 
 ``` r
-sample_df <- read.csv("https://raw.githubusercontent.com/learithe/epifish/main/inst/extdata/samples.csv", stringsAsFactors=FALSE)
-parent_df <- read.csv("https://raw.githubusercontent.com/learithe/epifish/main/inst/extdata/parents.csv", stringsAsFactors=FALSE)
-colour_df <- read.csv("https://raw.githubusercontent.com/learithe/epifish/main/inst/extdata/colours.csv", stringsAsFactors=FALSE)
+sample_df <- read.csv(system.file("extdata/samples.csv", package = "epifish"), stringsAsFactors=FALSE)
+parent_df <- read.csv(system.file("extdata/parents.csv", package = "epifish"), stringsAsFactors=FALSE)
+colour_df <- read.csv(system.file("extdata/colours.csv", package = "epifish"), stringsAsFactors=FALSE)
 ```
 
 Use epifish to convert this into a fishplot object, with extra assorted
 summary information:
 
 ``` r
-epifish_output <- epifish::build_epifish( sample_df, parent_df=parent_df, colour_df=colour_df, add_missing_timepoints=TRUE)
+epifish_output <- build_epifish( sample_df, parent_df=parent_df, colour_df=colour_df, add_missing_timepoints=TRUE)
 #> Checking for missing timepoints: 
 #>  - Adding zero counts for missing timepoint: 9
 #> setting parent position of child A.1  to  1 
@@ -170,9 +187,9 @@ epifish_output <- epifish::build_epifish( sample_df, parent_df=parent_df, colour
 Then use the fishplot package to generate a fishplot:
 
 ``` r
-fishplot::fishPlot(epifish_output$fish, shape="spline",
-                   vlines=epifish_output$timepoints, vlab=epifish_output$timepoints)
-fishplot::drawLegend(epifish_output$fish, nrow=1)
+fishPlot(epifish_output$fish, shape="spline",
+         vlines=epifish_output$timepoints, vlab=epifish_output$timepoints)
+drawLegend(epifish_output$fish, nrow=1)
 ```
 
 <img src="man/figures/README-unnamed-chunk-9-1.png" width="100%" />
@@ -181,14 +198,14 @@ If you’re happy with the default colours, or all your clusters are
 independent, you don’t need those dataframes:
 
 ``` r
-epifish_output <- epifish::build_epifish( sample_df )
+epifish_output <- build_epifish( sample_df )
 #> Checking for missing timepoints: 
 #>  - Adding zero counts for missing timepoint: 9
 #> The maximum sample count per timepoint (height of Y-axis) is:  15
 
-fishplot::fishPlot(epifish_output$fish, shape="spline",
-                   vlines=epifish_output$timepoints, vlab=epifish_output$timepoints)
-fishplot::drawLegend(epifish_output$fish, nrow=1)
+fishPlot(epifish_output$fish, shape="spline",
+         vlines=epifish_output$timepoints, vlab=epifish_output$timepoints)
+drawLegend(epifish_output$fish, nrow=1)
 ```
 
 <img src="man/figures/README-unnamed-chunk-10-1.png" width="100%" />
@@ -199,7 +216,7 @@ a group with `min_cluster_size`:
 if any child clusters are small!*
 
 ``` r
-epifish_output <- epifish::build_epifish(sample_df, colour_df=colour_df, min_cluster_size=10)
+epifish_output <- build_epifish(sample_df, colour_df=colour_df, min_cluster_size=10)
 #> Checking for missing timepoints: 
 #>  - Adding zero counts for missing timepoint: 9
 #> Warning in set_fish_colours(colour_df, fishplot_names): 
@@ -208,8 +225,8 @@ epifish_output <- epifish::build_epifish(sample_df, colour_df=colour_df, min_clu
 #> WARNING: some clusters in colour list not found in data: B, D.1, D.2, D.3, D.4
 #> The maximum sample count per timepoint (height of Y-axis) is:  15
 
-fishplot::fishPlot(epifish_output$fish, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoints)
-fishplot::drawLegend(epifish_output$fish, nrow=1)
+fishPlot(epifish_output$fish, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoints)
+drawLegend(epifish_output$fish, nrow=1)
 ```
 
 <img src="man/figures/README-unnamed-chunk-11-1.png" width="100%" />
@@ -217,10 +234,11 @@ fishplot::drawLegend(epifish_output$fish, nrow=1)
 ## Input format
 
 Example input files/templates can be found in the `inst/extdata` folder
-in this repository. The basic requirement is a data frame containing one
-row per sample, with columns `cluster_id` and `timepoint` (any other
-columns are ignored). Optionally, the `timepoint` column can be
-calculated using epifish from a column of dates (see below).
+or with `system.file(..., package = "epifish")`. The basic requirement
+is a data frame containing one row per sample, with columns `cluster_id`
+and `timepoint` (any other columns are ignored). Optionally, the
+`timepoint` column can be calculated using epifish from a column of
+dates (see below).
 
 Optional data frames may also be provided that describe parent-child
 relationships for clusters (eg cluster A.1 evolved from cluster A), or a
@@ -235,283 +253,46 @@ columns in character or numeric (NOT factor) format.
 
 **the last few rows of sample data:**  
 (Note that the order doesn’t matter)
-<table>
-<thead>
-<tr>
-<th style="text-align:right;">
-case_id
-</th>
-<th style="text-align:left;">
-cluster_id
-</th>
-<th style="text-align:left;">
-date_of_collection
-</th>
-<th style="text-align:right;">
-timepoint
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:right;">
-80
-</td>
-<td style="text-align:left;">
-D.3
-</td>
-<td style="text-align:left;">
-9/4/2020
-</td>
-<td style="text-align:right;">
-15
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-81
-</td>
-<td style="text-align:left;">
-D.4
-</td>
-<td style="text-align:left;">
-2/4/2020
-</td>
-<td style="text-align:right;">
-14
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-82
-</td>
-<td style="text-align:left;">
-D.4
-</td>
-<td style="text-align:left;">
-2/4/2020
-</td>
-<td style="text-align:right;">
-14
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-83
-</td>
-<td style="text-align:left;">
-D.3
-</td>
-<td style="text-align:left;">
-3/4/2020
-</td>
-<td style="text-align:right;">
-14
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-85
-</td>
-<td style="text-align:left;">
-D.3
-</td>
-<td style="text-align:left;">
-3/4/2020
-</td>
-<td style="text-align:right;">
-14
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-84
-</td>
-<td style="text-align:left;">
-A.1
-</td>
-<td style="text-align:left;">
-22/1/2020
-</td>
-<td style="text-align:right;">
-4
-</td>
-</tr>
-</tbody>
-</table>
+
+| case_id | cluster_id | date_of_collection | timepoint |
+|--------:|:-----------|:-------------------|----------:|
+|      80 | D.3        | 9/4/2020           |        15 |
+|      81 | D.4        | 2/4/2020           |        14 |
+|      82 | D.4        | 2/4/2020           |        14 |
+|      83 | D.3        | 3/4/2020           |        14 |
+|      85 | D.3        | 3/4/2020           |        14 |
+|      84 | A.1        | 22/1/2020          |         4 |
+
 **the parent-child data:**
-<table>
-<thead>
-<tr>
-<th style="text-align:left;">
-cluster
-</th>
-<th style="text-align:left;">
-parent
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left;">
-A
-</td>
-<td style="text-align:left;">
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-A.1
-</td>
-<td style="text-align:left;">
-A
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-B
-</td>
-<td style="text-align:left;">
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-C
-</td>
-<td style="text-align:left;">
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-D
-</td>
-<td style="text-align:left;">
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-D.3
-</td>
-<td style="text-align:left;">
-D.2
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-D.2
-</td>
-<td style="text-align:left;">
-D.1
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-D.1
-</td>
-<td style="text-align:left;">
-D
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-D.4
-</td>
-<td style="text-align:left;">
-D.2
-</td>
-</tr>
-</tbody>
-</table>
+
+| cluster | parent |
+|:--------|:-------|
+| A       |        |
+| A.1     | A      |
+| B       |        |
+| C       |        |
+| D       |        |
+| D.3     | D.2    |
+| D.2     | D.1    |
+| D.1     | D      |
+| D.4     | D.2    |
+
 **a custom colour scheme:**  
 (Note that you can use [named ggplot
 colours](https://www.nceas.ucsb.edu/sites/default/files/2020-04/colorPaletteCheatsheet.pdf)
 or hex codes (eg “red” or “\#ff0000”) )
-<table>
-<thead>
-<tr>
-<th style="text-align:left;">
-cluster
-</th>
-<th style="text-align:left;">
-colour
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left;">
-A
-</td>
-<td style="text-align:left;">
-orange
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-A.1
-</td>
-<td style="text-align:left;">
-red
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-B
-</td>
-<td style="text-align:left;">
-yellow
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-C
-</td>
-<td style="text-align:left;">
-green3
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-D
-</td>
-<td style="text-align:left;">
-greenyellow
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-D.1
-</td>
-<td style="text-align:left;">
-springgreen
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-D.2
-</td>
-<td style="text-align:left;">
-deepskyblue
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-D.3
-</td>
-<td style="text-align:left;">
-royalblue1
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-D.4
-</td>
-<td style="text-align:left;">
-blue3
-</td>
-</tr>
-</tbody>
-</table>
+
+| cluster | colour      |
+|:--------|:------------|
+| A       | orange      |
+| A.1     | red         |
+| B       | yellow      |
+| C       | green3      |
+| D       | greenyellow |
+| D.1     | springgreen |
+| D.2     | deepskyblue |
+| D.3     | royalblue1  |
+| D.4     | blue3       |
 
 ## Output
 
@@ -730,18 +511,22 @@ text label. *Note: these functions have customisation options for
 different date/range formats; check their documentation for details.*
 
 ``` r
+library(dplyr)
+
 #calculate epiweek timepoints from the column "date_of_collection" & create text labels to match them
-sample_df <- sample_df %>% rowwise() %>%
-             mutate("epiweek"= epifish::get_epiweek(cdate = date_of_collection,
-                                                    start_date = "1/1/20",
-                                                    date_format = "dmy"))
+sample_df <- sample_df %>%
+             rowwise() %>%
+             mutate("epiweek"= get_epiweek(cdate = date_of_collection,
+                                           start_date = "1/1/20",
+                                           date_format = "dmy"))
 
 #create a timepoint label column that gives the last day of each epi week the sample was collected in:
-sample_df <- sample_df %>% rowwise() %>%
-             mutate("epiweek_label"= epifish::get_epiweek_span(cdate = date_of_collection,
-                                                               date_format = "dmy",
-                                                               return_end = TRUE,
-                                                               newline=TRUE))
+sample_df <- sample_df %>%
+             rowwise() %>%
+             mutate("epiweek_label"= get_epiweek_span(cdate = date_of_collection,
+                                                      date_format = "dmy",
+                                                      return_end = TRUE,
+                                                      newline=TRUE))
 ```
 
 ``` r
@@ -749,152 +534,14 @@ sample_df <- sample_df %>% rowwise() %>%
 tail(sample_df)
 ```
 
-<table>
-<thead>
-<tr>
-<th style="text-align:right;">
-case_id
-</th>
-<th style="text-align:left;">
-cluster_id
-</th>
-<th style="text-align:left;">
-date_of_collection
-</th>
-<th style="text-align:right;">
-timepoint
-</th>
-<th style="text-align:right;">
-epiweek
-</th>
-<th style="text-align:left;">
-epiweek_label
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:right;">
-80
-</td>
-<td style="text-align:left;">
-D.3
-</td>
-<td style="text-align:left;">
-9/4/2020
-</td>
-<td style="text-align:right;">
-15
-</td>
-<td style="text-align:right;">
-15
-</td>
-<td style="text-align:left;">
-11 Apr
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-81
-</td>
-<td style="text-align:left;">
-D.4
-</td>
-<td style="text-align:left;">
-2/4/2020
-</td>
-<td style="text-align:right;">
-14
-</td>
-<td style="text-align:right;">
-14
-</td>
-<td style="text-align:left;">
-4 Apr
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-82
-</td>
-<td style="text-align:left;">
-D.4
-</td>
-<td style="text-align:left;">
-2/4/2020
-</td>
-<td style="text-align:right;">
-14
-</td>
-<td style="text-align:right;">
-14
-</td>
-<td style="text-align:left;">
-4 Apr
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-83
-</td>
-<td style="text-align:left;">
-D.3
-</td>
-<td style="text-align:left;">
-3/4/2020
-</td>
-<td style="text-align:right;">
-14
-</td>
-<td style="text-align:right;">
-14
-</td>
-<td style="text-align:left;">
-4 Apr
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-85
-</td>
-<td style="text-align:left;">
-D.3
-</td>
-<td style="text-align:left;">
-3/4/2020
-</td>
-<td style="text-align:right;">
-14
-</td>
-<td style="text-align:right;">
-14
-</td>
-<td style="text-align:left;">
-4 Apr
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-84
-</td>
-<td style="text-align:left;">
-A.1
-</td>
-<td style="text-align:left;">
-22/1/2020
-</td>
-<td style="text-align:right;">
-4
-</td>
-<td style="text-align:right;">
-4
-</td>
-<td style="text-align:left;">
-25 Jan
-</td>
-</tr>
-</tbody>
-</table>
+| case_id | cluster_id | date_of_collection | timepoint | epiweek | epiweek_label |
+|--------:|:-----------|:-------------------|----------:|--------:|:--------------|
+|      80 | D.3        | 9/4/2020           |        15 |      15 | 11 Apr        |
+|      81 | D.4        | 2/4/2020           |        14 |      14 | 4 Apr         |
+|      82 | D.4        | 2/4/2020           |        14 |      14 | 4 Apr         |
+|      83 | D.3        | 3/4/2020           |        14 |      14 | 4 Apr         |
+|      85 | D.3        | 3/4/2020           |        14 |      14 | 4 Apr         |
+|      84 | A.1        | 22/1/2020          |         4 |       4 | 25 Jan        |
 
 <br>
 
@@ -904,16 +551,15 @@ Epifish also has `get_epimonth()` and `get_month_text()` functions for
 calculating epi months from dates:
 
 ``` r
-
 #create a "epimonth" timepoint:
 sample_df <- sample_df %>% rowwise() %>%
-             mutate("epimonth"= epifish::get_epimonth(cdate = date_of_collection,
-                                                      start_date = "1/1/20",
-                                                      date_format = "dmy"))
+             mutate("epimonth"= get_epimonth(cdate = date_of_collection,
+                                             start_date = "1/1/20",
+                                             date_format = "dmy"))
 #and an epimonth label
 sample_df <- sample_df %>% rowwise() %>%
-             mutate("epimonth_label"= epifish::get_month_text(cdate = date_of_collection,
-                                                              date_format = "dmy"))
+             mutate("epimonth_label"= get_month_text(cdate = date_of_collection,
+                                                     date_format = "dmy"))
 ```
 
 ``` r
@@ -921,194 +567,14 @@ sample_df <- sample_df %>% rowwise() %>%
 tail(sample_df)
 ```
 
-<table>
-<thead>
-<tr>
-<th style="text-align:right;">
-case_id
-</th>
-<th style="text-align:left;">
-cluster_id
-</th>
-<th style="text-align:left;">
-date_of_collection
-</th>
-<th style="text-align:right;">
-timepoint
-</th>
-<th style="text-align:right;">
-epiweek
-</th>
-<th style="text-align:left;">
-epiweek_label
-</th>
-<th style="text-align:right;">
-epimonth
-</th>
-<th style="text-align:left;">
-epimonth_label
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:right;">
-80
-</td>
-<td style="text-align:left;">
-D.3
-</td>
-<td style="text-align:left;">
-9/4/2020
-</td>
-<td style="text-align:right;">
-15
-</td>
-<td style="text-align:right;">
-15
-</td>
-<td style="text-align:left;">
-11 Apr
-</td>
-<td style="text-align:right;">
-4
-</td>
-<td style="text-align:left;">
-Apr
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-81
-</td>
-<td style="text-align:left;">
-D.4
-</td>
-<td style="text-align:left;">
-2/4/2020
-</td>
-<td style="text-align:right;">
-14
-</td>
-<td style="text-align:right;">
-14
-</td>
-<td style="text-align:left;">
-4 Apr
-</td>
-<td style="text-align:right;">
-4
-</td>
-<td style="text-align:left;">
-Apr
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-82
-</td>
-<td style="text-align:left;">
-D.4
-</td>
-<td style="text-align:left;">
-2/4/2020
-</td>
-<td style="text-align:right;">
-14
-</td>
-<td style="text-align:right;">
-14
-</td>
-<td style="text-align:left;">
-4 Apr
-</td>
-<td style="text-align:right;">
-4
-</td>
-<td style="text-align:left;">
-Apr
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-83
-</td>
-<td style="text-align:left;">
-D.3
-</td>
-<td style="text-align:left;">
-3/4/2020
-</td>
-<td style="text-align:right;">
-14
-</td>
-<td style="text-align:right;">
-14
-</td>
-<td style="text-align:left;">
-4 Apr
-</td>
-<td style="text-align:right;">
-4
-</td>
-<td style="text-align:left;">
-Apr
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-85
-</td>
-<td style="text-align:left;">
-D.3
-</td>
-<td style="text-align:left;">
-3/4/2020
-</td>
-<td style="text-align:right;">
-14
-</td>
-<td style="text-align:right;">
-14
-</td>
-<td style="text-align:left;">
-4 Apr
-</td>
-<td style="text-align:right;">
-4
-</td>
-<td style="text-align:left;">
-Apr
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-84
-</td>
-<td style="text-align:left;">
-A.1
-</td>
-<td style="text-align:left;">
-22/1/2020
-</td>
-<td style="text-align:right;">
-4
-</td>
-<td style="text-align:right;">
-4
-</td>
-<td style="text-align:left;">
-25 Jan
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:left;">
-Jan
-</td>
-</tr>
-</tbody>
-</table>
+| case_id | cluster_id | date_of_collection | timepoint | epiweek | epiweek_label | epimonth | epimonth_label |
+|--------:|:-----------|:-------------------|----------:|--------:|:--------------|---------:|:---------------|
+|      80 | D.3        | 9/4/2020           |        15 |      15 | 11 Apr        |        4 | Apr            |
+|      81 | D.4        | 2/4/2020           |        14 |      14 | 4 Apr         |        4 | Apr            |
+|      82 | D.4        | 2/4/2020           |        14 |      14 | 4 Apr         |        4 | Apr            |
+|      83 | D.3        | 3/4/2020           |        14 |      14 | 4 Apr         |        4 | Apr            |
+|      85 | D.3        | 3/4/2020           |        14 |      14 | 4 Apr         |        4 | Apr            |
+|      84 | A.1        | 22/1/2020          |         4 |       4 | 25 Jan        |        1 | Jan            |
 
 ## Using informative timepoint labels
 
@@ -1119,13 +585,12 @@ you can calculate it from dates as shown above.) *Note: you can only
 have one unique label per timepoint value.*
 
 ``` r
-
 #to use the epiweeks and epiweek labels we calculated above, we need to set these as columns named "timepoint" and "timepoint_label" in the sample dataframe:
 sample_df$timepoint <- sample_df$epiweek  
 sample_df$timepoint_label <- sample_df$epiweek_label
 
 #then generate the epifish object, specifying that you want to use timepoint labels
-epifish_output <- epifish::build_epifish( sample_df, parent_df, colour_df, timepoint_labels=TRUE)
+epifish_output <- build_epifish( sample_df, parent_df, colour_df, timepoint_labels=TRUE)
 #> Checking for missing timepoints: 
 #>  - Adding zero counts for missing timepoint: 9
 #> setting parent position of child A.1  to  1 
@@ -1142,9 +607,9 @@ epifish_output <- epifish::build_epifish( sample_df, parent_df, colour_df, timep
 #> The maximum sample count per timepoint (height of Y-axis) is:  15
 
 #and draw the fishplot
-fishplot::fishPlot(epifish_output$fish, shape="spline",
-                   vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels)
-fishplot::drawLegend(epifish_output$fish, nrow=1)
+fishPlot(epifish_output$fish, shape="spline",
+         vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels)
+drawLegend(epifish_output$fish, nrow=1)
 ```
 
 <img src="man/figures/README-unnamed-chunk-21-1.png" width="100%" />
@@ -1158,12 +623,11 @@ custom combinations rather than using the epifish defaults:
 If things are getting crowded, you can label just every other week:
 
 ``` r
-
 #subset timepoints and labels to ever other entry
 vlines <- epifish_output$timepoints[c(TRUE, FALSE)]
 vlabs  <- epifish_output$timepoint_labels[c(TRUE, FALSE)]
 
-fishplot::fishPlot(epifish_output$fish, shape="spline", vlines=vlines, vlab=vlabs)
+fishPlot(epifish_output$fish, shape="spline", vlines=vlines, vlab=vlabs)
 ```
 
 <img src="man/figures/README-unnamed-chunk-22-1.png" width="100%" />
@@ -1178,8 +642,8 @@ so it doesn’t overlap):
 vlines <- c((4/7), epifish_output$timepoints)
 vlabs <- c("1\nJan", epifish_output$timepoint_labels)
 
-fishplot::fishPlot(epifish_output$fish, shape="spline",
-                   vlines=vlines, vlab=vlabs, cex.vlab=0.5)
+fishPlot(epifish_output$fish, shape="spline",
+         vlines=vlines, vlab=vlabs, cex.vlab=0.5)
 ```
 
 <img src="man/figures/README-unnamed-chunk-23-1.png" width="100%" />
@@ -1193,8 +657,8 @@ epidemiological story, with red lines:
 vlines <- c((4/7), 3, 8.5, 14)
 vlabs <- c("first\ncases", "wave 1", "quarantine\nbreach", "wave 2")
 
-fishplot::fishPlot(epifish_output$fish, shape="spline",
-                   vlines=vlines, vlab=vlabs, col.vline="red")
+fishPlot(epifish_output$fish, shape="spline",
+         vlines=vlines, vlab=vlabs, col.vline="red")
 ```
 
 <img src="man/figures/README-unnamed-chunk-24-1.png" width="100%" />
@@ -1207,8 +671,8 @@ You can modify how far back in time the clusters seem to “begin” using
 the `pad_left` argument to `fishplot::fishPlot()`:
 
 ``` r
-fishplot::fishPlot(epifish_output$fish, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels,  pad.left=0.05)
-fishplot::drawLegend(epifish_output$fish, nrow=2, widthratio=0.3, xsp=0.2)
+fishPlot(epifish_output$fish, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels,  pad.left=0.05)
+drawLegend(epifish_output$fish, nrow=2, widthratio=0.3, xsp=0.2)
 ```
 
 <img src="man/figures/README-unnamed-chunk-26-1.png" width="100%" />
@@ -1239,8 +703,8 @@ epifish_output <- build_epifish (sample_df, parent_df, colour_df, start_time = 0
 #> adding child  A.1  to parent  A 
 #> The maximum sample count per timepoint (height of Y-axis) is:  15
 
-fishplot::fishPlot(epifish_output$fish, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels,  pad.left=0.05)
-fishplot::drawLegend(epifish_output$fish, nrow=2, widthratio=0.3, xsp=0.2)
+fishPlot(epifish_output$fish, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels,  pad.left=0.05)
+drawLegend(epifish_output$fish, nrow=2, widthratio=0.3, xsp=0.2)
 ```
 
 <img src="man/figures/README-unnamed-chunk-27-1.png" width="100%" />
@@ -1254,8 +718,8 @@ cluster name (smaller value = more space), and `xsp` to control space
 between the colour box and the text (larger = more space)
 
 ``` r
-fishplot::fishPlot(epifish_output$fish, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels)
-fishplot::drawLegend(epifish_output$fish, nrow=2, widthratio=0.3, xsp=0.2)
+fishPlot(epifish_output$fish, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels)
+drawLegend(epifish_output$fish, nrow=2, widthratio=0.3, xsp=0.2)
 ```
 
 <img src="man/figures/README-unnamed-chunk-29-1.png" width="100%" />
@@ -1267,13 +731,12 @@ angle of cluster labels when building fishplot objects. You can set
 these values using arguments to `epifish::build_epifish()`.
 
 ``` r
-epifish_output <- build_epifish (sample_df, parent_df, colour_df,
-                                 label_col = "purple",
-                                 label_angle = -45,
-                                 label_cex = 1.2,
-                                 label_pos=2,
-                                 label_offset=0.05
-                                 )
+epifish_output <- build_epifish(sample_df, parent_df, colour_df,
+                                label_col = "purple",
+                                label_angle = -45,
+                                label_cex = 1.2,
+                                label_pos=2,
+                                label_offset=0.05)
 #> Checking for missing timepoints: 
 #>  - Adding zero counts for missing timepoint: 9
 #> setting parent position of child A.1  to  1 
@@ -1288,8 +751,8 @@ epifish_output <- build_epifish (sample_df, parent_df, colour_df,
 #> adding child  D.1  to parent  D 
 #> adding child  A.1  to parent  A 
 #> The maximum sample count per timepoint (height of Y-axis) is:  15
-fishplot::fishPlot(epifish_output$fish, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels,  pad.left=0.05)
-fishplot::drawLegend(epifish_output$fish)
+fishPlot(epifish_output$fish, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels,  pad.left=0.05)
+drawLegend(epifish_output$fish)
 ```
 
 <img src="man/figures/README-unnamed-chunk-30-1.png" width="100%" />
@@ -1316,8 +779,8 @@ epifish_output <- build_epifish (sample_df, parent_df, colour_df, label_clusters
 #> adding child  A.1  to parent  A 
 #> The maximum sample count per timepoint (height of Y-axis) is:  15
 
-fishplot::fishPlot(epifish_output$fish, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels,  pad.left=0.05)
-fishplot::drawLegend(epifish_output$fish)
+fishPlot(epifish_output$fish, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels,  pad.left=0.05)
+drawLegend(epifish_output$fish)
 ```
 
 <img src="man/figures/README-unnamed-chunk-31-1.png" width="100%" />
@@ -1329,7 +792,7 @@ You can also adjust assorted aspects of the fishplot as arguments to
 fishplot package (try the command `?fishplot::fishPlot`).
 
 ``` r
-epifish_output <- build_epifish (sample_df, parent_df, colour_df)
+epifish_output <- build_epifish(sample_df, parent_df, colour_df)
 #> Checking for missing timepoints: 
 #>  - Adding zero counts for missing timepoint: 9
 #> setting parent position of child A.1  to  1 
@@ -1344,15 +807,18 @@ epifish_output <- build_epifish (sample_df, parent_df, colour_df)
 #> adding child  D.1  to parent  D 
 #> adding child  A.1  to parent  A 
 #> The maximum sample count per timepoint (height of Y-axis) is:  15
-fishplot::fishPlot(epifish_output$fish, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels,  pad.left=0.2,
-                   cex.vlab=0.85,
-                   title="Epi-fishplot of outbreak waves",
-                   title.btm="number of cases per epi week over time",
-                   cex.title=1,
-                   bg.type="solid",
-                   bg.col="grey95")
+fishPlot(epifish_output$fish, shape="spline",
+         vlines=epifish_output$timepoints,
+         vlab=epifish_output$timepoint_labels,
+         pad.left=0.2,
+         cex.vlab=0.85,
+         title="Epi-fishplot of outbreak waves",
+         title.btm="number of cases per epi week over time",
+         cex.title=1,
+         bg.type="solid",
+         bg.col="grey95")
 #> [1] "WARNING: there were not 3 background gradient colors set - falling back to defaults"
-fishplot::drawLegend(epifish_output$fish, nrow=1, xpos=-1)
+drawLegend(epifish_output$fish, nrow=1, xpos=-1)
 ```
 
 <img src="man/figures/README-unnamed-chunk-32-1.png" width="100%" />

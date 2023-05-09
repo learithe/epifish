@@ -11,6 +11,8 @@ knitr::opts_chunk$set(
   fig.path = "man/figures/README-",
   out.width = "100%"
 )
+options(knitr.kable.NA = "", knitr.table.format = "pipe")
+suppressPackageStartupMessages(library(dplyr))
 ```
 
 # epifish   
@@ -21,10 +23,9 @@ knitr::opts_chunk$set(
 This package provides tools to use Chris Miller's fishplot package (https://github.com/chrisamiller/fishplot) with epidemiological datasets, to generate fishplot epi-curves.
 
 ```{r, include=FALSE}
-library(fishplot); library(dplyr); library(tidyr); library(lubridate); library(epifish); library(knitr); library(kableExtra)
-sample_df <- read.csv("https://raw.githubusercontent.com/learithe/epifish/main/inst/extdata/samples.csv", stringsAsFactors=FALSE)
-parent_df <- read.csv("https://raw.githubusercontent.com/learithe/epifish/main/inst/extdata/parents.csv", stringsAsFactors=FALSE)
-colour_df <- read.csv("https://raw.githubusercontent.com/learithe/epifish/main/inst/extdata/colours.csv", stringsAsFactors=FALSE)
+sample_df <- read.csv(system.file("extdata/samples.csv", package = "epifish"), stringsAsFactors=FALSE)
+parent_df <- read.csv(system.file("extdata/parents.csv", package = "epifish"), stringsAsFactors=FALSE)
+colour_df <- read.csv(system.file("extdata/colours.csv", package = "epifish"), stringsAsFactors=FALSE)
 epifish_output <- epifish::build_epifish( sample_df, parent_df, colour_df )
 ```
 ```{r, echo=FALSE}
@@ -92,106 +93,89 @@ devtools::install_github("learithe/epifish")
 ## Quick Start
 
 To get started with a basic epi fishplot, given an input file in the right format (details below), this is all you need:
-``` r
+```{r}
 # load required libraries
-library(fishplot); library(dplyr); library(tidyr); library(lubridate); library(epifish)
+library(fishplot); library(epifish)
 
 # read data file
-sample_df <- read.csv("https://raw.githubusercontent.com/learithe/epifish/main/inst/extdata/samples.csv", stringsAsFactors=FALSE)
+sample_df <- read.csv(system.file("extdata/samples.csv", package = "epifish"), stringsAsFactors=FALSE)
 
 # run epifish
-epifish_output <- epifish::build_epifish( sample_df )
+epifish_output <- build_epifish( sample_df )
 
 # run fishplot on the epifish output
 fishplot::fishPlot( epifish_output$fish, shape="spline" )  
-```
-```{r include=FALSE}
-epifish_output <- epifish::build_epifish( sample_df )
-```
-```{r echo=FALSE}
-fishplot::fishPlot(epifish_output$fish, shape="spline")
 ```
 
 **If you want to include evolutionary relationships with subclusters:**
-``` r
+```{r}
 # load required libraries
-library(fishplot); library(dplyr); library(tidyr); library(lubridate); library(epifish)
+library(fishplot); library(epifish)
 
 # read data files
-sample_df <- read.csv("https://raw.githubusercontent.com/learithe/epifish/main/inst/extdata/samples.csv", stringsAsFactors=FALSE)
-parent_df <- read.csv("https://raw.githubusercontent.com/learithe/epifish/main/inst/extdata/parents.csv", stringsAsFactors=FALSE)
+sample_df <- read.csv(system.file("extdata/samples.csv", package = "epifish"), stringsAsFactors=FALSE)
+parent_df <- read.csv(system.file("extdata/parents.csv", package = "epifish"), stringsAsFactors=FALSE)
 
 # run epifish
-epifish_output <- epifish::build_epifish( sample_df, parent_df )
+epifish_output <- build_epifish( sample_df, parent_df )
 
 # run fishplot on the epifish output
-fishplot::fishPlot( epifish_output$fish, shape="spline" )  
+fishPlot( epifish_output$fish, shape="spline" )  
 ```
-
-```{r, include=FALSE}
-epifish_output <- epifish::build_epifish( sample_df, parent_df)
-```
-```{r, echo=FALSE}
-fishplot::fishPlot(epifish_output$fish, shape="spline")
-```
-
 
 
 ## Basic demo
 
-*This demo expands on the quick-start example. It runs on a made-up set of example data that can be accessed here, in the [`inst/extdata`](https://github.com/learithe/epifish/tree/main/inst/extdata) directory.*
+*This demo expands on the quick-start example. It runs on a made-up set of example data that can be accessed here, in the [`inst/extdata`](inst/extdata) directory.*
 <br><br>
 
 Load epifish and required packages
-``` r
-library(fishplot); library(dplyr); library(tidyr); library(lubridate); library(epifish)
+```{r}
+library(fishplot); library(epifish)
 ```
 Read in the tables of sample data, cluster parent-child relationships, and custom colour scheme:
-```r
-sample_df <- read.csv("https://raw.githubusercontent.com/learithe/epifish/main/inst/extdata/samples.csv", stringsAsFactors=FALSE)
-parent_df <- read.csv("https://raw.githubusercontent.com/learithe/epifish/main/inst/extdata/parents.csv", stringsAsFactors=FALSE)
-colour_df <- read.csv("https://raw.githubusercontent.com/learithe/epifish/main/inst/extdata/colours.csv", stringsAsFactors=FALSE)
+```{r}
+sample_df <- read.csv(system.file("extdata/samples.csv", package = "epifish"), stringsAsFactors=FALSE)
+parent_df <- read.csv(system.file("extdata/parents.csv", package = "epifish"), stringsAsFactors=FALSE)
+colour_df <- read.csv(system.file("extdata/colours.csv", package = "epifish"), stringsAsFactors=FALSE)
 ```
 
 Use epifish to convert this into a fishplot object, with extra assorted summary information:
 ```{r}
-epifish_output <- epifish::build_epifish( sample_df, parent_df=parent_df, colour_df=colour_df, add_missing_timepoints=TRUE)
+epifish_output <- build_epifish( sample_df, parent_df=parent_df, colour_df=colour_df, add_missing_timepoints=TRUE)
 ```
 
 Then use the fishplot package to generate a fishplot:
 ```{r}
-fishplot::fishPlot(epifish_output$fish, shape="spline",
-                   vlines=epifish_output$timepoints, vlab=epifish_output$timepoints)
-fishplot::drawLegend(epifish_output$fish, nrow=1)
-
+fishPlot(epifish_output$fish, shape="spline",
+         vlines=epifish_output$timepoints, vlab=epifish_output$timepoints)
+drawLegend(epifish_output$fish, nrow=1)
 ```
 
 If you're happy with the default colours, or all your clusters are independent, you don't need those  dataframes:
 ```{r}
-epifish_output <- epifish::build_epifish( sample_df )
+epifish_output <- build_epifish( sample_df )
 
-fishplot::fishPlot(epifish_output$fish, shape="spline",
-                   vlines=epifish_output$timepoints, vlab=epifish_output$timepoints)
-fishplot::drawLegend(epifish_output$fish, nrow=1)
-
+fishPlot(epifish_output$fish, shape="spline",
+         vlines=epifish_output$timepoints, vlab=epifish_output$timepoints)
+drawLegend(epifish_output$fish, nrow=1)
 ```
 
 
 You also can automatically collapse any clusters of a minimum size into a group with `min_cluster_size`:  
 *Note: this currently does not work well with parent/child relationships if any child clusters are small!*   
 ``` {r}
-epifish_output <- epifish::build_epifish(sample_df, colour_df=colour_df, min_cluster_size=10)
+epifish_output <- build_epifish(sample_df, colour_df=colour_df, min_cluster_size=10)
 
-fishplot::fishPlot(epifish_output$fish, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoints)
-fishplot::drawLegend(epifish_output$fish, nrow=1)
-
+fishPlot(epifish_output$fish, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoints)
+drawLegend(epifish_output$fish, nrow=1)
 ```
 
 
 
 ## Input format
 
-Example input files/templates can be found in the `inst/extdata` folder in this repository. The basic requirement is a data frame containing one row per sample, with columns `cluster_id` and `timepoint` (any other columns are ignored). Optionally, the `timepoint` column can be calculated using epifish from a column of dates (see below).
+Example input files/templates can be found in the `inst/extdata` folder or with `system.file(..., package = "epifish")`. The basic requirement is a data frame containing one row per sample, with columns `cluster_id` and `timepoint` (any other columns are ignored). Optionally, the `timepoint` column can be calculated using epifish from a column of dates (see below).
 
 Optional data frames may also be provided that describe parent-child relationships for clusters (eg cluster A.1 evolved from cluster A), or a custom colour scheme.
 
@@ -201,19 +185,18 @@ It is easiest and safest (especially when working with dates) to save and mainta
 **the last few rows of sample data:**  
 (Note that the order doesn't matter)
 ```{r echo=F}
-kable(tail(sample_df), row.names=FALSE)
+knitr::kable(tail(sample_df), row.names=FALSE)
 ```
 
 **the parent-child data:**
 ```{r echo=F}
-options(knitr.kable.NA = '')
-kable(parent_df)
+knitr::kable(parent_df)
 ```
 
 **a custom colour scheme:**  
 (Note that you can use [named ggplot colours](https://www.nceas.ucsb.edu/sites/default/files/2020-04/colorPaletteCheatsheet.pdf) or hex codes (eg "red" or "#ff0000") )
 ```{r echo=F}
-kable(colour_df)
+knitr::kable(colour_df)
 ```
 
 
@@ -270,7 +253,6 @@ print( epifish_output$fish_table )
 
 # rotated final matrix used to generate the epifish fishplot object
 print( epifish_output$fish_matrix )
-
 ```
 
 
@@ -284,26 +266,32 @@ Epifish also has a few functions to make it easy to convert dates to epidemic we
 #### Calculate epi weeks and text labels
 Given a date column name (`date_of_collection` here), the start date of the epidemic, and the date format, you can use `get_epiweek()` to calculate the number of weeks since the start of the epidemic each sample belongs to, and `get_epiweek_span()` to give the epi week a clear text label. *Note: these functions have customisation options for different date/range formats; check their documentation for details.*
 ``` {r}
+library(dplyr)
+
 #calculate epiweek timepoints from the column "date_of_collection" & create text labels to match them
-sample_df <- sample_df %>% rowwise() %>%
-             mutate("epiweek"= epifish::get_epiweek(cdate = date_of_collection,
-                                                    start_date = "1/1/20",
-                                                    date_format = "dmy"))
+sample_df <- sample_df %>%
+             rowwise() %>%
+             mutate("epiweek"= get_epiweek(cdate = date_of_collection,
+                                           start_date = "1/1/20",
+                                           date_format = "dmy"))
 
 #create a timepoint label column that gives the last day of each epi week the sample was collected in:
-sample_df <- sample_df %>% rowwise() %>%
-             mutate("epiweek_label"= epifish::get_epiweek_span(cdate = date_of_collection,
-                                                               date_format = "dmy",
-                                                               return_end = TRUE,
-                                                               newline=TRUE))
+sample_df <- sample_df %>%
+             rowwise() %>%
+             mutate("epiweek_label"= get_epiweek_span(cdate = date_of_collection,
+                                                      date_format = "dmy",
+                                                      return_end = TRUE,
+                                                      newline=TRUE))
 ```
-``` r
+```r
 #peek at what we created
 tail(sample_df)
 ```
-```{r echo=FALSE}
+```{r, echo=FALSE, asis=F}
 #peek at what we created
-kable( tail(sample_df) )
+tail(sample_df) %>%
+  dplyr::mutate(epiweek_label = sub("\n", "  ", epiweek_label)) %>%
+  knitr::kable()
 ```
 
 <br>
@@ -312,16 +300,15 @@ kable( tail(sample_df) )
 Epifish also has `get_epimonth()` and `get_month_text()` functions for calculating epi months from dates:
 
 ``` {r}
-
 #create a "epimonth" timepoint:
 sample_df <- sample_df %>% rowwise() %>%
-             mutate("epimonth"= epifish::get_epimonth(cdate = date_of_collection,
-                                                      start_date = "1/1/20",
-                                                      date_format = "dmy"))
+             mutate("epimonth"= get_epimonth(cdate = date_of_collection,
+                                             start_date = "1/1/20",
+                                             date_format = "dmy"))
 #and an epimonth label
 sample_df <- sample_df %>% rowwise() %>%
-             mutate("epimonth_label"= epifish::get_month_text(cdate = date_of_collection,
-                                                              date_format = "dmy"))
+             mutate("epimonth_label"= get_month_text(cdate = date_of_collection,
+                                                     date_format = "dmy"))
 ```
 ``` r
 #peek at what we created
@@ -329,7 +316,9 @@ tail(sample_df)
 ```
 ```{r echo=FALSE}
 #peek at what we created
-kable( tail(sample_df) )
+tail(sample_df) %>%
+  dplyr::mutate(epiweek_label = sub("\n", "  ", epiweek_label)) %>%
+  knitr::kable()
 ```
 
 
@@ -338,18 +327,17 @@ kable( tail(sample_df) )
 If you call `build_epifish ()` with `timepoint_labels=TRUE`, epifish will look for a column called `timepoint_label` to use as the timepoint labels. You can set this up as a column in your input file by hand, or you can calculate it from dates as shown above.) *Note: you can only have one unique label per timepoint value.*  
 
 ``` {r}
-
 #to use the epiweeks and epiweek labels we calculated above, we need to set these as columns named "timepoint" and "timepoint_label" in the sample dataframe:
 sample_df$timepoint <- sample_df$epiweek  
 sample_df$timepoint_label <- sample_df$epiweek_label
 
 #then generate the epifish object, specifying that you want to use timepoint labels
-epifish_output <- epifish::build_epifish( sample_df, parent_df, colour_df, timepoint_labels=TRUE)
+epifish_output <- build_epifish( sample_df, parent_df, colour_df, timepoint_labels=TRUE)
 
 #and draw the fishplot
-fishplot::fishPlot(epifish_output$fish, shape="spline",
-                   vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels)
-fishplot::drawLegend(epifish_output$fish, nrow=1)
+fishPlot(epifish_output$fish, shape="spline",
+         vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels)
+drawLegend(epifish_output$fish, nrow=1)
 ```
 
 
@@ -358,13 +346,11 @@ The fishplot package provides further flexibility in where to display the vertic
 #### Plot every other week:
 If things are getting crowded, you can label just every other week:
 ``` {r}
-
 #subset timepoints and labels to ever other entry
 vlines <- epifish_output$timepoints[c(TRUE, FALSE)]
 vlabs  <- epifish_output$timepoint_labels[c(TRUE, FALSE)]
 
-fishplot::fishPlot(epifish_output$fish, shape="spline", vlines=vlines, vlab=vlabs)
-
+fishPlot(epifish_output$fish, shape="spline", vlines=vlines, vlab=vlabs)
 ```
 
 #### Add extra timepoint lines not present in the data
@@ -373,9 +359,8 @@ Or add a "zero" timepoint with the first case, which starts on the fourth day of
 vlines <- c((4/7), epifish_output$timepoints)
 vlabs <- c("1\nJan", epifish_output$timepoint_labels)
 
-fishplot::fishPlot(epifish_output$fish, shape="spline",
-                   vlines=vlines, vlab=vlabs, cex.vlab=0.5)
-
+fishPlot(epifish_output$fish, shape="spline",
+         vlines=vlines, vlab=vlabs, cex.vlab=0.5)
 ```
 
 #### Use completely manual timepoint lines and labels
@@ -384,8 +369,8 @@ We can specify completely custom timepoints and labels that describe an epidemio
 vlines <- c((4/7), 3, 8.5, 14)
 vlabs <- c("first\ncases", "wave 1", "quarantine\nbreach", "wave 2")
 
-fishplot::fishPlot(epifish_output$fish, shape="spline",
-                   vlines=vlines, vlab=vlabs, col.vline="red")
+fishPlot(epifish_output$fish, shape="spline",
+         vlines=vlines, vlab=vlabs, col.vline="red")
 ```
 
 
@@ -399,8 +384,8 @@ You can modify how far back in time the clusters seem to "begin" using the `pad_
 epifish_output <- build_epifish (sample_df, parent_df, colour_df)
 ```
 ``` {r}
-fishplot::fishPlot(epifish_output$fish, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels,  pad.left=0.05)
-fishplot::drawLegend(epifish_output$fish, nrow=2, widthratio=0.3, xsp=0.2)
+fishPlot(epifish_output$fish, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels,  pad.left=0.05)
+drawLegend(epifish_output$fish, nrow=2, widthratio=0.3, xsp=0.2)
 ```
 
 
@@ -410,8 +395,8 @@ You can add extra "padding" timepoints to the start and end of the data using th
 ```{r}
 epifish_output <- build_epifish (sample_df, parent_df, colour_df, start_time = 0, end_time = 17)
 
-fishplot::fishPlot(epifish_output$fish, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels,  pad.left=0.05)
-fishplot::drawLegend(epifish_output$fish, nrow=2, widthratio=0.3, xsp=0.2)
+fishPlot(epifish_output$fish, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels,  pad.left=0.05)
+drawLegend(epifish_output$fish, nrow=2, widthratio=0.3, xsp=0.2)
 ```
 
 
@@ -422,8 +407,8 @@ Using fishplot v0.5.1+, you can modify the spacing of the epi-fishplot legend, w
 epifish_output <- build_epifish (sample_df, parent_df, colour_df)
 ```
 ``` {r}
-fishplot::fishPlot(epifish_output$fish, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels)
-fishplot::drawLegend(epifish_output$fish, nrow=2, widthratio=0.3, xsp=0.2)
+fishPlot(epifish_output$fish, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels)
+drawLegend(epifish_output$fish, nrow=2, widthratio=0.3, xsp=0.2)
 ```
 
 
@@ -432,15 +417,14 @@ fishplot::drawLegend(epifish_output$fish, nrow=2, widthratio=0.3, xsp=0.2)
 
 Using fishplot v0.5.1+, you can modify the size, colour, position, and angle of cluster labels when building fishplot objects. You can set these values using arguments to `epifish::build_epifish()`.
 ```{r}
-epifish_output <- build_epifish (sample_df, parent_df, colour_df,
-                                 label_col = "purple",
-                                 label_angle = -45,
-                                 label_cex = 1.2,
-                                 label_pos=2,
-                                 label_offset=0.05
-                                 )
-fishplot::fishPlot(epifish_output$fish, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels,  pad.left=0.05)
-fishplot::drawLegend(epifish_output$fish)
+epifish_output <- build_epifish(sample_df, parent_df, colour_df,
+                                label_col = "purple",
+                                label_angle = -45,
+                                label_cex = 1.2,
+                                label_pos=2,
+                                label_offset=0.05)
+fishPlot(epifish_output$fish, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels,  pad.left=0.05)
+drawLegend(epifish_output$fish)
 ```
 
 
@@ -451,8 +435,8 @@ If you don't want to show the cluster labels on the fishplot, set `label_cluster
 ```{r}
 epifish_output <- build_epifish (sample_df, parent_df, colour_df, label_clusters=FALSE)
 
-fishplot::fishPlot(epifish_output$fish, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels,  pad.left=0.05)
-fishplot::drawLegend(epifish_output$fish)
+fishPlot(epifish_output$fish, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels,  pad.left=0.05)
+drawLegend(epifish_output$fish)
 ```
 
 
@@ -461,15 +445,18 @@ fishplot::drawLegend(epifish_output$fish)
 
 You can also adjust assorted aspects of the fishplot as arguments to `fishplot::fishPlot()`. For details, refer to the documentation for the fishplot package (try the command `?fishplot::fishPlot`).
 ```{r}
-epifish_output <- build_epifish (sample_df, parent_df, colour_df)
-fishplot::fishPlot(epifish_output$fish, shape="spline", vlines=epifish_output$timepoints, vlab=epifish_output$timepoint_labels,  pad.left=0.2,
-                   cex.vlab=0.85,
-                   title="Epi-fishplot of outbreak waves",
-                   title.btm="number of cases per epi week over time",
-                   cex.title=1,
-                   bg.type="solid",
-                   bg.col="grey95")
-fishplot::drawLegend(epifish_output$fish, nrow=1, xpos=-1)
+epifish_output <- build_epifish(sample_df, parent_df, colour_df)
+fishPlot(epifish_output$fish, shape="spline",
+         vlines=epifish_output$timepoints,
+         vlab=epifish_output$timepoint_labels,
+         pad.left=0.2,
+         cex.vlab=0.85,
+         title="Epi-fishplot of outbreak waves",
+         title.btm="number of cases per epi week over time",
+         cex.title=1,
+         bg.type="solid",
+         bg.col="grey95")
+drawLegend(epifish_output$fish, nrow=1, xpos=-1)
 ```
 
 
