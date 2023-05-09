@@ -168,12 +168,18 @@ get_epimonth<- function(cdate, start_date, date_format="ymd") {
     return(NA)
   }
 
+  d1 <- lubridate::floor_date(d1, unit="month")
   d2 <- lubridate::ceiling_date(d2, unit="month")
-  d1 <- lubridate:: floor_date(d1, unit="month")
-  e <- ceiling( lubridate::time_length( difftime(d1, d2), unit="month") )
-
-  return(e + 2)
-
+  e <- ceiling( lubridate::time_length( difftime(d1, d2), unit="month") ) + 2
+  
+  if (lubridate::leap_year(d2)) {
+    if ( ! lubridate::leap_year(d1)) {
+      if (lubridate::month(d1) == 2) {
+        e <- e - 1
+      }
+    }
+  }
+  return(e)
 }
 
 
