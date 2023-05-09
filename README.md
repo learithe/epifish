@@ -27,11 +27,11 @@ evolutionary pattern.
 However, a count matrix for a fishplot has a set of specific rules which
 an epidemiological dataset will not naturally fulfill:
 
--   cluster counts per timepoint can never go completely to zero, if
-    cases reappear later
--   if a cluster has a parent/child relationship, at every timepoint the
-    parent must always have >= the count of all its children.
--   counts should be normalised to fit the fishplot y-axis
+- cluster counts per timepoint can never go completely to zero, if cases
+  reappear later
+- if a cluster has a parent/child relationship, at every timepoint the
+  parent must always have \>= the count of all its children.
+- counts should be normalised to fit the fishplot y-axis
 
 This package exists to make it easy to convert a list of samples in an
 epidemological dataset into a normalised and appropriately “padded”
@@ -40,38 +40,36 @@ relative count matrix that fulfils these requirements.
 
 ## Contents
 
--   [Installation](#installation)
--   Usage
-    -   [Quick start](#quick-start)
-    -   [Basic demo](#basic-demo)
--   Input/Output
-    -   [Input format](#input-format)
-    -   [Output](#output)
--   Calculate timepoints
-    -   [Calculate epi weeks](#calculate-epi-weeks-and-text-labels)
-    -   [Calculate timepoint
-        labels](#calculate-epi-weeks-and-text-labels)
-    -   [Calculate epi months](#calculate-epi-months)
--   Using informative timepoint labels
-    -   [Using timepoint labels](#using-informative-timepoint-labels)
-    -   [Plot every other week](#plot-every-other-week)
-    -   [Add extra timepoint
-        lines](#add-extra-timepoint-lines-not-present-in-the-data)
-    -   [Use completely manual timepoint lines and
-        labels](#use-completely-manual-timepoint-lines-and-labels)
--   Controlling appearance
-    -   [Control how far back in time clusters
-        appear](#control-how-far-back-in-time-clusters-appear)
-    -   [Add extra start or end
-        timepoints](#add-extra-start-or-end-timepoints)
-    -   [Control legend spacing](#control-legend-spacing)
-    -   [Change cluster label
-        appearance](#change-cluster-label-appearance)
-    -   [Don’t show cluster labels](#dont-show-cluster-labels)
-    -   [Change fishplot titles and
-        background](#change-fishplot-titles-and-background)
--   [Citation](#citation)
--   [Acknowledgements](#acknowledgements)
+- [Installation](#installation)
+- Usage
+  - [Quick start](#quick-start)
+  - [Basic demo](#basic-demo)
+- Input/Output
+  - [Input format](#input-format)
+  - [Output](#output)
+- Calculate timepoints
+  - [Calculate epi weeks](#calculate-epi-weeks-and-text-labels)
+  - [Calculate timepoint labels](#calculate-epi-weeks-and-text-labels)
+  - [Calculate epi months](#calculate-epi-months)
+- Using informative timepoint labels
+  - [Using timepoint labels](#using-informative-timepoint-labels)
+  - [Plot every other week](#plot-every-other-week)
+  - [Add extra timepoint
+    lines](#add-extra-timepoint-lines-not-present-in-the-data)
+  - [Use completely manual timepoint lines and
+    labels](#use-completely-manual-timepoint-lines-and-labels)
+- Controlling appearance
+  - [Control how far back in time clusters
+    appear](#control-how-far-back-in-time-clusters-appear)
+  - [Add extra start or end
+    timepoints](#add-extra-start-or-end-timepoints)
+  - [Control legend spacing](#control-legend-spacing)
+  - [Change cluster label appearance](#change-cluster-label-appearance)
+  - [Don’t show cluster labels](#dont-show-cluster-labels)
+  - [Change fishplot titles and
+    background](#change-fishplot-titles-and-background)
+- [Citation](#citation)
+- [Acknowledgements](#acknowledgements)
 
 ## Installation
 
@@ -241,7 +239,7 @@ columns in character or numeric (NOT factor) format.
 <thead>
 <tr>
 <th style="text-align:right;">
-ï..case_id
+case_id
 </th>
 <th style="text-align:left;">
 cluster_id
@@ -427,7 +425,7 @@ D.2
 **a custom colour scheme:**  
 (Note that you can use [named ggplot
 colours](https://www.nceas.ucsb.edu/sites/default/files/2020-04/colorPaletteCheatsheet.pdf)
-or hex codes (eg “red” or “#ff0000”) )
+or hex codes (eg “red” or “\#ff0000”) )
 <table>
 <thead>
 <tr>
@@ -521,26 +519,25 @@ The output of epifish is a list variable (named `epifish_output` here)
 containing: a fishplot object (`epifish_output$fish`), the data
 structures needed to generate it, and some extra data summary tables:
 
--   `fish` fishplot object to pass to `fishplot::fishPlot()`
--   `timepoint_counts` summary table of number of samples per cluster
-    per timepoint
--   `timepoint_sums` summary table of number of samples per timepoint
--   `cluster_sums` summary table of total number of samples per cluster
--   `timepoints` vector of timepoints used
--   `timepoint_labels` vector of the names of timepoints assigned in the
-    plot
--   `parents` named list matching child clusters to their parent’s
-    position in the matrix (0 means cluster is independent)
--   `raw_table` initial table of counts per cluster per timepoint,
-    before padding and normalisation
--   `fish_table` normalised and parent-padded table for the epi-fishplot
--   `fish_matrix` final transformed matrix used to make the epifish
-    object
+- `fish` fishplot object to pass to `fishplot::fishPlot()`
+- `timepoint_counts` summary table of number of samples per cluster per
+  timepoint
+- `timepoint_sums` summary table of number of samples per timepoint
+- `cluster_sums` summary table of total number of samples per cluster
+- `timepoints` vector of timepoints used
+- `timepoint_labels` vector of the names of timepoints assigned in the
+  plot
+- `parents` named list matching child clusters to their parent’s
+  position in the matrix (0 means cluster is independent)
+- `raw_table` initial table of counts per cluster per timepoint, before
+  padding and normalisation
+- `fish_table` normalised and parent-padded table for the epi-fishplot
+- `fish_matrix` final transformed matrix used to make the epifish object
 
 The epifish fishplot object output `epifish_output$fish` is used with
 the fishplot package’s `fishPlot()` function to generate an R plot
 image, as shown above. If using RStudio, it is most straightforward to
-save the R plot as PDF image from the RStudio plot window (Export ->
+save the R plot as PDF image from the RStudio plot window (Export -\>
 “Save as PDF”).
 
 If you wish to save individual tables from the epifish output list for
@@ -756,7 +753,7 @@ tail(sample_df)
 <thead>
 <tr>
 <th style="text-align:right;">
-ï..case_id
+case_id
 </th>
 <th style="text-align:left;">
 cluster_id
@@ -907,6 +904,7 @@ Epifish also has `get_epimonth()` and `get_month_text()` functions for
 calculating epi months from dates:
 
 ``` r
+
 #create a "epimonth" timepoint:
 sample_df <- sample_df %>% rowwise() %>%
              mutate("epimonth"= epifish::get_epimonth(cdate = date_of_collection,
@@ -927,7 +925,7 @@ tail(sample_df)
 <thead>
 <tr>
 <th style="text-align:right;">
-ï..case_id
+case_id
 </th>
 <th style="text-align:left;">
 cluster_id
@@ -1121,6 +1119,7 @@ you can calculate it from dates as shown above.) *Note: you can only
 have one unique label per timepoint value.*
 
 ``` r
+
 #to use the epiweeks and epiweek labels we calculated above, we need to set these as columns named "timepoint" and "timepoint_label" in the sample dataframe:
 sample_df$timepoint <- sample_df$epiweek  
 sample_df$timepoint_label <- sample_df$epiweek_label
@@ -1159,6 +1158,7 @@ custom combinations rather than using the epifish defaults:
 If things are getting crowded, you can label just every other week:
 
 ``` r
+
 #subset timepoints and labels to ever other entry
 vlines <- epifish_output$timepoints[c(TRUE, FALSE)]
 vlabs  <- epifish_output$timepoint_labels[c(TRUE, FALSE)]
@@ -1375,6 +1375,8 @@ See also:
 ``` r
 citation("epifish")
 ```
+
+<br>
 
 ## Acknowledgements:
 
