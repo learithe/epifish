@@ -5,7 +5,7 @@ Version: 1.2
 Author: Jenny Draper
 Maintainer: Jenny Draper <jenny.draper@health.nsw.gov.au>
 Description: This package converts a table of case/sample data into a normalised, padded relative count matrix and fishplot object, which can be used with the fishplot package to generate a epi-curve fishplot of cluster case counts over time.
-License: Apache License 2.0
+License: Apache License (>= 2)
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.2
