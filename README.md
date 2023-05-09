@@ -1361,16 +1361,20 @@ fishplot::drawLegend(epifish_output$fish, nrow=1, xpos=-1)
 
 **If you use epifish in your work, please cite:**
 
--   **epifish**: Documenting elimination of co-circulating COVID-19
-    clusters using genomics in New South Wales, Australia. Arnott A,
-    Draper J et al. BMC Research Notes.
-    [10.1186/s13104-021-05827-x](https://bmcresnotes.biomedcentral.com/articles/10.1186/s13104-021-05827-x)
--   **fishplot**: Visualizing tumor evolution with the fishplot package
-    for R. Miller CA, McMichael J, Dang HX, Maher CA, Ding L, Ley TJ,
-    Mardis ER, Wilson RK. BMC Genomics.
-    [doi:10.1186/s12864-016-3195-z](https://bmcgenomics.biomedcentral.com/articles/10.1186/s12864-016-3195-z)
+- **epifish**: Documenting elimination of co-circulating COVID-19
+  clusters using genomics in New South Wales, Australia. Arnott A,
+  Draper J et al. BMC Research Notes.
+  [10.1186/s13104-021-05827-x](https://bmcresnotes.biomedcentral.com/articles/10.1186/s13104-021-05827-x)
+- **fishplot**: Visualizing tumor evolution with the fishplot package
+  for R. Miller CA, McMichael J, Dang HX, Maher CA, Ding L, Ley TJ,
+  Mardis ER, Wilson RK. BMC Genomics.
+  [doi:10.1186/s12864-016-3195-z](https://bmcgenomics.biomedcentral.com/articles/10.1186/s12864-016-3195-z)
 
-<br>
+See also:
+
+``` r
+citation("epifish")
+```
 
 ## Acknowledgements:
 

@@ -1,0 +1,35 @@
+citHeader("If you use epifish in your work, please cite:")
+
+citEntry(
+  entry    = "Article",
+  title    = "Documenting elimination of co-circulating COVID-19 clusters using genomics in New South Wales, Australia",
+  author   = "Alicia Arnott and Jenny Draper and Rebecca J. Rockett and others",
+  journal  = "BMC Research Notes",
+  year     = 2021,
+  volume   = 14,
+  number   = 415,
+  url      = "https://doi.org/10.1186/s13104-021-05827-x",
+  textVersion = paste(
+   "Arnott, A., Draper, J., Rockett, R.J. et al.",
+   "Documenting elimination of co-circulating COVID-19 clusters using genomics in New South Wales, Australia.",
+   "BMC Res Notes 14, 415 (2021).",
+   "https://doi.org/10.1186/s13104-021-05827-x"
+  )
+)
+
+citEntry(
+  entry    = "Article",
+  title    = "Visualizing tumor evolution with the fishplot package for R",
+  author   = "Christopher A. Miller and Joshua McMichael and Ha X. Dang and others",
+  journal  = "BMC Genomics",
+  year     = 2016,
+  volume   = 17,
+  number   = 880,
+  url      = "https://doi.org/10.1186/s12864-016-3195-z",
+  textVersion = paste(
+   "Miller, C.A., McMichael, J., Dang, H.X. et al.",
+   "Visualizing tumor evolution with the fishplot package for R.",
+   "BMC Genomics 17, 880 (2016).",
+   "https://doi.org/10.1186/s12864-016-3195-z"
+  )
+)
