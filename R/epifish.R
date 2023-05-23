@@ -7,7 +7,12 @@
 # Jenny Draper November 2020
 #
 
-
+#' @importFrom rlang .data
+#' @importFrom magrittr `%>%`
+#' @importFrom dplyr ungroup group_by select filter summarise distinct mutate
+#' @importFrom dplyr add_row vars n count arrange group_cols
+#' @importFrom dplyr mutate_if mutate_at summarise_all
+NULL
 
 #' Build an epifish object for plotting
 #'
@@ -57,98 +62,98 @@ build_epifish <- function( sample_df, parent_df=NULL, colour_df=NULL, min_cluste
                            label_col="black", label_angle=0, label_pos=2, label_cex=0.7, label_offset=0.2,
                            add_missing_timepoints=TRUE, start_time=NULL, end_time=NULL, skip_fish=FALSE)
 {
-  
-  
+
+
   #check fishplot version
-  if(packageVersion("fishplot") < "0.5.1") {
+  if(utils::packageVersion("fishplot") < "0.5.1") {
     warning("WARNING: you are using an old version of the fishplot package. Please update to version >= 0.5.1 or you may enounter errors. To install the latest version, refer to: https://github.com/chrisamiller/fishplot")
   }
-  
+
   #clear any prior rowwise() and groupby() operations
   df <- ungroup(sample_df)
-  
-  
+
+
   #make sure we're not dealing with factors
   if (!is.null(parent_df)){ parent_df <- parent_df %>% mutate_if(is.factor, as.character) }
   if (!is.null(colour_df)){ colour_df <- colour_df %>% mutate_if(is.factor, as.character) }
   sample_df <- sample_df %>% mutate_if(is.factor, as.character)
-  
-  
+
+
   #-- process clusters to display ------------------------------------------------
   # initialise new cluster column with original cluster values
-  df$FPCluster <- select(df, cluster_id)[[1]]
-  
+  df$FPCluster <- select(df, .data$cluster_id)[[1]]
+
   # identify all clusters big enough to label
-  clustercounts <- df %>% group_by(FPCluster) %>% count()
+  clustercounts <- df %>% group_by(.data$FPCluster) %>% count()
   big_clusters <- clustercounts[clustercounts$n >= min_cluster_size,  ]$FPCluster
-  
+
   # lump small clusters together
-  df <- df %>% mutate("FPCluster"= ifelse(FPCluster %in% big_clusters, FPCluster, paste0("clusters < ",min_cluster_size)))
-  
-  
+  df <- df %>% mutate("FPCluster"= ifelse(.data$FPCluster %in% big_clusters, .data$FPCluster, paste0("clusters < ",min_cluster_size)))
+
+
   #-- generate per-timepoint count table -----------------------------------------
   # get count of each population per timepoint
-  clusters_by_timepoint <- df %>% group_by(timepoint, FPCluster) %>% summarise(n = n(), .groups="keep") %>% ungroup()
-  
+  clusters_by_timepoint <- df %>% group_by(.data$timepoint, .data$FPCluster) %>% summarise(n = n(), .groups="keep") %>% ungroup()
+
   #generate summary table for total counts per week
-  sums_by_timepoint <- df %>% group_by(timepoint) %>% summarise(n = n())
-  
+  sums_by_timepoint <- df %>% group_by(.data$timepoint) %>% summarise(n = n())
+
   # add missing timepoints if requested
   if (add_missing_timepoints == TRUE){
-    
+
     cat("Checking for missing timepoints: \n")
     clusters <- unique(df$FPCluster)
-    
+
     #pad with start/end timepoints if specified
     timepoint_labels_adjusted = c()
     start <- ifelse(!is.null(start_time), start_time, min(df$timepoint))
     end <- ifelse(!is.null(end_time), end_time, max(df$timepoint))
     timerange <- c( start : end)
-    
+
     for (tp in timerange){
       if ( ! tp %in% clusters_by_timepoint$timepoint ){
         cat(sprintf(" - Adding zero counts for missing timepoint: %d\n", tp))
-        
+
         timepoint_labels_adjusted <- c(timepoint_labels_adjusted, "")
         sums_by_timepoint <- sums_by_timepoint %>% add_row("timepoint"=tp, "n"=0)
-        
+
         for (cluster in clusters){
           clusters_by_timepoint <- clusters_by_timepoint %>% add_row("timepoint"=tp, "FPCluster"=cluster, "n"=0)
         }
       } else {
-        tl <- filter(df, timepoint==tp)[1, "timepoint_label"]
+        tl <- filter(df, .data$timepoint==tp)[1, "timepoint_label"]
         timepoint_labels_adjusted <- c(timepoint_labels_adjusted, tl)
       }
     }
   } else {
     timepoint_labels_adjusted <- NULL
   }
-  
+
   #ensure we're in time order
-  clusters_by_timepoint <- arrange(clusters_by_timepoint, timepoint) 
-  sums_by_timepoint <- arrange(sums_by_timepoint, timepoint) 
-  
+  clusters_by_timepoint <- arrange(clusters_by_timepoint, .data$timepoint)
+  sums_by_timepoint <- arrange(sums_by_timepoint, .data$timepoint)
+
   #some versions of tidyverse will add a ".groups" column to the summary tables; strip these if they're there
   clusters_by_timepoint$`.groups` <- NULL
   sums_by_timepoint$`.groups` <- NULL
-  
+
   #get count matrix (one row per cluster/timepoint pair)
-  count_table <- pivot_wider(clusters_by_timepoint, names_from= FPCluster, values_from= n) %>%
+  count_table <- tidyr::pivot_wider(clusters_by_timepoint, names_from= .data$FPCluster, values_from= n) %>%
                  mutate_at(vars(-group_cols()), ~replace(., is.na(.), 0))
-  
+
   #collapse to one row per timepoint
-  count_table <- count_table %>% group_by(`timepoint`) %>% summarise_all(~sum(.))
+  count_table <- count_table %>% group_by(.data$timepoint) %>% summarise_all(~sum(.))
   #remove any duplicate rows prev step creates
-  count_table <- filter(count_table, `timepoint` %in% unique(clusters_by_timepoint$`timepoint`))
-  
-  
+  count_table <- filter(count_table, .data$timepoint %in% unique(clusters_by_timepoint$`timepoint`))
+
+
   #convert to fishplot-friendly format
   count_table <- as.data.frame(count_table)
   rownames(count_table) <- count_table$`timepoint`; count_table$`timepoint` <- NULL
-  
-  
+
+
   ## - NORMALISE counts to a max sum of 99/timepoint for relative fishplot display ---------------
-  
+
   # get multiplier to normalise maximum timepoint count to ~99 for display
   norms <- c()
   for (i in 1:nrow(count_table)) {
@@ -158,101 +163,101 @@ build_epifish <- function( sample_df, parent_df=NULL, colour_df=NULL, min_cluste
   }
   normaliser <- min(norms)
   normaliser <- normaliser - 0.01  #make room for padding
-  
+
   # generate normalised table
   fish_table <- round(count_table*normaliser, 3)
   fishplot_names <- names(fish_table)
-  
+
   # pad "temporary dropouts" to fit fishplot rules
   fish_table <- pad_matrix(fish_table, 0.0001)
-  
-  
+
+
   #-- set up parent vector & padding if needed -----------------------------------
   if(is.null(parent_df)){
     parents <- rep(0, length(fishplot_names))
-    
+
   } else {
-    
+
     parents <- make_parent_list(parent_df, fishplot_names)
-    
+
     #correct the ratios for parent/child relationship
     #NOTE this relies on fact that children must arise after parents & that fishplot_names is a time-sorted ascending list)
     fish_table <- pad_parents(fish_table, parents)
-    
+
   }
-  
-  
+
+
   #-- prepare timepoints-----------------------------------------------------------
   timepoints <- as.numeric(unique(clusters_by_timepoint$`timepoint`))
   names(timepoints) <- timepoints
-  
-  
+
+
   #-- use custom timepoint labels if desired
   if (timepoint_labels==TRUE) {
-    
+
     if("timepoint_label" %in% names(df) ) {
-      tmpdf <- select(sample_df, timepoint, timepoint_label) %>% distinct()
-      tmpdf <- arrange(tmpdf, timepoint)
-      
+      tmpdf <- select(sample_df, .data$timepoint, .data$timepoint_label) %>% distinct()
+      tmpdf <- arrange(tmpdf, .data$timepoint)
+
       if (add_missing_timepoints == TRUE ){
         names(timepoints) <- timepoint_labels_adjusted
-      } else{ 
+      } else{
         names(timepoints) <- tmpdf$timepoint_label
       }
-      
+
     } else {
       warning("\nWARNING: Column 'timepoint_label' not found in sample dataframe; skipping use of custom labels")
       names(timepoints) <- as.character(timepoints)
     }
   }
-  
-  
+
+
   #-- build the fishplot -----------------------------------------------------------------
-  
+
   # convert our table to a matrix
   fish_matrix <- as.matrix(fish_table); colnames(fish_matrix) <- NULL;
   fish_matrix <- t(fish_matrix) #rows are clones, cols are timepoints
-  
+
   # set up fish colour scheme if it was defined (and do some common error checking)
   if (! is.null(colour_df) ){
     fish_colours <- set_fish_colours(colour_df, fishplot_names)
   } else {
     fish_colours <- NULL
   }
-  
+
 
   # create the fishplot object!
   if (skip_fish == FALSE) {
-    fish = createFishObject(fish_matrix, as.numeric(parents), timepoints, clone.labels=fishplot_names, 
+    fish = fishplot::createFishObject(fish_matrix, as.numeric(parents), timepoints, clone.labels=fishplot_names,
                             clone.annots.col=label_col, clone.annots.angle=label_angle,
-                            clone.annots.cex=label_cex, clone.annots.pos=label_pos, 
+                            clone.annots.cex=label_cex, clone.annots.pos=label_pos,
                             clone.annots.offset=label_offset)
-    
-    fish = layoutClones(fish)
-    if(! is.null(fish_colours) ){ fish = setCol(fish, unlist(fish_colours)) }
+
+    fish = fishplot::layoutClones(fish)
+    if(! is.null(fish_colours) ){ fish = fishplot::setCol(fish, unlist(fish_colours)) }
     if( label_clusters==TRUE ){ fish@clone.annots = fishplot_names } #this adds labels onto the plot
   } else {
     fish <- NULL
   }
-  
-  
+
+
   #-- prepare list of fish object & associated data tables to return ----------------------
   ret <- list()
   ret$timepoint_counts <- clusters_by_timepoint
   ret$timepoint_sums <- sums_by_timepoint
-  ret$cluster_sums <- clusters_by_timepoint %>% group_by(FPCluster) %>% summarise(n = n())
-  
+  ret$cluster_sums <- clusters_by_timepoint %>% group_by(.data$FPCluster) %>% summarise(n = n())
+
   ret$fish <- fish
-  
+
   ret$timepoints <- timepoints
   ret$timepoint_labels <- names(timepoints)
   ret$raw_table <- count_table
   ret$fish_table <- fish_table
   ret$fish_matrix <- fish_matrix
   ret$parents <- parents
-  
+
   cat("The maximum sample count per timepoint (height of Y-axis) is: ", max(rowSums(count_table)))
-  
+
   return(ret)
 }
 
@@ -427,15 +432,15 @@ pad_parents <- function(fish_table, parents){
   pad_parent <- function(ft, parent, child)
   {
     ft[ ,parent] <- ft[ ,parent] + ft[ ,child]
-    
+
     # parent must be > child, so pad if needed
     for ( i in 1:length(ft[ ,parent]) ) {
       if( ft[i, parent] == ft[i, child] & ft[i, child] != 0 ){
-        ft[i, parent] <- ft[i, parent] + 0.00001  
+        ft[i, parent] <- ft[i, parent] + 0.00001
       }
     }
-    
-    
+
+
     return(ft)
   }
 
@@ -493,7 +498,7 @@ drawLegend2 <- function(fish, xpos=0, ypos=-5, nrow=NULL, cex=1, widthratio=1.5,
   maxlablen <- max(sapply(fish@clone.labels, function(x) nchar(x)))
   col_width <- maxlablen/(ncol*widthratio)
 
-  legend(xpos,ypos,fill=col, legend=lab, bty="n", ncol=ncol, xpd=T, col="grey30", border="grey30", cex=cex*0.8,
+  graphics::legend(xpos,ypos,fill=col, legend=lab, bty="n", ncol=ncol, xpd=T, col="grey30", border="grey30", cex=cex*0.8,
          text.width=col_width, x.intersp=xsp)
 }
 
