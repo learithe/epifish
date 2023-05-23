@@ -26,11 +26,14 @@ NULL
 #' @param label_col [optional] string colour for cluster labels inside plot (default is "black")
 #' @param label_angle [optional] numeric angle for cluster labels inside plot (default is 0 for no rotation)
 #' @param label_clusters [optional] T/F whether to show cluster labels inside the plot (default is TRUE)
+#' @param label_pos [optional] An integer describing the position for the clone annotations (1=below, 2=left, 3=above, 4=right) (default is 2)
+#' @param label_cex [optional] A numeric specifying the clone annotation text size ("character expansion factor") (default is 0.7)
+#' @param label_offset [optional] A numeric specifying distance ("offset") of the annotation from the clone start point (default is 0.2)
 #' @param add_missing_timepoints [optional] T/F whether to add "missing" intermediate timepoints with no observations (default is TRUE)
 #' @param start_time [optional] alternate earlier timepoint to start on. Requires add_missing_timepoints=TRUE
 #' @param end_time [optional] alternate timepoint to end on. Requires add_missing_timepoints=TRUE
 #' @param skip_fish [optional] skip generating the fishplot object (just generate all the underlying tables etc). Useful for debugging.
-#' 
+#'
 #'
 #' @details
 #' Takes a data frame of epi sample data (one sample per row, containing columns `cluster_id` and `timepoint`).
