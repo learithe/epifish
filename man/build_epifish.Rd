@@ -39,6 +39,12 @@ build_epifish(
 
 \item{label_angle}{[optional] numeric angle for cluster labels inside plot (default is 0 for no rotation)}
 
+\item{label_pos}{[optional] An integer describing the position for the clone annotations (1=below, 2=left, 3=above, 4=right) (default is 2)}
+
+\item{label_cex}{[optional] A numeric specifying the clone annotation text size ("character expansion factor") (default is 0.7)}
+
+\item{label_offset}{[optional] A numeric specifying distance ("offset") of the annotation from the clone start point (default is 0.2)}
+
 \item{add_missing_timepoints}{[optional] T/F whether to add "missing" intermediate timepoints with no observations (default is TRUE)}
 
 \item{start_time}{[optional] alternate earlier timepoint to start on. Requires add_missing_timepoints=TRUE}
