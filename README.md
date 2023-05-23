@@ -82,9 +82,6 @@ You can install epifish with:
 install.packages("devtools")
 library(devtools)
 
-#install fishplot if you haven't already
-devtools::install_github("chrisamiller/fishplot")
-
 #install epifish
 devtools::install_github("learithe/epifish")
 ```
